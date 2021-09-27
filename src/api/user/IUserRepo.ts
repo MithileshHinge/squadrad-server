@@ -37,4 +37,10 @@ export interface IUserRepo {
    * @throws DatabaseError if operation fails
    */
   updateUser(userInfo: IUserDTO): void;
+
+  /**
+   * Update password field, please ensure password is stored in encrypted format
+   * @throws DatabaseError if operation fails
+   */
+  updatePassword(userId: string, newPassword: string): void;
 }

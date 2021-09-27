@@ -6,6 +6,7 @@ import id from '../../services/id';
 import AddUser from '../../api/user/AddUser';
 import FindUser from '../../api/user/FindUser';
 import EditUser from '../../api/user/EditUser';
+import ChangePassword from '../../api/user/ChangePassword';
 
 describe('User usecases', () => {
   const mockUserRepo = {
@@ -32,6 +33,7 @@ describe('User usecases', () => {
       } : null;
     }),
     updateUser: jest.fn(),
+    updatePassword: jest.fn(),
   };
 
   beforeEach(() => {
@@ -140,6 +142,19 @@ describe('User usecases', () => {
         fullName: newName,
       })).toThrow(ValidationError);
       expect(mockUserRepo.updateUser).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Change password', () => {
+    const changePassword = new ChangePassword(mockUserRepo);
+
+    it('Can change password', () => {
+      const user = sampleUsers[0];
+      const newPassword = faker.internet.password(8);
+      changePassword.change(user.userId, newPassword);
+      expect(mockUserRepo.updatePassword).toHaveBeenCalledWith(
+        user.userId, expect.not.stringMatching(user.password),
+      );
     });
   });
 });
