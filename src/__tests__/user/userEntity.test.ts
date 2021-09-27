@@ -1,6 +1,6 @@
-import faker from '../../../api/common/faker';
-import userBuilder from '../../../api/user/entity';
-import ValidationError from '../../../api/common/errors/ValidationError';
+import faker from '../../api/common/faker';
+import userBuilder from '../../api/user/entity';
+import ValidationError from '../../api/common/errors/ValidationError';
 
 const validUserParams = {
   fullName: faker.name.findName(),
