@@ -29,7 +29,7 @@ export default class AddUser {
 
     if (this.userRepo.fetchUserByEmail(user.getEmail())) throw new ValidationError('Another account already exists with the same email ID');
 
-    // check if userID already exists in database
+    // check if userId already exists in database
     // Note: CUID collisions are extremely improbable,
     // but my paranoia insists me to make a sanity check
     const findUser = new FindUser(this.userRepo);
