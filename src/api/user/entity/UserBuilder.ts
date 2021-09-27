@@ -1,19 +1,23 @@
-import { IId } from '../../services/id';
-import { IValidationHelper } from '../../services/validation-helper/IValidationHelper';
-import { IEncryptionService } from '../../services/encryption-service/IEncryptionService';
+import { IId } from '../../../services/id';
+import { IValidationService } from '../../../services/validation-service/IValidationService';
+import { IEncryptionService } from '../../../services/encryption-service/IEncryptionService';
 import ValidationError from '../../common/errors/ValidationError';
 import { IUser } from './IUser';
 
 export default class UserBuilder {
   id: IId;
 
-  validationHelper: IValidationHelper;
+  validationService: IValidationService;
 
   encryptionService: IEncryptionService;
 
-  constructor(id: IId, validationHelper: IValidationHelper, encryptionService: IEncryptionService) {
+  constructor(
+    id: IId,
+    validationService: IValidationService,
+    encryptionService: IEncryptionService,
+  ) {
     this.id = id;
-    this.validationHelper = validationHelper;
+    this.validationService = validationService;
     this.encryptionService = encryptionService;
   }
 
@@ -32,14 +36,14 @@ export default class UserBuilder {
       throw new ValidationError('userId is not valid');
     }
     const userIdValidated = userId;
-    let fullNameValidated = this.validationHelper.validateFullName(fullName);
-    const emailValidated = this.validationHelper.validateEmail(email);
+    let fullNameValidated = this.validationService.validateFullName(fullName);
+    const emailValidated = this.validationService.validateEmail(email);
     let passwordValidated: string;
     let passwordHash: string;
     if (password === '') {
       throw new ValidationError('password is not provided');
     } else if (password) {
-      passwordValidated = this.validationHelper.validatePassword(password);
+      passwordValidated = this.validationService.validatePassword(password);
       passwordHash = this.encryptionService.encrypt(passwordValidated);
     }
     const user: IUser = {
@@ -48,10 +52,10 @@ export default class UserBuilder {
       getEmail: () => emailValidated,
       getPassword: () => passwordHash,
       setFullName: (newFullName) => {
-        fullNameValidated = this.validationHelper.validateFullName(newFullName);
+        fullNameValidated = this.validationService.validateFullName(newFullName);
       },
       setPassword: (newPassword) => {
-        passwordValidated = this.validationHelper.validatePassword(newPassword);
+        passwordValidated = this.validationService.validatePassword(newPassword);
         passwordHash = this.encryptionService.encrypt(passwordValidated);
       },
     } as const;

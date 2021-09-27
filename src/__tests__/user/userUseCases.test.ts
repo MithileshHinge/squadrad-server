@@ -1,6 +1,6 @@
 import faker from '../../api/common/faker';
 import ValidationError from '../../api/common/errors/ValidationError';
-import id from '../../api/services/id';
+import id from '../../services/id';
 import AddUser from '../../api/user/AddUser';
 import { IUserRepo } from '../../api/user/IUserRepo';
 import FindUser from '../../api/user/FindUser';

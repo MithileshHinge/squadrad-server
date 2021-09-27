@@ -1,8 +1,9 @@
+import { accessSync, constants } from 'fs';
 import validator from 'validator';
-import ValidationError from '../../common/errors/ValidationError';
-import { IValidationHelper } from './IValidationHelper';
+import ValidationError from '../../api/common/errors/ValidationError';
+import { IValidationService } from './IValidationService';
 
-const validationHelper: IValidationHelper = {
+const validationService: IValidationService = {
   validateFullName(fullName: string): string {
     const fullNameTrimmed = fullName.trim();
     if (!this.minLength(fullNameTrimmed, 3)) throw new ValidationError(`Full name "${fullNameTrimmed}" must have at least 3 letters`);
@@ -23,6 +24,16 @@ const validationHelper: IValidationHelper = {
     throw new ValidationError('Password must of at least 8 characters');
   },
 
+  validateProfilePic(src: string): string {
+    const srcValidated = src.trim();
+    try {
+      accessSync(srcValidated, constants.F_OK);
+      return srcValidated;
+    } catch (err) {
+      throw new ValidationError(`File ${srcValidated} does not exist`);
+    }
+  },
+
   minLength(str: string, len: number): boolean {
     return validator.isLength(str, { min: len });
   },
@@ -36,4 +47,4 @@ const validationHelper: IValidationHelper = {
   },
 };
 
-export default validationHelper;
+export default validationService;
