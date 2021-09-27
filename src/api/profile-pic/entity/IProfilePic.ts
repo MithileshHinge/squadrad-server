@@ -1,3 +1,3 @@
 export interface IProfilePic {
-  profilePicSrc: string,
+  src: string,
 }

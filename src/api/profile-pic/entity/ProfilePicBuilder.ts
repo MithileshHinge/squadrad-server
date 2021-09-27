@@ -16,7 +16,7 @@ export default class ProfilePicBuilder {
   build(src: string): IProfilePic {
     const validatedSrc = this.validationService.validateProfilePic(src);
     return {
-      profilePicSrc: validatedSrc,
+      src: validatedSrc,
     };
   }
 }
