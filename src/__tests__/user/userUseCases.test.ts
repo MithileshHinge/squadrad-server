@@ -1,106 +1,61 @@
-import faker from '../../api/common/faker';
+import faker from '../__mocks__/faker';
+import sampleUserParams from '../__mocks__/user/userParams';
+import sampleUsers from '../__mocks__/user/users';
 import ValidationError from '../../api/common/errors/ValidationError';
 import id from '../../services/id';
 import AddUser from '../../api/user/AddUser';
-import { IUserRepo } from '../../api/user/IUserRepo';
 import FindUser from '../../api/user/FindUser';
 import EditUser from '../../api/user/EditUser';
-import IUserDTO from '../../api/user/IUserDTO';
-
-const validUserParams = {
-  fullName: faker.name.findName(),
-  email: faker.internet.email(),
-  password: faker.internet.password(8),
-};
-
-const validUsers: {
-  userId: string,
-  fullName: string,
-  email: string,
-  password: string,
-}[] = Array(10).fill((() => ({
-  userId: id.createId(),
-  fullName: faker.name.findName(),
-  email: faker.internet.email(),
-  password: faker.internet.password(8),
-}))());
-
-class MockUserRepo implements IUserRepo {
-  userDb:{
-    userId: string,
-    fullName: string,
-    email: string,
-    password: string,
-  }[];
-
-  constructor(userDb:{
-    userId: string,
-    fullName: string,
-    email: string,
-    password: string,
-  }[] = []) {
-    this.userDb = userDb;
-  }
-
-  insertIntoDb({
-    userInfo,
-    password,
-  }: { userInfo: IUserDTO, password: string }) {
-    const user = { ...userInfo, password: password! };
-    this.userDb.push(user);
-  }
-
-  fetchAllUsers() {
-    return [...this.userDb];
-  }
-
-  fetchUserById(userId: string) {
-    const user = this.userDb.find((u) => u.userId === userId);
-    if (!user) return null;
-    return {
-      userId: user.userId,
-      fullName: user.fullName,
-      email: user.email,
-    };
-  }
-
-  fetchUserByEmail(email: string) {
-    const user = this.userDb.find((u) => u.email === email);
-    if (!user) return null;
-    return {
-      userId: user.userId,
-      fullName: user.fullName,
-      email: user.email,
-    };
-  }
-
-  updateUser(userInfo: IUserDTO) {
-    const i = this.userDb.findIndex((u) => u.userId === userInfo.userId);
-    const userExisting = this.userDb[i];
-    this.userDb[i] = { ...userExisting, ...userInfo };
-  }
-}
 
 describe('User usecases', () => {
-  const mockUserRepo = new MockUserRepo(validUsers);
+  const mockUserRepo = {
+    insertIntoDb: jest.fn(),
+    fetchAllUsers: jest.fn(() => sampleUsers),
+    fetchUserById: jest.fn((
+      userId: string,
+    ) => {
+      const user = sampleUsers.find((u) => u.userId === userId);
+      return user ? {
+        userId: user.userId,
+        fullName: user.fullName,
+        email: user.email,
+      } : null;
+    }),
+    fetchUserByEmail: jest.fn((
+      email: string,
+    ) => {
+      const user = sampleUsers.find((u) => u.email === email);
+      return user ? {
+        userId: user.userId,
+        fullName: user.fullName,
+        email: user.email,
+      } : null;
+    }),
+    updateUser: jest.fn(),
+  };
 
+  beforeEach(() => {
+    Object.values(mockUserRepo).forEach((mockMethod) => {
+      mockMethod.mockClear();
+    });
+  });
   describe('Add a new user', () => {
+    const addUser = new AddUser(mockUserRepo);
+
     it('Can add a valid new user', () => {
-      const addUser = new AddUser(mockUserRepo);
-      addUser.add(validUserParams);
-      expect(mockUserRepo.userDb).toContainEqual(expect.objectContaining({
-        fullName: validUserParams.fullName,
-        email: validUserParams.email,
+      const user = addUser.add(sampleUserParams);
+      expect(mockUserRepo.insertIntoDb).toHaveBeenCalledWith(expect.objectContaining({
+        userInfo: user,
       }));
     });
 
     it('Should throw error if invalid parameters are provided', () => {
-      const addUser = new AddUser(mockUserRepo);
       expect(() => addUser.add({
         fullName: 'nsda  asdad sd',
         email: 'efewndfa',
         password: '1234',
       })).toThrow(ValidationError);
+      expect(mockUserRepo.insertIntoDb).not.toHaveBeenCalled();
     });
 
     it('Email IDs must be unique', () => {
@@ -114,9 +69,10 @@ describe('User usecases', () => {
         email: userParams1.email,
         password: faker.internet.password(8),
       };
-      const addUser = new AddUser(mockUserRepo);
-      addUser.add(userParams1);
+      const addedUser = addUser.add(userParams1);
+      mockUserRepo.fetchUserByEmail.mockReturnValueOnce(addedUser);
       expect(() => addUser.add(userParams2)).toThrowError(ValidationError);
+      expect(mockUserRepo.insertIntoDb).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -124,15 +80,16 @@ describe('User usecases', () => {
     const findUser = new FindUser(mockUserRepo);
 
     it('Can get all users', () => {
-      expect(findUser.findAllUsers()).toStrictEqual(mockUserRepo.fetchAllUsers());
+      const users = findUser.findAllUsers();
+      expect(mockUserRepo.fetchAllUsers).toHaveBeenCalled();
+      expect(users.length).toStrictEqual(sampleUsers.length);
     });
 
     it('Can get user by userId', () => {
       // get any user
-      const user = validUsers[0];
+      const user = sampleUsers[0];
       expect(findUser.findUserById(user.userId)).toStrictEqual(expect.objectContaining({
         userId: user.userId,
-        fullName: user.fullName,
         email: user.email,
       }));
     });
@@ -144,10 +101,9 @@ describe('User usecases', () => {
 
     it('Can get user by emailId', () => {
       // get any user
-      const user = validUsers[0];
+      const user = sampleUsers[0];
       expect(findUser.findUserByEmail(user.email)).toStrictEqual(expect.objectContaining({
         userId: user.userId,
-        fullName: user.fullName,
         email: user.email,
       }));
     });
@@ -167,22 +123,23 @@ describe('User usecases', () => {
 
     it('Can change fullName', () => {
       // get any user
-      const user = validUsers[0];
+      const user = sampleUsers[0];
       const newName = faker.name.findName();
       editUser.edit({ userId: user.userId, fullName: newName });
-      expect(mockUserRepo.userDb).toContainEqual(expect.objectContaining({
+      expect(mockUserRepo.updateUser).toHaveBeenCalledWith(expect.objectContaining({
         userId: user.userId,
-        fullName: newName,
+        email: user.email,
       }));
     });
 
     it('Should throw error if fullName is invalid', () => {
-      const user = validUsers[0];
+      const user = sampleUsers[0];
       const newName = 'Mit qwe123';
       expect(() => editUser.edit({
         userId: user.userId,
         fullName: newName,
       })).toThrow(ValidationError);
+      expect(mockUserRepo.updateUser).not.toHaveBeenCalled();
     });
   });
 });
