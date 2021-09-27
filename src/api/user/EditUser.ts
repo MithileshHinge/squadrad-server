@@ -14,7 +14,7 @@ export default class EditUser {
   /**
    * EditUser use case: Only allowed fields can be edited. userId must be provided.
    * @throws ValidationError if invalid parameters are provided
-   * @throws DatabaseError when there is an error in inserting user into database
+   * @throws DatabaseError if operation fails
    */
   edit(userInfo: { userId: string, fullName?: string }) {
     const findUser = new FindUser(this.userRepo);
