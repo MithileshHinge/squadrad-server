@@ -20,8 +20,7 @@ export default class EditUser {
     const findUser = new FindUser(this.userRepo);
     const userExisting = findUser.findUserById(userInfo.userId);
     if (!userExisting) throw new ValidationError(`User with userId="${userInfo.userId}" does not exist`);
-    const deb = { ...userExisting, ...userInfo };
-    const user = userBuilder.build(deb);
+    const user = userBuilder.build({ ...userExisting, ...userInfo });
     const userToUpdate: IUserDTO = {
       userId: user.getId(),
       fullName: user.getFullName(),
