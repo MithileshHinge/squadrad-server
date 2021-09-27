@@ -1,11 +1,11 @@
-import faker from '../common/faker';
-import ValidationError from '../common/errors/ValidationError';
-import id from '../services/id';
-import AddUser from './AddUser';
-import { IUserRepo } from './IUserRepo';
-import FindUser from './FindUser';
-import EditUser from './EditUser';
-import IUserDTO from './IUserDTO';
+import faker from '../../api/common/faker';
+import ValidationError from '../../api/common/errors/ValidationError';
+import id from '../../api/services/id';
+import AddUser from '../../api/user/AddUser';
+import { IUserRepo } from '../../api/user/IUserRepo';
+import FindUser from '../../api/user/FindUser';
+import EditUser from '../../api/user/EditUser';
+import IUserDTO from '../../api/user/IUserDTO';
 
 const validUserParams = {
   fullName: faker.name.findName(),
@@ -25,63 +25,63 @@ const validUsers: {
   password: faker.internet.password(8),
 }))());
 
-describe('User usecases', () => {
-  class MockUserRepo implements IUserRepo {
-    userDb:{
-      userId: string,
-      fullName: string,
-      email: string,
-      password: string,
-    }[];
+class MockUserRepo implements IUserRepo {
+  userDb:{
+    userId: string,
+    fullName: string,
+    email: string,
+    password: string,
+  }[];
 
-    constructor(userDb:{
-      userId: string,
-      fullName: string,
-      email: string,
-      password: string,
-    }[] = []) {
-      this.userDb = userDb;
-    }
-
-    insertIntoDb({
-      userInfo,
-      password,
-    }: { userInfo: IUserDTO, password: string }) {
-      const user = { ...userInfo, password: password! };
-      this.userDb.push(user);
-    }
-
-    fetchAllUsers() {
-      return [...this.userDb];
-    }
-
-    fetchUserById(userId: string) {
-      const user = this.userDb.find((u) => u.userId === userId);
-      if (!user) return null;
-      return {
-        userId: user.userId,
-        fullName: user.fullName,
-        email: user.email,
-      };
-    }
-
-    fetchUserByEmail(email: string) {
-      const user = this.userDb.find((u) => u.email === email);
-      if (!user) return null;
-      return {
-        userId: user.userId,
-        fullName: user.fullName,
-        email: user.email,
-      };
-    }
-
-    updateUser(userInfo: IUserDTO) {
-      const i = this.userDb.findIndex((u) => u.userId === userInfo.userId);
-      const userExisting = this.userDb[i];
-      this.userDb[i] = { ...userExisting, ...userInfo };
-    }
+  constructor(userDb:{
+    userId: string,
+    fullName: string,
+    email: string,
+    password: string,
+  }[] = []) {
+    this.userDb = userDb;
   }
 
+  insertIntoDb({
+    userInfo,
+    password,
+  }: { userInfo: IUserDTO, password: string }) {
+    const user = { ...userInfo, password: password! };
+    this.userDb.push(user);
+  }
+
+  fetchAllUsers() {
+    return [...this.userDb];
+  }
+
+  fetchUserById(userId: string) {
+    const user = this.userDb.find((u) => u.userId === userId);
+    if (!user) return null;
+    return {
+      userId: user.userId,
+      fullName: user.fullName,
+      email: user.email,
+    };
+  }
+
+  fetchUserByEmail(email: string) {
+    const user = this.userDb.find((u) => u.email === email);
+    if (!user) return null;
+    return {
+      userId: user.userId,
+      fullName: user.fullName,
+      email: user.email,
+    };
+  }
+
+  updateUser(userInfo: IUserDTO) {
+    const i = this.userDb.findIndex((u) => u.userId === userInfo.userId);
+    const userExisting = this.userDb[i];
+    this.userDb[i] = { ...userExisting, ...userInfo };
+  }
+}
+
+describe('User usecases', () => {
   const mockUserRepo = new MockUserRepo(validUsers);
 
   describe('Add a new user', () => {
@@ -92,6 +92,15 @@ describe('User usecases', () => {
         fullName: validUserParams.fullName,
         email: validUserParams.email,
       }));
+    });
+
+    it('Should throw error if invalid parameters are provided', () => {
+      const addUser = new AddUser(mockUserRepo);
+      expect(() => addUser.add({
+        fullName: 'nsda  asdad sd',
+        email: 'efewndfa',
+        password: '1234',
+      })).toThrow(ValidationError);
     });
 
     it('Email IDs must be unique', () => {
@@ -128,6 +137,11 @@ describe('User usecases', () => {
       }));
     });
 
+    it('Should return null if userId not found', () => {
+      const userId = id.createId();
+      expect(findUser.findUserById(userId)).toBeNull();
+    });
+
     it('Can get user by emailId', () => {
       // get any user
       const user = validUsers[0];
@@ -136,6 +150,10 @@ describe('User usecases', () => {
         fullName: user.fullName,
         email: user.email,
       }));
+    });
+
+    it('Should return null if email not found', () => {
+      expect(findUser.findUserByEmail('wqernjskdfnvsf@gmail.com')).toBeNull();
     });
   });
 
@@ -150,13 +168,21 @@ describe('User usecases', () => {
     it('Can change fullName', () => {
       // get any user
       const user = validUsers[0];
-      console.log(validUsers);
       const newName = faker.name.findName();
       editUser.edit({ userId: user.userId, fullName: newName });
       expect(mockUserRepo.userDb).toContainEqual(expect.objectContaining({
         userId: user.userId,
         fullName: newName,
       }));
+    });
+
+    it('Should throw error if fullName is invalid', () => {
+      const user = validUsers[0];
+      const newName = 'Mit qwe123';
+      expect(() => editUser.edit({
+        userId: user.userId,
+        fullName: newName,
+      })).toThrow(ValidationError);
     });
   });
 });

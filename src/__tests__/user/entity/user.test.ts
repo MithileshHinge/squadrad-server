@@ -1,6 +1,6 @@
-import faker from '../../common/faker';
-import userBuilder from '.';
-import ValidationError from '../../common/errors/ValidationError';
+import faker from '../../../api/common/faker';
+import userBuilder from '../../../api/user/entity';
+import ValidationError from '../../../api/common/errors/ValidationError';
 
 const validUserParams = {
   fullName: faker.name.findName(),
@@ -71,7 +71,7 @@ describe('User entity', () => {
 
   describe('User must have a valid email address', () => {
     ['', ' ', 'mithihi', 'mihbhg@', 'mibg hv nv@gmail.com', '@gmail.com', 'vghjhb@gmail'].forEach((email) => {
-      it(`should throw error for "${email}"`, () => {
+      it(`Should throw error for "${email}"`, () => {
         expect(() => userBuilder.build({ ...validUserParams, email })).toThrow(ValidationError);
       });
     });
@@ -79,7 +79,7 @@ describe('User entity', () => {
 
   describe('Password should be >= 8 characters', () => {
     ['', ' ', 'asa', 'as afsf', 'asf  '].forEach((password) => {
-      it(`should throw error for ${password}`, () => {
+      it(`Should throw error for ${password}`, () => {
         expect(() => userBuilder.build({ ...validUserParams, password })).toThrow(ValidationError);
       });
     });
