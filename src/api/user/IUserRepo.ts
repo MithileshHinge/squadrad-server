@@ -43,4 +43,10 @@ export interface IUserRepo {
    * @throws DatabaseError if operation fails
    */
   updatePassword(userId: string, newPassword: string): void;
+
+  /**
+   * Update profile pic path to new path
+   * @throws DatabaseErrors if operation fails
+   */
+  updateProfilePic(userId: string, src: string): void;
 }

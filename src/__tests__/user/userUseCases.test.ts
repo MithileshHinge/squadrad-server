@@ -1,6 +1,7 @@
 import faker from '../__mocks__/faker';
 import sampleUserParams from '../__mocks__/user/userParams';
 import sampleUsers from '../__mocks__/user/users';
+import mockUserRepo from '../__mocks__/repositories/mockUserRepo';
 import ValidationError from '../../api/common/errors/ValidationError';
 import id from '../../services/id';
 import AddUser from '../../api/user/AddUser';
@@ -9,33 +10,6 @@ import EditUser from '../../api/user/EditUser';
 import ChangePassword from '../../api/user/ChangePassword';
 
 describe('User usecases', () => {
-  const mockUserRepo = {
-    insertIntoDb: jest.fn(),
-    fetchAllUsers: jest.fn(() => sampleUsers),
-    fetchUserById: jest.fn((
-      userId: string,
-    ) => {
-      const user = sampleUsers.find((u) => u.userId === userId);
-      return user ? {
-        userId: user.userId,
-        fullName: user.fullName,
-        email: user.email,
-      } : null;
-    }),
-    fetchUserByEmail: jest.fn((
-      email: string,
-    ) => {
-      const user = sampleUsers.find((u) => u.email === email);
-      return user ? {
-        userId: user.userId,
-        fullName: user.fullName,
-        email: user.email,
-      } : null;
-    }),
-    updateUser: jest.fn(),
-    updatePassword: jest.fn(),
-  };
-
   beforeEach(() => {
     Object.values(mockUserRepo).forEach((mockMethod) => {
       mockMethod.mockClear();
