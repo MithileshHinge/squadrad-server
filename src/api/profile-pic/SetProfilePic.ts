@@ -10,6 +10,6 @@ export default class {
 
   setNew(userId: string, src: string): void {
     const profilePic = profilePicBuilder.build(src);
-    this.userRepo.updateProfilePic(userId, profilePic.src);
+    this.userRepo.updateProfilePic(userId, profilePic.getSrc());
   }
 }
