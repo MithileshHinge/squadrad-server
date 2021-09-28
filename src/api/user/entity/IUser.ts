@@ -3,6 +3,5 @@ export interface IUser {
   getFullName(): string,
   getEmail(): string,
   getPassword(): string | undefined,
-  setFullName(fullName: string): void,
-  setPassword(password: string): void,
+  getProfilePic(): string,
 }

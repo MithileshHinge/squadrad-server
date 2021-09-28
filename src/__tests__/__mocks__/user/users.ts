@@ -7,9 +7,11 @@ export default Array<{
   fullName: string,
   email: string,
   password: string,
+  profilePicSrc: string,
 }>(10).fill((() => ({
   userId: id.createId(),
   fullName: faker.name.findName(),
   email: faker.internet.email(),
   password: encryptionService.encrypt(faker.internet.password(8)),
+  profilePicSrc: 'default.jpg',
 }))());

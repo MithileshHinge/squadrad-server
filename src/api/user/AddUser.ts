@@ -41,6 +41,7 @@ export default class AddUser {
       userId: user.getId(),
       fullName: user.getFullName(),
       email: user.getEmail(),
+      profilePicSrc: user.getProfilePic(),
     };
     this.userRepo.insertIntoDb({ userInfo, password: user.getPassword()! });
     return userInfo;

@@ -11,6 +11,7 @@ const mockUserRepo = {
       userId: user.userId,
       fullName: user.fullName,
       email: user.email,
+      profilePicSrc: user.profilePicSrc,
     } : null;
   }),
   fetchUserByEmail: jest.fn((
@@ -21,6 +22,7 @@ const mockUserRepo = {
       userId: user.userId,
       fullName: user.fullName,
       email: user.email,
+      profilePicSrc: user.profilePicSrc,
     } : null;
   }),
   updateUser: jest.fn(),

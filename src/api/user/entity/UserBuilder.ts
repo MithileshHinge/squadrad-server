@@ -3,6 +3,7 @@ import { IValidationService } from '../../../services/validation-service/IValida
 import { IEncryptionService } from '../../../services/encryption-service/IEncryptionService';
 import ValidationError from '../../common/errors/ValidationError';
 import { IUser } from './IUser';
+import profilePicBuilder from '../../profile-pic/entity';
 
 export default class UserBuilder {
   id: IId;
@@ -36,7 +37,7 @@ export default class UserBuilder {
       throw new ValidationError('userId is not valid');
     }
     const userIdValidated = userId;
-    let fullNameValidated = this.validationService.validateFullName(fullName);
+    const fullNameValidated = this.validationService.validateFullName(fullName);
     const emailValidated = this.validationService.validateEmail(email);
     let passwordValidated: string;
     let passwordHash: string;
@@ -46,18 +47,15 @@ export default class UserBuilder {
       passwordValidated = this.validationService.validatePassword(password);
       passwordHash = this.encryptionService.encrypt(passwordValidated);
     }
+    // TODO: change default profile pic implementation
+    const profilePic = profilePicBuilder.build('default.jpg');
+
     const user: IUser = {
       getId: () => userIdValidated,
       getFullName: () => fullNameValidated,
       getEmail: () => emailValidated,
       getPassword: () => passwordHash,
-      setFullName: (newFullName) => {
-        fullNameValidated = this.validationService.validateFullName(newFullName);
-      },
-      setPassword: (newPassword) => {
-        passwordValidated = this.validationService.validatePassword(newPassword);
-        passwordHash = this.encryptionService.encrypt(passwordValidated);
-      },
+      getProfilePic: () => profilePic.getSrc(),
     } as const;
     return user;
   }

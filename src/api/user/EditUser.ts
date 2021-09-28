@@ -25,6 +25,7 @@ export default class EditUser {
       userId: user.getId(),
       fullName: user.getFullName(),
       email: user.getEmail(),
+      profilePicSrc: user.getProfilePic(),
     };
     this.userRepo.updateUser(userToUpdate);
   }
