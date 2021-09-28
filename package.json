@@ -4,7 +4,7 @@
   "description": "REST API server for Squadrad.com based on Clean architecture",
   "main": "src/api.js",
   "scripts": {
-    "test": "jest --watch --maxWorkers=1",
+    "test": "nodemon --exec jest --maxWorkers=1",
     "start:dev": "nodemon",
     "build": "rimraf ./dist && tsc",
     "start:prod": "npm run build && node dist/api.js",
