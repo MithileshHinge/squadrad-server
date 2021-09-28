@@ -1,4 +1,4 @@
-import { IUserRepo } from '../user/IUserRepo';
+import { IUserRepo } from '../repositories/user-repo/IUserRepo';
 import profilePicBuilder from './entity';
 
 export default class {

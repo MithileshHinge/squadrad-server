@@ -1,5 +1,5 @@
 import IUserDTO from './IUserDTO';
-import { IUserRepo } from './IUserRepo';
+import { IUserRepo } from '../repositories/user-repo/IUserRepo';
 
 export default class FindUser {
   private userRepo: IUserRepo;

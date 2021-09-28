@@ -1,7 +1,7 @@
 import userBuilder from './entity';
 import ValidationError from '../common/errors/ValidationError';
 import FindUser from './FindUser';
-import { IUserRepo } from './IUserRepo';
+import { IUserRepo } from '../repositories/user-repo/IUserRepo';
 import IUserDTO from './IUserDTO';
 
 export default class AddUser {

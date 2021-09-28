@@ -1,4 +1,4 @@
-import IUserDTO from './IUserDTO';
+import IUserDTO from '../../user/IUserDTO';
 
 export interface IUserRepo {
 
