@@ -26,6 +26,7 @@ const mockUserRepo = {
   updateUser: jest.fn(),
   updatePassword: jest.fn(),
   updateProfilePic: jest.fn(),
+  fetchProfilePic: jest.fn(),
 };
 
 export default mockUserRepo;
