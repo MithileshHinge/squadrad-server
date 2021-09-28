@@ -12,4 +12,9 @@ export default class {
     const profilePic = profilePicBuilder.build(src);
     this.userRepo.updateProfilePic(userId, profilePic.getSrc());
   }
+
+  revertToDefault(userId: string) {
+    const profilePic = profilePicBuilder.build('default.jpg');
+    this.userRepo.updateProfilePic(userId, profilePic.getSrc());
+  }
 }

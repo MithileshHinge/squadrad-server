@@ -15,6 +15,29 @@ describe('Profile Pic Use Cases', () => {
       setProfilePic.setNew(user.userId, newSrc);
       expect(mockUserRepo.updateProfilePic).toHaveBeenCalledWith(user.userId, expect.any(String));
     });
+
+    it('Throw error if file does not exist', () => {
+      const user = sampleUsers[0];
+      const newSrc = 'src/__tests__/__mocks__/profile-pic/non-existing-sample-profile-pic.jpg';
+      expect(() => setProfilePic.setNew(user.userId, newSrc)).toThrow(ValidationError);
+    });
+
+    it('Set profilepic: Do nothing if user does not exist', () => {
+      const userId = id.createId();
+      const newSrc = 'src/__tests__/__mocks__/profile-pic/sample-profile-pic.jpg';
+      setProfilePic.setNew(userId, newSrc);
+    });
+
+    it('Remove profile picture if user exists', () => {
+      const user = sampleUsers[0];
+      setProfilePic.revertToDefault(user.userId);
+      expect(mockUserRepo.updateProfilePic).toHaveBeenCalledWith(user.userId, expect.any(String));
+    });
+
+    it('Remove profilePic: Do nothing if user does not exist', () => {
+      const userId = id.createId();
+      setProfilePic.revertToDefault(userId);
+    });
   });
 
   describe('Get profile picture', () => {
