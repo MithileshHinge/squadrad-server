@@ -1,5 +1,5 @@
-import ValidationError from '../../api/common/errors/ValidationError';
-import profilePicBuilder from '../../api/profile-pic/entity';
+import ValidationError from '../../common/errors/ValidationError';
+import profilePicBuilder from '../../profile-pic/entity';
 
 describe('Profile Pic Entity', () => {
   it('src file must exist', () => {

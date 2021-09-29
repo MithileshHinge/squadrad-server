@@ -1,6 +1,6 @@
 import { accessSync, constants } from 'fs';
 import validator from 'validator';
-import ValidationError from '../../api/common/errors/ValidationError';
+import ValidationError from '../../common/errors/ValidationError';
 import { IValidationService } from './IValidationService';
 
 const validationService: IValidationService = {

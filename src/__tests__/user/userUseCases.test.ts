@@ -2,12 +2,12 @@ import faker from '../__mocks__/faker';
 import sampleUserParams from '../__mocks__/user/userParams';
 import sampleUsers from '../__mocks__/user/users';
 import mockUserRepo from '../__mocks__/repositories/mockUserRepo';
-import ValidationError from '../../api/common/errors/ValidationError';
+import ValidationError from '../../common/errors/ValidationError';
 import id from '../../services/id';
-import AddUser from '../../api/user/AddUser';
-import FindUser from '../../api/user/FindUser';
-import EditUser from '../../api/user/EditUser';
-import ChangePassword from '../../api/user/ChangePassword';
+import AddUser from '../../user/AddUser';
+import FindUser from '../../user/FindUser';
+import EditUser from '../../user/EditUser';
+import ChangePassword from '../../user/ChangePassword';
 
 describe('User usecases', () => {
   beforeEach(() => {

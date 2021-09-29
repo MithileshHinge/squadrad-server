@@ -38,11 +38,13 @@ export default class FindUser {
     profilePicSrc: string,
   } | null {
     const user = this.userRepo.fetchUserById(userId);
-    if (user) return {
-      userId: user.userId,
-      fullName: user.fullName,
-      profilePicSrc: user.profilePicSrc,
-    };
+    if (user) {
+      return {
+        userId: user.userId,
+        fullName: user.fullName,
+        profilePicSrc: user.profilePicSrc,
+      };
+    }
     return null;
   }
 
@@ -57,11 +59,13 @@ export default class FindUser {
     profilePicSrc: string,
   } | null {
     const user = this.userRepo.fetchUserByEmail(email);
-    if (user) return {
-      userId: user.userId,
-      fullName: user.fullName,
-      profilePicSrc: user.profilePicSrc,
-    };
+    if (user) {
+      return {
+        userId: user.userId,
+        fullName: user.fullName,
+        profilePicSrc: user.profilePicSrc,
+      };
+    }
     return null;
   }
 }

@@ -1,6 +1,6 @@
-import { IId } from '../../../services/id';
-import { IValidationService } from '../../../services/validation-service/IValidationService';
-import { IEncryptionService } from '../../../services/encryption-service/IEncryptionService';
+import { IId } from '../../services/id';
+import { IValidationService } from '../../services/validation-service/IValidationService';
+import { IEncryptionService } from '../../services/encryption-service/IEncryptionService';
 import ValidationError from '../../common/errors/ValidationError';
 import { IUser } from './IUser';
 import profilePicBuilder from '../../profile-pic/entity';

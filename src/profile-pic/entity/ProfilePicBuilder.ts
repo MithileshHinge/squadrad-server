@@ -1,4 +1,4 @@
-import { IValidationService } from '../../../services/validation-service/IValidationService';
+import { IValidationService } from '../../services/validation-service/IValidationService';
 import { IProfilePic } from './IProfilePic';
 
 export default class ProfilePicBuilder {

@@ -1,6 +1,6 @@
 import sampleUserParams from '../__mocks__/user/userParams';
-import userBuilder from '../../api/user/entity';
-import ValidationError from '../../api/common/errors/ValidationError';
+import userBuilder from '../../user/entity';
+import ValidationError from '../../common/errors/ValidationError';
 
 describe('User entity', () => {
   describe('User Id validation', () => {
