@@ -1,5 +1,5 @@
-import encryptionService from '../../../services/encryption-service';
-import id from '../../../services/id';
+import passwordEncryption from '../../../user/password';
+import id from '../../../user/id';
 import faker from '../faker';
 
 export default Array<{
@@ -12,6 +12,6 @@ export default Array<{
   userId: id.createId(),
   fullName: faker.name.findName(),
   email: faker.internet.email(),
-  password: encryptionService.encrypt(faker.internet.password(8)),
+  password: passwordEncryption.encrypt(faker.internet.password(8)),
   profilePicSrc: 'default.jpg',
 }))());

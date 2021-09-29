@@ -1,6 +1,6 @@
-import validationService from '../../services/validation-service';
+import profilePicValidator from '../validator';
 import ProfilePicBuilder from './ProfilePicBuilder';
 
-const profilePicBuilder = new ProfilePicBuilder(validationService);
+const profilePicBuilder = new ProfilePicBuilder(profilePicValidator);
 
 export default profilePicBuilder;

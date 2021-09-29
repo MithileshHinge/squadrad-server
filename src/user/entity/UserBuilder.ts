@@ -1,6 +1,6 @@
-import { IId } from '../../services/id';
-import { IValidationService } from '../../services/validation-service/IValidationService';
-import { IEncryptionService } from '../../services/encryption-service/IEncryptionService';
+import { IId } from '../id';
+import { IUserValidator } from '../validator/IUserValidator';
+import { IPasswordEncryption } from '../password/IPasswordEncryption';
 import ValidationError from '../../common/errors/ValidationError';
 import { IUser } from './IUser';
 import profilePicBuilder from '../../profile-pic/entity';
@@ -8,18 +8,18 @@ import profilePicBuilder from '../../profile-pic/entity';
 export default class UserBuilder {
   id: IId;
 
-  validationService: IValidationService;
+  userValidator: IUserValidator;
 
-  encryptionService: IEncryptionService;
+  passwordEncryption: IPasswordEncryption;
 
   constructor(
     id: IId,
-    validationService: IValidationService,
-    encryptionService: IEncryptionService,
+    userValidator: IUserValidator,
+    passwordEncryption: IPasswordEncryption,
   ) {
     this.id = id;
-    this.validationService = validationService;
-    this.encryptionService = encryptionService;
+    this.userValidator = userValidator;
+    this.passwordEncryption = passwordEncryption;
   }
 
   /**
@@ -39,16 +39,16 @@ export default class UserBuilder {
     const userIdValidated = userId;
     const fullNameValidated = (fullName === undefined)
       ? null
-      : this.validationService.validateFullName(fullName);
+      : this.userValidator.validateFullName(fullName);
     const emailValidated = (email === undefined)
       ? null
-      : this.validationService.validateEmail(email);
+      : this.userValidator.validateEmail(email);
     const passwordValidated = (password === undefined)
       ? null
-      : this.validationService.validatePassword(password);
+      : this.userValidator.validatePassword(password);
     const passwordHash = (passwordValidated === null)
       ? null
-      : this.encryptionService.encrypt(passwordValidated);
+      : this.passwordEncryption.encrypt(passwordValidated);
 
     const user: IUser = {
       getId: () => userIdValidated,

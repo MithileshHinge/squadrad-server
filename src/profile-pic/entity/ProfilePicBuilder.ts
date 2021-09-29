@@ -1,11 +1,11 @@
-import { IValidationService } from '../../services/validation-service/IValidationService';
+import { IProfilePicValidator } from '../validator/IProfilePicValidator';
 import { IProfilePic } from './IProfilePic';
 
 export default class ProfilePicBuilder {
-  validationService: IValidationService;
+  profilePicValidator: IProfilePicValidator;
 
-  constructor(validationService: IValidationService) {
-    this.validationService = validationService;
+  constructor(profilePicValidator: IProfilePicValidator) {
+    this.profilePicValidator = profilePicValidator;
   }
 
   /**
@@ -14,7 +14,7 @@ export default class ProfilePicBuilder {
    * @throws ValidationError if file does not exist or file is not accessible
    */
   build(src: string): IProfilePic {
-    const validatedSrc = this.validationService.validateProfilePic(src);
+    const validatedSrc = this.profilePicValidator.validateProfilePic(src);
     return {
       getSrc: () => validatedSrc,
     };

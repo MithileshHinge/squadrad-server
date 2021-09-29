@@ -3,7 +3,7 @@ import sampleUserParams from '../__mocks__/user/userParams';
 import sampleUsers from '../__mocks__/user/users';
 import mockUserData from '../__mocks__/user/mockUserData';
 import ValidationError from '../../common/errors/ValidationError';
-import id from '../../services/id';
+import id from '../../user/id';
 import AddUser from '../../user/AddUser';
 import FindUser from '../../user/FindUser';
 import EditUser from '../../user/EditUser';

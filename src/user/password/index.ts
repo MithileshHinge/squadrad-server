@@ -1,7 +1,7 @@
 import crypto from 'crypto';
-import { IEncryptionService } from './IEncryptionService';
+import { IPasswordEncryption } from './IPasswordEncryption';
 
-const encryptionService: IEncryptionService = {
+const passwordEncryption: IPasswordEncryption = {
   encrypt(password) {
     return password + crypto.randomBytes(16).toString('hex');
   },
@@ -10,4 +10,4 @@ const encryptionService: IEncryptionService = {
   },
 };
 
-export default encryptionService;
+export default passwordEncryption;
