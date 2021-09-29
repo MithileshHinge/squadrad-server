@@ -83,8 +83,8 @@ describe('User entity', () => {
     const user = userBuilder.build(sampleUserParams);
     expect(user).toBeTruthy();
     expect(user.getId()).toBeTruthy();
-    expect(user.getFullName()).toBeTruthy();
-    expect(user.getEmail()).toBeTruthy();
-    expect(user.getPassword()).toBeTruthy();
+    expect(user.getFullName).toBeTruthy();
+    expect(user.getEmail).toBeTruthy();
+    expect(user.getPassword).toBeTruthy();
   });
 });

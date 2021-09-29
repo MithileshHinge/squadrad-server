@@ -32,30 +32,34 @@ export default class UserBuilder {
     fullName,
     email,
     password,
-  }:{ userId?: string, fullName: string, email: string, password?: string }): IUser {
+  }:{ userId?: string, fullName?: string, email?: string, password?: string }): IUser {
     if (!this.id.isValidId(userId)) {
       throw new ValidationError('userId is not valid');
     }
     const userIdValidated = userId;
-    const fullNameValidated = this.validationService.validateFullName(fullName);
-    const emailValidated = this.validationService.validateEmail(email);
-    let passwordValidated: string;
-    let passwordHash: string;
-    if (password === '') {
-      throw new ValidationError('password is not provided');
-    } else if (password) {
-      passwordValidated = this.validationService.validatePassword(password);
-      passwordHash = this.encryptionService.encrypt(passwordValidated);
-    }
-    // TODO: change default profile pic implementation
-    const profilePic = profilePicBuilder.build('default.jpg');
+    const fullNameValidated = (fullName === undefined)
+      ? null
+      : this.validationService.validateFullName(fullName);
+    const emailValidated = (email === undefined)
+      ? null
+      : this.validationService.validateEmail(email);
+    const passwordValidated = (password === undefined)
+      ? null
+      : this.validationService.validatePassword(password);
+    const passwordHash = (passwordValidated === null)
+      ? null
+      : this.encryptionService.encrypt(passwordValidated);
 
     const user: IUser = {
       getId: () => userIdValidated,
-      getFullName: () => fullNameValidated,
-      getEmail: () => emailValidated,
-      getPassword: () => passwordHash,
-      getProfilePic: () => profilePic.getSrc(),
+      getFullName: fullNameValidated ? () => fullNameValidated : undefined,
+      getEmail: emailValidated ? () => emailValidated : undefined,
+      getPassword: passwordHash ? () => passwordHash : undefined,
+      getProfilePic: () => {
+        // TODO: change default profile pic implementation
+        const profilePic = profilePicBuilder.build('default.jpg');
+        return profilePic.getSrc();
+      },
     } as const;
     return user;
   }

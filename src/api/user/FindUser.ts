@@ -1,4 +1,3 @@
-import IUserDTO from './IUserDTO';
 import { IUserRepo } from '../repositories/user-repo/IUserRepo';
 
 export default class FindUser {
@@ -13,8 +12,19 @@ export default class FindUser {
    * @returns array of user Data Transfer Object if users exists, otherwise returns empty array []
    * @throws DatabaseError if operation fails
    */
-  findAllUsers(): IUserDTO[] {
-    return this.userRepo.fetchAllUsers();
+  findAllUsers(): {
+    userId: string,
+    fullName: string,
+    profilePicSrc: string,
+  }[] {
+    const users = this.userRepo.fetchAllUsers();
+    const usersInfoToReturn = users.map((user) => ({
+      userId: user.userId,
+      fullName: user.fullName,
+      profilePicSrc: user.profilePicSrc,
+    }));
+
+    return usersInfoToReturn;
   }
 
   /**
@@ -22,9 +32,18 @@ export default class FindUser {
    * @returns user Data Transfer Object if id exists, otherwise returns null
    * @throws DatabaseError if operation fails
    */
-  findUserById(userId: string) {
+  findUserById(userId: string): {
+    userId: string,
+    fullName: string,
+    profilePicSrc: string,
+  } | null {
     const user = this.userRepo.fetchUserById(userId);
-    return user;
+    if (user) return {
+      userId: user.userId,
+      fullName: user.fullName,
+      profilePicSrc: user.profilePicSrc,
+    };
+    return null;
   }
 
   /**
@@ -32,8 +51,17 @@ export default class FindUser {
    * @returns user Data Transfer Object if email Id exists, otherwise returns null
    * @throws DatabaseError if operation fails
    */
-  findUserByEmail(email: string) {
+  findUserByEmail(email: string): {
+    userId: string,
+    fullName: string,
+    profilePicSrc: string,
+  } | null {
     const user = this.userRepo.fetchUserByEmail(email);
-    return user;
+    if (user) return {
+      userId: user.userId,
+      fullName: user.fullName,
+      profilePicSrc: user.profilePicSrc,
+    };
+    return null;
   }
 }

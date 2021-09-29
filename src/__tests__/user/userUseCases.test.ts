@@ -21,7 +21,7 @@ describe('User usecases', () => {
     it('Can add a valid new user', () => {
       const user = addUser.add(sampleUserParams);
       expect(mockUserRepo.insertIntoDb).toHaveBeenCalledWith(expect.objectContaining({
-        userInfo: user,
+        ...user,
       }));
     });
 
@@ -66,7 +66,6 @@ describe('User usecases', () => {
       const user = sampleUsers[0];
       expect(findUser.findUserById(user.userId)).toStrictEqual(expect.objectContaining({
         userId: user.userId,
-        email: user.email,
       }));
     });
 
@@ -80,7 +79,6 @@ describe('User usecases', () => {
       const user = sampleUsers[0];
       expect(findUser.findUserByEmail(user.email)).toStrictEqual(expect.objectContaining({
         userId: user.userId,
-        email: user.email,
       }));
     });
 
@@ -104,7 +102,6 @@ describe('User usecases', () => {
       editUser.edit({ userId: user.userId, fullName: newName });
       expect(mockUserRepo.updateUser).toHaveBeenCalledWith(expect.objectContaining({
         userId: user.userId,
-        email: user.email,
       }));
     });
 

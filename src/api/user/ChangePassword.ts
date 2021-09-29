@@ -1,6 +1,5 @@
 import ValidationError from '../common/errors/ValidationError';
 import userBuilder from './entity';
-import FindUser from './FindUser';
 import { IUserRepo } from '../repositories/user-repo/IUserRepo';
 
 export default class ChangePassword {
@@ -17,15 +16,12 @@ export default class ChangePassword {
    * @throws DatabaseError if operation fails
    */
   change(userId: string, newPassword: string) {
-    const findUser = new FindUser(this.userRepo);
-    const userExisting = findUser.findUserById(userId);
+    const userExisting = this.userRepo.fetchUserById(userId);
     if (!userExisting) throw new ValidationError(`User with userId "${userId}" does not exist`);
     const user = userBuilder.build({
       userId,
-      fullName: userExisting.fullName,
-      email: userExisting.email,
       password: newPassword,
     });
-    this.userRepo.updatePassword(userId, user.getPassword()!);
+    this.userRepo.updatePassword(userId, user.getPassword!());
   }
 }

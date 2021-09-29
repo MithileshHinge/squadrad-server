@@ -1,8 +1,6 @@
 import userBuilder from './entity';
 import ValidationError from '../common/errors/ValidationError';
-import FindUser from './FindUser';
 import { IUserRepo } from '../repositories/user-repo/IUserRepo';
-import IUserDTO from './IUserDTO';
 
 export default class AddUser {
   private userRepo: IUserRepo;
@@ -13,7 +11,7 @@ export default class AddUser {
 
   /**
    * AddUser use case: add new user to the database
-   * @throws ValidationError if invalid parameters are provided
+   * @throws ValidationError if invalid parameters are provided or account already exists
    * @throws DatabaseError when there is an error in inserting user into database
    */
   add({
@@ -24,26 +22,25 @@ export default class AddUser {
     fullName: string,
     email: string,
     password: string
-  }): IUserDTO {
+  }): { userId: string, fullName: string, email: string, profilePicSrc: string } {
     let user = userBuilder.build({ fullName, email, password });
 
-    if (this.userRepo.fetchUserByEmail(user.getEmail())) throw new ValidationError('Another account already exists with the same email ID');
+    if (this.userRepo.fetchUserByEmail(user.getEmail!())) throw new ValidationError('Another account already exists with the same email ID');
 
     // check if userId already exists in database
     // Note: CUID collisions are extremely improbable,
     // but my paranoia insists me to make a sanity check
-    const findUser = new FindUser(this.userRepo);
-    while (findUser.findUserById(user.getId())) {
+    while (this.userRepo.fetchUserById(user.getId())) {
       user = userBuilder.build({ fullName, email, password });
     }
 
-    const userInfo: IUserDTO = {
+    const userInfo = {
       userId: user.getId(),
-      fullName: user.getFullName(),
-      email: user.getEmail(),
+      fullName: user.getFullName!(),
+      email: user.getEmail!(),
       profilePicSrc: user.getProfilePic(),
     };
-    this.userRepo.insertIntoDb({ userInfo, password: user.getPassword()! });
+    this.userRepo.insertIntoDb({ ...userInfo, password: user.getPassword!() });
     return userInfo;
   }
 }
