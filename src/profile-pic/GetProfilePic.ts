@@ -1,5 +1,5 @@
 import ValidationError from '../common/errors/ValidationError';
-import { IUserRepo } from '../repositories/user-repo/IUserRepo';
+import { IUserRepo } from '../user/IUserRepo';
 
 export default class GetProfilePic {
   userRepo: IUserRepo;

@@ -1,4 +1,4 @@
-import { IUserRepo } from '../repositories/user-repo/IUserRepo';
+import { IUserRepo } from './IUserRepo';
 
 export default class FindUser {
   private userRepo: IUserRepo;

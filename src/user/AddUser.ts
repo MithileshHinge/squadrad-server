@@ -1,6 +1,6 @@
 import userBuilder from './entity';
 import ValidationError from '../common/errors/ValidationError';
-import { IUserRepo } from '../repositories/user-repo/IUserRepo';
+import { IUserRepo } from './IUserRepo';
 
 export default class AddUser {
   private userRepo: IUserRepo;

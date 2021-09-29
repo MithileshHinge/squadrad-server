@@ -1,6 +1,6 @@
 import ValidationError from '../common/errors/ValidationError';
 import userBuilder from './entity';
-import { IUserRepo } from '../repositories/user-repo/IUserRepo';
+import { IUserRepo } from './IUserRepo';
 
 export default class ChangePassword {
   userRepo: IUserRepo;
