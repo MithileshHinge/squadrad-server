@@ -1,20 +1,20 @@
-import { IUserRepo } from '../user/IUserRepo';
+import { IUserData } from '../user/IUserData';
 import profilePicBuilder from './entity';
 
 export default class {
-  userRepo: IUserRepo;
+  userData: IUserData;
 
-  constructor(userRepo: IUserRepo) {
-    this.userRepo = userRepo;
+  constructor(userData: IUserData) {
+    this.userData = userData;
   }
 
   setNew(userId: string, src: string): void {
     const profilePic = profilePicBuilder.build(src);
-    this.userRepo.updateProfilePic(userId, profilePic.getSrc());
+    this.userData.updateProfilePic(userId, profilePic.getSrc());
   }
 
   revertToDefault(userId: string) {
     const profilePic = profilePicBuilder.build('default.jpg');
-    this.userRepo.updateProfilePic(userId, profilePic.getSrc());
+    this.userData.updateProfilePic(userId, profilePic.getSrc());
   }
 }

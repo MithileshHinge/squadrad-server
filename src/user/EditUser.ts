@@ -1,12 +1,12 @@
 import userBuilder from './entity';
 import ValidationError from '../common/errors/ValidationError';
-import { IUserRepo } from './IUserRepo';
+import { IUserData } from './IUserData';
 
 export default class EditUser {
-  private userRepo: IUserRepo;
+  private userData: IUserData;
 
-  constructor(userRepo: IUserRepo) {
-    this.userRepo = userRepo;
+  constructor(userData: IUserData) {
+    this.userData = userData;
   }
 
   /**
@@ -15,13 +15,13 @@ export default class EditUser {
    * @throws DatabaseError if operation fails
    */
   edit(userInfo: { userId: string, fullName?: string }) {
-    const userExisting = this.userRepo.fetchUserById(userInfo.userId);
+    const userExisting = this.userData.fetchUserById(userInfo.userId);
     if (!userExisting) throw new ValidationError(`User with userId="${userInfo.userId}" does not exist`);
     const user = userBuilder.build(userInfo);
     const userToUpdate = {
       userId: user.getId(),
       fullName: user.getFullName ? user.getFullName() : undefined,
     };
-    this.userRepo.updateUser(userToUpdate);
+    this.userData.updateUser(userToUpdate);
   }
 }

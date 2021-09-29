@@ -2,18 +2,18 @@ import ValidationError from '../../common/errors/ValidationError';
 import GetProfilePic from '../../profile-pic/GetProfilePic';
 import SetProfilePic from '../../profile-pic/SetProfilePic';
 import id from '../../services/id';
-import mockUserRepo from '../__mocks__/repositories/mockUserRepo';
+import mockUserData from '../__mocks__/user/mockUserData';
 import sampleUsers from '../__mocks__/user/users';
 
 describe('Profile Pic Use Cases', () => {
   describe('Set profile pic', () => {
-    const setProfilePic = new SetProfilePic(mockUserRepo);
+    const setProfilePic = new SetProfilePic(mockUserData);
 
     it('Set a new profile pic', () => {
       const user = sampleUsers[0];
       const newSrc = 'src/__tests__/__mocks__/profile-pic/sample-profile-pic.jpg';
       setProfilePic.setNew(user.userId, newSrc);
-      expect(mockUserRepo.updateProfilePic).toHaveBeenCalledWith(user.userId, expect.any(String));
+      expect(mockUserData.updateProfilePic).toHaveBeenCalledWith(user.userId, expect.any(String));
     });
 
     it('Throw error if file does not exist', () => {
@@ -31,7 +31,7 @@ describe('Profile Pic Use Cases', () => {
     it('Remove profile picture if user exists', () => {
       const user = sampleUsers[0];
       setProfilePic.revertToDefault(user.userId);
-      expect(mockUserRepo.updateProfilePic).toHaveBeenCalledWith(user.userId, expect.any(String));
+      expect(mockUserData.updateProfilePic).toHaveBeenCalledWith(user.userId, expect.any(String));
     });
 
     it('Remove profilePic: Do nothing if user does not exist', () => {
@@ -41,18 +41,18 @@ describe('Profile Pic Use Cases', () => {
   });
 
   describe('Get profile picture', () => {
-    const getProfilePic = new GetProfilePic(mockUserRepo);
+    const getProfilePic = new GetProfilePic(mockUserData);
 
     it('Get profile picture if user exists', () => {
       const user = sampleUsers[0];
-      mockUserRepo.fetchProfilePic.mockReturnValueOnce('src/__tests__/__mocks__/profile-pic/sample-profile-pic.jpg');
+      mockUserData.fetchProfilePic.mockReturnValueOnce('src/__tests__/__mocks__/profile-pic/sample-profile-pic.jpg');
       getProfilePic.get(user.userId);
-      expect(mockUserRepo.fetchProfilePic).toHaveBeenCalledWith(user.userId);
+      expect(mockUserData.fetchProfilePic).toHaveBeenCalledWith(user.userId);
     });
 
     it('Throw error if user does not exist', () => {
       const userId = id.createId();
-      mockUserRepo.fetchProfilePic.mockReturnValueOnce(null);
+      mockUserData.fetchProfilePic.mockReturnValueOnce(null);
       expect(() => getProfilePic.get(userId)).toThrow(ValidationError);
     });
   });

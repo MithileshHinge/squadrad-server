@@ -1,12 +1,12 @@
 import ValidationError from '../common/errors/ValidationError';
 import userBuilder from './entity';
-import { IUserRepo } from './IUserRepo';
+import { IUserData } from './IUserData';
 
 export default class ChangePassword {
-  userRepo: IUserRepo;
+  userData: IUserData;
 
-  constructor(userRepo: IUserRepo) {
-    this.userRepo = userRepo;
+  constructor(userData: IUserData) {
+    this.userData = userData;
   }
 
   /**
@@ -16,12 +16,12 @@ export default class ChangePassword {
    * @throws DatabaseError if operation fails
    */
   change(userId: string, newPassword: string) {
-    const userExisting = this.userRepo.fetchUserById(userId);
+    const userExisting = this.userData.fetchUserById(userId);
     if (!userExisting) throw new ValidationError(`User with userId "${userId}" does not exist`);
     const user = userBuilder.build({
       userId,
       password: newPassword,
     });
-    this.userRepo.updatePassword(userId, user.getPassword!());
+    this.userData.updatePassword(userId, user.getPassword!());
   }
 }

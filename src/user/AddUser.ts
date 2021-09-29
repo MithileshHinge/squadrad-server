@@ -1,12 +1,12 @@
 import userBuilder from './entity';
 import ValidationError from '../common/errors/ValidationError';
-import { IUserRepo } from './IUserRepo';
+import { IUserData } from './IUserData';
 
 export default class AddUser {
-  private userRepo: IUserRepo;
+  private userData: IUserData;
 
-  constructor(userRepo: IUserRepo) {
-    this.userRepo = userRepo;
+  constructor(userData: IUserData) {
+    this.userData = userData;
   }
 
   /**
@@ -25,12 +25,12 @@ export default class AddUser {
   }): { userId: string, fullName: string, email: string, profilePicSrc: string } {
     let user = userBuilder.build({ fullName, email, password });
 
-    if (this.userRepo.fetchUserByEmail(user.getEmail!())) throw new ValidationError('Another account already exists with the same email ID');
+    if (this.userData.fetchUserByEmail(user.getEmail!())) throw new ValidationError('Another account already exists with the same email ID');
 
     // check if userId already exists in database
     // Note: CUID collisions are extremely improbable,
     // but my paranoia insists me to make a sanity check
-    while (this.userRepo.fetchUserById(user.getId())) {
+    while (this.userData.fetchUserById(user.getId())) {
       user = userBuilder.build({ fullName, email, password });
     }
 
@@ -40,7 +40,7 @@ export default class AddUser {
       email: user.getEmail!(),
       profilePicSrc: user.getProfilePic(),
     };
-    this.userRepo.insertIntoDb({ ...userInfo, password: user.getPassword!() });
+    this.userData.insertIntoDb({ ...userInfo, password: user.getPassword!() });
     return userInfo;
   }
 }

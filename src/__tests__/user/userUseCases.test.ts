@@ -1,7 +1,7 @@
 import faker from '../__mocks__/faker';
 import sampleUserParams from '../__mocks__/user/userParams';
 import sampleUsers from '../__mocks__/user/users';
-import mockUserRepo from '../__mocks__/repositories/mockUserRepo';
+import mockUserData from '../__mocks__/user/mockUserData';
 import ValidationError from '../../common/errors/ValidationError';
 import id from '../../services/id';
 import AddUser from '../../user/AddUser';
@@ -11,16 +11,16 @@ import ChangePassword from '../../user/ChangePassword';
 
 describe('User usecases', () => {
   beforeEach(() => {
-    Object.values(mockUserRepo).forEach((mockMethod) => {
+    Object.values(mockUserData).forEach((mockMethod) => {
       mockMethod.mockClear();
     });
   });
   describe('Add a new user', () => {
-    const addUser = new AddUser(mockUserRepo);
+    const addUser = new AddUser(mockUserData);
 
     it('Can add a valid new user', () => {
       const user = addUser.add(sampleUserParams);
-      expect(mockUserRepo.insertIntoDb).toHaveBeenCalledWith(expect.objectContaining({
+      expect(mockUserData.insertIntoDb).toHaveBeenCalledWith(expect.objectContaining({
         ...user,
       }));
     });
@@ -31,7 +31,7 @@ describe('User usecases', () => {
         email: 'efewndfa',
         password: '1234',
       })).toThrow(ValidationError);
-      expect(mockUserRepo.insertIntoDb).not.toHaveBeenCalled();
+      expect(mockUserData.insertIntoDb).not.toHaveBeenCalled();
     });
 
     it('Email IDs must be unique', () => {
@@ -46,18 +46,18 @@ describe('User usecases', () => {
         password: faker.internet.password(8),
       };
       const addedUser = addUser.add(userParams1);
-      mockUserRepo.fetchUserByEmail.mockReturnValueOnce(addedUser);
+      mockUserData.fetchUserByEmail.mockReturnValueOnce(addedUser);
       expect(() => addUser.add(userParams2)).toThrowError(ValidationError);
-      expect(mockUserRepo.insertIntoDb).toHaveBeenCalledTimes(1);
+      expect(mockUserData.insertIntoDb).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('Get users', () => {
-    const findUser = new FindUser(mockUserRepo);
+    const findUser = new FindUser(mockUserData);
 
     it('Can get all users', () => {
       const users = findUser.findAllUsers();
-      expect(mockUserRepo.fetchAllUsers).toHaveBeenCalled();
+      expect(mockUserData.fetchAllUsers).toHaveBeenCalled();
       expect(users.length).toStrictEqual(sampleUsers.length);
     });
 
@@ -93,14 +93,14 @@ describe('User usecases', () => {
     //   email: faker.internet.email(),
     //   password: faker.datatype.uuid(),
     // };
-    const editUser = new EditUser(mockUserRepo);
+    const editUser = new EditUser(mockUserData);
 
     it('Can change fullName', () => {
       // get any user
       const user = sampleUsers[0];
       const newName = faker.name.findName();
       editUser.edit({ userId: user.userId, fullName: newName });
-      expect(mockUserRepo.updateUser).toHaveBeenCalledWith(expect.objectContaining({
+      expect(mockUserData.updateUser).toHaveBeenCalledWith(expect.objectContaining({
         userId: user.userId,
       }));
     });
@@ -112,18 +112,18 @@ describe('User usecases', () => {
         userId: user.userId,
         fullName: newName,
       })).toThrow(ValidationError);
-      expect(mockUserRepo.updateUser).not.toHaveBeenCalled();
+      expect(mockUserData.updateUser).not.toHaveBeenCalled();
     });
   });
 
   describe('Change password', () => {
-    const changePassword = new ChangePassword(mockUserRepo);
+    const changePassword = new ChangePassword(mockUserData);
 
     it('Can change password', () => {
       const user = sampleUsers[0];
       const newPassword = faker.internet.password(8);
       changePassword.change(user.userId, newPassword);
-      expect(mockUserRepo.updatePassword).toHaveBeenCalledWith(
+      expect(mockUserData.updatePassword).toHaveBeenCalledWith(
         user.userId, expect.not.stringMatching(user.password),
       );
     });

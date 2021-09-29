@@ -1,10 +1,10 @@
-import { IUserRepo } from './IUserRepo';
+import { IUserData } from './IUserData';
 
 export default class FindUser {
-  private userRepo: IUserRepo;
+  private userData: IUserData;
 
-  constructor(userRepo: IUserRepo) {
-    this.userRepo = userRepo;
+  constructor(userData: IUserData) {
+    this.userData = userData;
   }
 
   /**
@@ -17,7 +17,7 @@ export default class FindUser {
     fullName: string,
     profilePicSrc: string,
   }[] {
-    const users = this.userRepo.fetchAllUsers();
+    const users = this.userData.fetchAllUsers();
     const usersInfoToReturn = users.map((user) => ({
       userId: user.userId,
       fullName: user.fullName,
@@ -37,7 +37,7 @@ export default class FindUser {
     fullName: string,
     profilePicSrc: string,
   } | null {
-    const user = this.userRepo.fetchUserById(userId);
+    const user = this.userData.fetchUserById(userId);
     if (user) {
       return {
         userId: user.userId,
@@ -58,7 +58,7 @@ export default class FindUser {
     fullName: string,
     profilePicSrc: string,
   } | null {
-    const user = this.userRepo.fetchUserByEmail(email);
+    const user = this.userData.fetchUserByEmail(email);
     if (user) {
       return {
         userId: user.userId,

@@ -1,4 +1,4 @@
-export interface IUserRepo {
+export interface IUserData {
 
   /**
    * Insert new row into Users table
