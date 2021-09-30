@@ -1,20 +1,20 @@
-import { IUserData } from './IUserData';
+import { IUsersData } from './IUsersData';
 import { IPasswordEncryption } from './password/IPasswordEncryption';
 import { IUserValidator } from './validator/IUserValidator';
 
 export default class ChangePassword {
-  userData: IUserData;
+  usersData: IUsersData;
 
   userValidator: IUserValidator;
 
   passwordEncryption: IPasswordEncryption;
 
   constructor(
-    userData: IUserData,
+    usersData: IUsersData,
     userValidator: IUserValidator,
     passwordEncryption: IPasswordEncryption,
   ) {
-    this.userData = userData;
+    this.usersData = usersData;
     this.userValidator = userValidator;
     this.passwordEncryption = passwordEncryption;
   }
@@ -28,6 +28,6 @@ export default class ChangePassword {
   change(userId: string, newPassword: string) {
     const passwordValidated = this.userValidator.validatePassword(newPassword);
     const passwordHash = this.passwordEncryption.encrypt(passwordValidated);
-    this.userData.updatePassword(userId, passwordHash);
+    this.usersData.updatePassword(userId, passwordHash);
   }
 }

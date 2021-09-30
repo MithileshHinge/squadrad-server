@@ -1,13 +1,13 @@
-import { IUserData } from './IUserData';
+import { IUsersData } from './IUsersData';
 import { IUserValidator } from './validator/IUserValidator';
 
 export default class EditUser {
-  private userData: IUserData;
+  private usersData: IUsersData;
 
   private userValidator: IUserValidator;
 
-  constructor(userData: IUserData, userValidator: IUserValidator) {
-    this.userData = userData;
+  constructor(usersData: IUsersData, userValidator: IUserValidator) {
+    this.usersData = usersData;
     this.userValidator = userValidator;
   }
 
@@ -24,6 +24,6 @@ export default class EditUser {
       userId: userInfo.userId,
       fullName: fullNameValidated,
     };
-    this.userData.updateUser(userToUpdate);
+    this.usersData.updateUser(userToUpdate);
   }
 }

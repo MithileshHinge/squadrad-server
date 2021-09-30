@@ -1,5 +1,5 @@
 import ValidationError from '../common/errors/ValidationError';
-import { IUserData } from './IUserData';
+import { IUsersData } from './IUsersData';
 import { IUserValidator } from './validator/IUserValidator';
 import { IId } from './id';
 import { IPasswordEncryption } from './password/IPasswordEncryption';
@@ -7,7 +7,7 @@ import SetProfilePic from '../profile-pic/SetProfilePic';
 import profilePicValidator from '../profile-pic/validator';
 
 export default class AddUser {
-  private userData: IUserData;
+  private usersData: IUsersData;
 
   private userValidator: IUserValidator;
 
@@ -16,12 +16,12 @@ export default class AddUser {
   private passwordEncryption: IPasswordEncryption;
 
   constructor(
-    userData: IUserData,
+    usersData: IUsersData,
     userValidator: IUserValidator,
     id: IId,
     passwordEncryption: IPasswordEncryption,
   ) {
-    this.userData = userData;
+    this.usersData = usersData;
     this.userValidator = userValidator;
     this.id = id;
     this.passwordEncryption = passwordEncryption;
@@ -42,13 +42,13 @@ export default class AddUser {
     password: string
   }): { userId: string, fullName: string, email: string, profilePicSrc: string } {
     const emailValidated = this.userValidator.validateEmail(email);
-    if (this.userData.fetchUserByEmail(emailValidated)) throw new ValidationError('Another account already exists with the same email ID');
+    if (this.usersData.fetchUserByEmail(emailValidated)) throw new ValidationError('Another account already exists with the same email ID');
 
     let userId = this.id.createId();
     // check if userId already exists in database
     // Note: CUID collisions are extremely improbable,
     // but my paranoia insists me to make a sanity check
-    while (this.userData.fetchUserById(userId)) {
+    while (this.usersData.fetchUserById(userId)) {
       userId = this.id.createId();
     }
 
@@ -62,10 +62,10 @@ export default class AddUser {
       email: emailValidated,
       password: passwordHash,
     };
-    this.userData.insertIntoDb(userInfo);
+    this.usersData.insertNewUser(userInfo);
 
     // Set a default profile picture
-    const setProfilePic = new SetProfilePic(this.userData, profilePicValidator);
+    const setProfilePic = new SetProfilePic(this.usersData, profilePicValidator);
     const profilePicSrc = setProfilePic.setDefault(userId);
 
     return {

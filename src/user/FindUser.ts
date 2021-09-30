@@ -1,10 +1,10 @@
-import { IUserData } from './IUserData';
+import { IUsersData } from './IUsersData';
 
 export default class FindUser {
-  private userData: IUserData;
+  private usersData: IUsersData;
 
-  constructor(userData: IUserData) {
-    this.userData = userData;
+  constructor(usersData: IUsersData) {
+    this.usersData = usersData;
   }
 
   /**
@@ -17,7 +17,7 @@ export default class FindUser {
     fullName: string,
     profilePicSrc: string,
   }[] {
-    const users = this.userData.fetchAllUsers();
+    const users = this.usersData.fetchAllUsers();
     const usersInfoToReturn = users.map((user) => ({
       userId: user.userId,
       fullName: user.fullName,
@@ -37,7 +37,7 @@ export default class FindUser {
     fullName: string,
     profilePicSrc: string,
   } | null {
-    const user = this.userData.fetchUserById(userId);
+    const user = this.usersData.fetchUserById(userId);
     if (user) {
       return {
         userId: user.userId,
@@ -58,7 +58,7 @@ export default class FindUser {
     fullName: string,
     profilePicSrc: string,
   } | null {
-    const user = this.userData.fetchUserByEmail(email);
+    const user = this.usersData.fetchUserByEmail(email);
     if (user) {
       return {
         userId: user.userId,

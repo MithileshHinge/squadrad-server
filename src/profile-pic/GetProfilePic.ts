@@ -1,11 +1,11 @@
 import ValidationError from '../common/errors/ValidationError';
-import { IUserData } from '../user/IUserData';
+import { IUsersData } from '../user/IUsersData';
 
 export default class GetProfilePic {
-  userData: IUserData;
+  usersData: IUsersData;
 
-  constructor(userData: IUserData) {
-    this.userData = userData;
+  constructor(usersData: IUsersData) {
+    this.usersData = usersData;
   }
 
   /**
@@ -14,7 +14,7 @@ export default class GetProfilePic {
    * @throws DatabaseError if operation fails
    */
   get(userId: string): string {
-    const src = this.userData.fetchProfilePic(userId);
+    const src = this.usersData.fetchProfilePic(userId);
     if (!src) throw new ValidationError(`User with userId="${userId}" does not exist.`);
     return src;
   }

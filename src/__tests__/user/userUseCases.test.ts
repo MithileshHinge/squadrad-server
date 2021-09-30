@@ -1,7 +1,7 @@
 import faker from '../__mocks__/faker';
 import sampleUserParams from '../__mocks__/user/userParams';
 import sampleUsers from '../__mocks__/user/users';
-import mockUserData from '../__mocks__/user/mockUserData';
+import mockUsersData from '../__mocks__/user/mockUsersData';
 import ValidationError from '../../common/errors/ValidationError';
 import id from '../../user/id';
 import AddUser from '../../user/AddUser';
@@ -13,23 +13,23 @@ import passwordEncryption from '../../user/password';
 
 describe('User usecases', () => {
   beforeEach(() => {
-    Object.values(mockUserData).forEach((mockMethod) => {
+    Object.values(mockUsersData).forEach((mockMethod) => {
       mockMethod.mockClear();
     });
   });
   describe('Add a new user', () => {
-    const addUser = new AddUser(mockUserData, userValidator, id, passwordEncryption);
+    const addUser = new AddUser(mockUsersData, userValidator, id, passwordEncryption);
 
     it('Can add a valid new user', () => {
       const user = addUser.add(sampleUserParams);
-      expect(mockUserData.insertIntoDb).toHaveBeenCalledWith(expect.objectContaining({
+      expect(mockUsersData.insertNewUser).toHaveBeenCalledWith(expect.objectContaining({
         userId: user.userId,
         fullName: user.fullName,
         email: user.email,
       }));
 
       // Default profile pic should be added
-      expect(mockUserData.updateProfilePic).toHaveBeenCalledWith(user.userId, user.profilePicSrc);
+      expect(mockUsersData.updateProfilePic).toHaveBeenCalledWith(user.userId, user.profilePicSrc);
     });
 
     describe('User Id validation', () => {
@@ -54,7 +54,7 @@ describe('User usecases', () => {
               ...sampleUserParams,
               fullName,
             })).toThrow(ValidationError);
-            expect(mockUserData.insertIntoDb).not.toHaveBeenCalled();
+            expect(mockUsersData.insertNewUser).not.toHaveBeenCalled();
           });
         });
       });
@@ -65,7 +65,7 @@ describe('User usecases', () => {
             expect(() => addUser.add({ ...sampleUserParams, fullName: `asdfg${char}` })).toThrow(ValidationError);
             expect(() => addUser.add({ ...sampleUserParams, fullName: `asd ${char}` })).toThrow(ValidationError);
             expect(() => addUser.add({ ...sampleUserParams, fullName: `as${char}` })).toThrow(ValidationError);
-            expect(mockUserData.insertIntoDb).not.toHaveBeenCalled();
+            expect(mockUsersData.insertNewUser).not.toHaveBeenCalled();
           });
         });
       });
@@ -77,7 +77,7 @@ describe('User usecases', () => {
               ...sampleUserParams,
               fullName,
             })).toThrow(ValidationError);
-            expect(mockUserData.insertIntoDb).not.toHaveBeenCalled();
+            expect(mockUsersData.insertNewUser).not.toHaveBeenCalled();
           });
         });
       });
@@ -89,7 +89,7 @@ describe('User usecases', () => {
               ...sampleUserParams,
               fullName,
             })).toThrow(ValidationError);
-            expect(mockUserData.insertIntoDb).not.toHaveBeenCalled();
+            expect(mockUsersData.insertNewUser).not.toHaveBeenCalled();
           });
         });
       });
@@ -100,7 +100,7 @@ describe('User usecases', () => {
         ['', ' ', 'mithihi', 'mihbhg@', 'mibg hv nv@gmail.com', '@gmail.com', 'vghjhb@gmail'].forEach((email) => {
           it(`Should throw error for "${email}"`, () => {
             expect(() => addUser.add({ ...sampleUserParams, email })).toThrow(ValidationError);
-            expect(mockUserData.insertIntoDb).not.toHaveBeenCalled();
+            expect(mockUsersData.insertNewUser).not.toHaveBeenCalled();
           });
         });
       });
@@ -117,9 +117,9 @@ describe('User usecases', () => {
           password: faker.internet.password(8),
         };
         const addedUser = addUser.add(userParams1);
-        mockUserData.fetchUserByEmail.mockReturnValueOnce(addedUser);
+        mockUsersData.fetchUserByEmail.mockReturnValueOnce(addedUser);
         expect(() => addUser.add(userParams2)).toThrowError(ValidationError);
-        expect(mockUserData.insertIntoDb).toHaveBeenCalledTimes(1);
+        expect(mockUsersData.insertNewUser).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -127,7 +127,7 @@ describe('User usecases', () => {
       ['', ' ', 'asa', 'as afsf', 'asf  '].forEach((password) => {
         it(`Should throw error for ${password}`, () => {
           expect(() => addUser.add({ ...sampleUserParams, password })).toThrow(ValidationError);
-          expect(mockUserData.insertIntoDb).not.toHaveBeenCalled();
+          expect(mockUsersData.insertNewUser).not.toHaveBeenCalled();
         });
       });
     });
@@ -138,16 +138,16 @@ describe('User usecases', () => {
         email: 'efewndfa',
         password: '1234',
       })).toThrow(ValidationError);
-      expect(mockUserData.insertIntoDb).not.toHaveBeenCalled();
+      expect(mockUsersData.insertNewUser).not.toHaveBeenCalled();
     });
   });
 
   describe('Get users', () => {
-    const findUser = new FindUser(mockUserData);
+    const findUser = new FindUser(mockUsersData);
 
     it('Can get all users', () => {
       const users = findUser.findAllUsers();
-      expect(mockUserData.fetchAllUsers).toHaveBeenCalled();
+      expect(mockUsersData.fetchAllUsers).toHaveBeenCalled();
       expect(users.length).toStrictEqual(sampleUsers.length);
     });
 
@@ -178,14 +178,14 @@ describe('User usecases', () => {
   });
 
   describe('Update user', () => {
-    const editUser = new EditUser(mockUserData, userValidator);
+    const editUser = new EditUser(mockUsersData, userValidator);
 
     it('Can change fullName', () => {
       // get any user
       const user = sampleUsers[0];
       const newName = faker.name.findName();
       editUser.edit({ userId: user.userId, fullName: newName });
-      expect(mockUserData.updateUser).toHaveBeenCalledWith(expect.objectContaining({
+      expect(mockUsersData.updateUser).toHaveBeenCalledWith(expect.objectContaining({
         userId: user.userId,
       }));
     });
@@ -198,7 +198,7 @@ describe('User usecases', () => {
               userId: sampleUsers[0].userId,
               fullName,
             })).toThrow(ValidationError);
-            expect(mockUserData.updateUser).not.toHaveBeenCalled();
+            expect(mockUsersData.updateUser).not.toHaveBeenCalled();
           });
         });
       });
@@ -218,7 +218,7 @@ describe('User usecases', () => {
               userId: sampleUsers[0].userId,
               fullName: `as${char}`,
             })).toThrow(ValidationError);
-            expect(mockUserData.updateUser).not.toHaveBeenCalled();
+            expect(mockUsersData.updateUser).not.toHaveBeenCalled();
           });
         });
       });
@@ -230,7 +230,7 @@ describe('User usecases', () => {
               userId: sampleUsers[0].userId,
               fullName,
             })).toThrow(ValidationError);
-            expect(mockUserData.updateUser).not.toHaveBeenCalled();
+            expect(mockUsersData.updateUser).not.toHaveBeenCalled();
           });
         });
       });
@@ -242,7 +242,7 @@ describe('User usecases', () => {
               userId: sampleUsers[0].userId,
               fullName,
             })).toThrow(ValidationError);
-            expect(mockUserData.updateUser).not.toHaveBeenCalled();
+            expect(mockUsersData.updateUser).not.toHaveBeenCalled();
           });
         });
       });
@@ -250,13 +250,13 @@ describe('User usecases', () => {
   });
 
   describe('Change password', () => {
-    const changePassword = new ChangePassword(mockUserData, userValidator, passwordEncryption);
+    const changePassword = new ChangePassword(mockUsersData, userValidator, passwordEncryption);
 
     it('Can change password', () => {
       const user = sampleUsers[0];
       const newPassword = faker.internet.password(8);
       changePassword.change(user.userId, newPassword);
-      expect(mockUserData.updatePassword).toHaveBeenCalledWith(
+      expect(mockUsersData.updatePassword).toHaveBeenCalledWith(
         user.userId, expect.not.stringMatching(user.password),
       );
     });
@@ -268,7 +268,7 @@ describe('User usecases', () => {
             sampleUsers[0].userId,
             password,
           )).toThrow(ValidationError);
-          expect(mockUserData.updatePassword).not.toHaveBeenCalled();
+          expect(mockUsersData.updatePassword).not.toHaveBeenCalled();
         });
       });
     });

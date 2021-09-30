@@ -1,7 +1,7 @@
 import sampleUsers from './users';
 
-const mockUserData = {
-  insertIntoDb: jest.fn(),
+const mockUsersData = {
+  insertNewUser: jest.fn(),
   fetchAllUsers: jest.fn(() => sampleUsers),
   fetchUserById: jest.fn((
     userId: string,
@@ -31,4 +31,4 @@ const mockUserData = {
   fetchProfilePic: jest.fn(),
 };
 
-export default mockUserData;
+export default mockUsersData;

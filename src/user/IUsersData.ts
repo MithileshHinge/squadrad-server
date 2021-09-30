@@ -1,10 +1,10 @@
-export interface IUserData {
+export interface IUsersData {
 
   /**
    * Insert new row into Users table
    * @throws DatabaseError if operation fails
    */
-  insertIntoDb({
+  insertNewUser({
     userId,
     fullName,
     email,
