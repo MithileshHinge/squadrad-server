@@ -3,11 +3,11 @@ import { IPasswordEncryption } from './password/IPasswordEncryption';
 import { IUserValidator } from './validator/IUserValidator';
 
 export default class ChangePassword {
-  usersData: IUsersData;
+  private usersData: IUsersData;
 
-  userValidator: IUserValidator;
+  private userValidator: IUserValidator;
 
-  passwordEncryption: IPasswordEncryption;
+  private passwordEncryption: IPasswordEncryption;
 
   constructor(
     usersData: IUsersData,

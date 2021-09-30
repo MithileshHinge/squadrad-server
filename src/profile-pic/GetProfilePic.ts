@@ -2,7 +2,7 @@ import ValidationError from '../common/errors/ValidationError';
 import { IProfilePicsData } from './IProfilePicsData';
 
 export default class GetProfilePic {
-  profilePicsData: IProfilePicsData;
+  private profilePicsData: IProfilePicsData;
 
   constructor(profilePicsData: IProfilePicsData) {
     this.profilePicsData = profilePicsData;
