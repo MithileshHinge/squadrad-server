@@ -10,6 +10,7 @@ import EditUser from '../../user/EditUser';
 import ChangePassword from '../../user/ChangePassword';
 import userValidator from '../../user/validator';
 import passwordEncryption from '../../user/password';
+import mockProfilePicsData from '../__mocks__/profile-pic/mockProfilePicsData';
 
 describe('User usecases', () => {
   beforeEach(() => {
@@ -18,7 +19,13 @@ describe('User usecases', () => {
     });
   });
   describe('Add a new user', () => {
-    const addUser = new AddUser(mockUsersData, userValidator, id, passwordEncryption);
+    const addUser = new AddUser(
+      mockUsersData,
+      userValidator,
+      id,
+      passwordEncryption,
+      mockProfilePicsData,
+    );
 
     it('Can add a valid new user', () => {
       const user = addUser.add(sampleUserParams);
@@ -29,7 +36,10 @@ describe('User usecases', () => {
       }));
 
       // Default profile pic should be added
-      expect(mockUsersData.updateProfilePic).toHaveBeenCalledWith(user.userId, user.profilePicSrc);
+      expect(mockProfilePicsData.updateProfilePic).toHaveBeenCalledWith(
+        user.userId,
+        user.profilePicSrc,
+      );
     });
 
     describe('User Id validation', () => {

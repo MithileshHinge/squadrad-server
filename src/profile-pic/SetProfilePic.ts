@@ -1,31 +1,31 @@
-import { IUsersData } from '../user/IUsersData';
+import { IProfilePicsData } from './IProfilePicsData';
 import { IProfilePicValidator } from './validator/IProfilePicValidator';
 
 export default class {
-  private usersData: IUsersData;
+  private profilePicsData: IProfilePicsData;
 
   private profilePicValidator: IProfilePicValidator;
 
   private defaultSrc = 'default.jpg';
 
-  constructor(usersData: IUsersData, profilePicValidator: IProfilePicValidator) {
-    this.usersData = usersData;
+  constructor(profilePicsData: IProfilePicsData, profilePicValidator: IProfilePicValidator) {
+    this.profilePicsData = profilePicsData;
     this.profilePicValidator = profilePicValidator;
   }
 
   setDefault(userId: string): string {
-    this.usersData.updateProfilePic(userId, this.defaultSrc);
+    this.profilePicsData.updateProfilePic(userId, this.defaultSrc);
     return this.defaultSrc;
   }
 
   setNew(userId: string, src: string): string {
     const srcValidated = this.profilePicValidator.validateProfilePic(src);
-    this.usersData.updateProfilePic(userId, srcValidated);
+    this.profilePicsData.updateProfilePic(userId, srcValidated);
     return srcValidated;
   }
 
   revertToDefault(userId: string): string {
-    this.usersData.updateProfilePic(userId, this.defaultSrc);
+    this.profilePicsData.updateProfilePic(userId, this.defaultSrc);
     return this.defaultSrc;
   }
 }

@@ -5,9 +5,12 @@ import { IId } from './id';
 import { IPasswordEncryption } from './password/IPasswordEncryption';
 import SetProfilePic from '../profile-pic/SetProfilePic';
 import profilePicValidator from '../profile-pic/validator';
+import { IProfilePicsData } from '../profile-pic/IProfilePicsData';
 
 export default class AddUser {
   private usersData: IUsersData;
+
+  private profilePicsData: IProfilePicsData;
 
   private userValidator: IUserValidator;
 
@@ -20,11 +23,13 @@ export default class AddUser {
     userValidator: IUserValidator,
     id: IId,
     passwordEncryption: IPasswordEncryption,
+    profilePicsData: IProfilePicsData,
   ) {
     this.usersData = usersData;
     this.userValidator = userValidator;
     this.id = id;
     this.passwordEncryption = passwordEncryption;
+    this.profilePicsData = profilePicsData;
   }
 
   /**
@@ -65,7 +70,7 @@ export default class AddUser {
     this.usersData.insertNewUser(userInfo);
 
     // Set a default profile picture
-    const setProfilePic = new SetProfilePic(this.usersData, profilePicValidator);
+    const setProfilePic = new SetProfilePic(this.profilePicsData, profilePicValidator);
     const profilePicSrc = setProfilePic.setDefault(userId);
 
     return {
