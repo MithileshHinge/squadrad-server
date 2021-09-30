@@ -1,20 +1,31 @@
 import { IUserData } from '../user/IUserData';
-import profilePicBuilder from './entity';
+import { IProfilePicValidator } from './validator/IProfilePicValidator';
 
 export default class {
-  userData: IUserData;
+  private userData: IUserData;
 
-  constructor(userData: IUserData) {
+  private profilePicValidator: IProfilePicValidator;
+
+  private defaultSrc = 'default.jpg';
+
+  constructor(userData: IUserData, profilePicValidator: IProfilePicValidator) {
     this.userData = userData;
+    this.profilePicValidator = profilePicValidator;
   }
 
-  setNew(userId: string, src: string): void {
-    const profilePic = profilePicBuilder.build(src);
-    this.userData.updateProfilePic(userId, profilePic.getSrc());
+  setDefault(userId: string): string {
+    this.userData.updateProfilePic(userId, this.defaultSrc);
+    return this.defaultSrc;
   }
 
-  revertToDefault(userId: string) {
-    const profilePic = profilePicBuilder.build('default.jpg');
-    this.userData.updateProfilePic(userId, profilePic.getSrc());
+  setNew(userId: string, src: string): string {
+    const srcValidated = this.profilePicValidator.validateProfilePic(src);
+    this.userData.updateProfilePic(userId, srcValidated);
+    return srcValidated;
+  }
+
+  revertToDefault(userId: string): string {
+    this.userData.updateProfilePic(userId, this.defaultSrc);
+    return this.defaultSrc;
   }
 }

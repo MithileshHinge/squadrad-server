@@ -1,12 +1,30 @@
-import userBuilder from './entity';
 import ValidationError from '../common/errors/ValidationError';
 import { IUserData } from './IUserData';
+import { IUserValidator } from './validator/IUserValidator';
+import { IId } from './id';
+import { IPasswordEncryption } from './password/IPasswordEncryption';
+import SetProfilePic from '../profile-pic/SetProfilePic';
+import profilePicValidator from '../profile-pic/validator';
 
 export default class AddUser {
   private userData: IUserData;
 
-  constructor(userData: IUserData) {
+  private userValidator: IUserValidator;
+
+  private id: IId;
+
+  private passwordEncryption: IPasswordEncryption;
+
+  constructor(
+    userData: IUserData,
+    userValidator: IUserValidator,
+    id: IId,
+    passwordEncryption: IPasswordEncryption,
+  ) {
     this.userData = userData;
+    this.userValidator = userValidator;
+    this.id = id;
+    this.passwordEncryption = passwordEncryption;
   }
 
   /**
@@ -23,24 +41,38 @@ export default class AddUser {
     email: string,
     password: string
   }): { userId: string, fullName: string, email: string, profilePicSrc: string } {
-    let user = userBuilder.build({ fullName, email, password });
+    const emailValidated = this.userValidator.validateEmail(email);
+    if (this.userData.fetchUserByEmail(emailValidated)) throw new ValidationError('Another account already exists with the same email ID');
 
-    if (this.userData.fetchUserByEmail(user.getEmail!())) throw new ValidationError('Another account already exists with the same email ID');
-
+    let userId = this.id.createId();
     // check if userId already exists in database
     // Note: CUID collisions are extremely improbable,
     // but my paranoia insists me to make a sanity check
-    while (this.userData.fetchUserById(user.getId())) {
-      user = userBuilder.build({ fullName, email, password });
+    while (this.userData.fetchUserById(userId)) {
+      userId = this.id.createId();
     }
 
+    const fullNameValidated = this.userValidator.validateFullName(fullName);
+    const passwordValidated = this.userValidator.validatePassword(password);
+    const passwordHash = this.passwordEncryption.encrypt(passwordValidated);
+
     const userInfo = {
-      userId: user.getId(),
-      fullName: user.getFullName!(),
-      email: user.getEmail!(),
-      profilePicSrc: user.getProfilePic(),
+      userId,
+      fullName: fullNameValidated,
+      email: emailValidated,
+      password: passwordHash,
     };
-    this.userData.insertIntoDb({ ...userInfo, password: user.getPassword!() });
-    return userInfo;
+    this.userData.insertIntoDb(userInfo);
+
+    // Set a default profile picture
+    const setProfilePic = new SetProfilePic(this.userData, profilePicValidator);
+    const profilePicSrc = setProfilePic.setDefault(userId);
+
+    return {
+      userId: userInfo.userId,
+      fullName: userInfo.fullName,
+      email: userInfo.email,
+      profilePicSrc,
+    };
   }
 }

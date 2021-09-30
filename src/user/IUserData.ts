@@ -8,13 +8,11 @@ export interface IUserData {
     userId,
     fullName,
     email,
-    profilePicSrc,
     password,
   }: {
     userId: string,
     fullName: string,
     email: string,
-    profilePicSrc: string,
     password: string
   }): void;
 
