@@ -2,6 +2,7 @@ export interface IUsersData {
 
   /**
    * Insert new row into Users table
+   * @returns data of the added user from the database
    * @throws DatabaseError if operation fails
    */
   insertNewUser({
@@ -14,7 +15,11 @@ export interface IUsersData {
     fullName: string,
     email: string,
     password: string
-  }): void;
+  }): {
+    userId: string,
+    fullName: string,
+    email: string,
+  };
 
   /**
    * Fetch all users in the database
@@ -54,12 +59,16 @@ export interface IUsersData {
 
   /**
    * Update user data
+   * @returns data updated in the database
    * @throws DatabaseError if operation fails
    */
   updateUser({ userId, fullName }: {
     userId: string,
     fullName?: string,
-  }): void;
+  }): {
+    userId: string,
+    fullName?: string,
+  };
 
   /**
    * Update password field, please ensure password is stored in encrypted format

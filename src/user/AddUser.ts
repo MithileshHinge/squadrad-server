@@ -67,16 +67,16 @@ export default class AddUser {
       email: emailValidated,
       password: passwordHash,
     };
-    this.usersData.insertNewUser(userInfo);
+    const userAdded = this.usersData.insertNewUser(userInfo);
 
     // Set a default profile picture
     const setProfilePic = new SetProfilePic(this.profilePicsData, profilePicValidator);
     const profilePicSrc = setProfilePic.setDefault(userId);
 
     return {
-      userId: userInfo.userId,
-      fullName: userInfo.fullName,
-      email: userInfo.email,
+      userId: userAdded.userId,
+      fullName: userAdded.fullName,
+      email: userAdded.email,
       profilePicSrc,
     };
   }
