@@ -9,15 +9,15 @@ export default class FindUser {
 
   /**
    * Find all users
-   * @returns array of user Data Transfer Object if users exists, otherwise returns empty array []
+   * @returns Promise to return array of user info if users exists, otherwise returns empty array []
    * @throws DatabaseError if operation fails
    */
-  findAllUsers(): {
+  async findAllUsers(): Promise<{
     userId: string,
     fullName: string,
     profilePicSrc: string,
-  }[] {
-    const users = this.usersData.fetchAllUsers();
+  }[]> {
+    const users = await this.usersData.fetchAllUsers();
     const usersInfoToReturn = users.map((user) => ({
       userId: user.userId,
       fullName: user.fullName,
@@ -29,15 +29,15 @@ export default class FindUser {
 
   /**
    * Find user by userId
-   * @returns user Data Transfer Object if id exists, otherwise returns null
+   * @returns Promise to return user info if id exists, otherwise returns null
    * @throws DatabaseError if operation fails
    */
-  findUserById(userId: string): {
+  async findUserById(userId: string): Promise<{
     userId: string,
     fullName: string,
     profilePicSrc: string,
-  } | null {
-    const user = this.usersData.fetchUserById(userId);
+  } | null> {
+    const user = await this.usersData.fetchUserById(userId);
     if (user) {
       return {
         userId: user.userId,
@@ -50,15 +50,15 @@ export default class FindUser {
 
   /**
    * Find user by email ID
-   * @returns user Data Transfer Object if email Id exists, otherwise returns null
+   * @returns Promise to return user info if email Id exists, otherwise returns null
    * @throws DatabaseError if operation fails
    */
-  findUserByEmail(email: string): {
+  async findUserByEmail(email: string): Promise<{
     userId: string,
     fullName: string,
     profilePicSrc: string,
-  } | null {
-    const user = this.usersData.fetchUserByEmail(email);
+  } | null> {
+    const user = await this.usersData.fetchUserByEmail(email);
     if (user) {
       return {
         userId: user.userId,

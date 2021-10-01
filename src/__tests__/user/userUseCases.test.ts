@@ -27,8 +27,8 @@ describe('User usecases', () => {
       mockProfilePicsData,
     );
 
-    it('Can add a valid new user', () => {
-      const user = addUser.add(sampleUserParams);
+    it('Can add a valid new user', async () => {
+      const user = await addUser.add(sampleUserParams);
       expect(mockUsersData.insertNewUser).toHaveBeenCalledWith(expect.objectContaining({
         userId: user.userId,
         fullName: user.fullName,
@@ -43,14 +43,15 @@ describe('User usecases', () => {
     });
 
     describe('User Id validation', () => {
-      it('User must have a userId', () => {
-        expect(addUser.add(sampleUserParams).userId).toBeTruthy();
+      it('User must have a userId', async () => {
+        expect((await addUser.add(sampleUserParams)).userId).toBeTruthy();
       });
 
-      it('userId must be unique', () => {
+      it('userId must be unique', async () => {
         const userIdSet = new Set();
         for (let i = 0; i < 5; i += 1) {
-          userIdSet.add(addUser.add(sampleUserParams).userId);
+          // eslint-disable-next-line no-await-in-loop
+          userIdSet.add((await addUser.add(sampleUserParams)).userId);
         }
         expect(userIdSet.size).toBe(5);
       });
@@ -59,11 +60,11 @@ describe('User usecases', () => {
     describe('Full name validation', () => {
       describe('Full name must be >= 3 letters', () => {
         ['', 'a', 'ab', 'a ', 'a    ', '     a'].forEach((fullName) => {
-          it(`should throw error for "${fullName}"`, () => {
-            expect(() => addUser.add({
+          it(`should throw error for "${fullName}"`, async () => {
+            await expect(addUser.add({
               ...sampleUserParams,
               fullName,
-            })).toThrow(ValidationError);
+            })).rejects.toThrow(ValidationError);
             expect(mockUsersData.insertNewUser).not.toHaveBeenCalled();
           });
         });
@@ -71,10 +72,10 @@ describe('User usecases', () => {
 
       describe('Full name must only contain alphabet and spaces', () => {
         ['1', '2', '0', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '+', '=', '_', '\'', '"', ';', '.', '/', '\\', '?', '!'].forEach((char) => {
-          it(`should throw error for "asd${char}"`, () => {
-            expect(() => addUser.add({ ...sampleUserParams, fullName: `asdfg${char}` })).toThrow(ValidationError);
-            expect(() => addUser.add({ ...sampleUserParams, fullName: `asd ${char}` })).toThrow(ValidationError);
-            expect(() => addUser.add({ ...sampleUserParams, fullName: `as${char}` })).toThrow(ValidationError);
+          it(`should throw error for "asd${char}"`, async () => {
+            await expect(addUser.add({ ...sampleUserParams, fullName: `asdfg${char}` })).rejects.toThrow(ValidationError);
+            await expect(addUser.add({ ...sampleUserParams, fullName: `asd ${char}` })).rejects.toThrow(ValidationError);
+            await expect(addUser.add({ ...sampleUserParams, fullName: `as${char}` })).rejects.toThrow(ValidationError);
             expect(mockUsersData.insertNewUser).not.toHaveBeenCalled();
           });
         });
@@ -82,11 +83,11 @@ describe('User usecases', () => {
 
       describe('Full name must only single spaces between words', () => {
         ['as  dfg', 'as df  g', 'as  df   g'].forEach((fullName) => {
-          it(`should throw error for "${fullName}"`, () => {
-            expect(() => addUser.add({
+          it(`should throw error for "${fullName}"`, async () => {
+            await expect(addUser.add({
               ...sampleUserParams,
               fullName,
-            })).toThrow(ValidationError);
+            })).rejects.toThrow(ValidationError);
             expect(mockUsersData.insertNewUser).not.toHaveBeenCalled();
           });
         });
@@ -94,11 +95,11 @@ describe('User usecases', () => {
 
       describe('Full name must be <= 50 characters', () => {
         ['asdfghjklqwertyuioplkjhgfdsazxcvbnmlkjhgfdsaqwertyq', 'asdfghjklq wertyuioplkjhgfdsa zxcvbnmlkjhg fdsaqwertyq'].forEach((fullName) => {
-          it(`should throw error for ${fullName}`, () => {
-            expect(() => addUser.add({
+          it(`should throw error for ${fullName}`, async () => {
+            await expect(addUser.add({
               ...sampleUserParams,
               fullName,
-            })).toThrow(ValidationError);
+            })).rejects.toThrow(ValidationError);
             expect(mockUsersData.insertNewUser).not.toHaveBeenCalled();
           });
         });
@@ -108,14 +109,17 @@ describe('User usecases', () => {
     describe('Email Id validation', () => {
       describe('User must have a valid email address', () => {
         ['', ' ', 'mithihi', 'mihbhg@', 'mibg hv nv@gmail.com', '@gmail.com', 'vghjhb@gmail'].forEach((email) => {
-          it(`Should throw error for "${email}"`, () => {
-            expect(() => addUser.add({ ...sampleUserParams, email })).toThrow(ValidationError);
+          it(`Should throw error for "${email}"`, async () => {
+            await expect(addUser.add({
+              ...sampleUserParams,
+              email,
+            })).rejects.toThrow(ValidationError);
             expect(mockUsersData.insertNewUser).not.toHaveBeenCalled();
           });
         });
       });
 
-      it('Email IDs must be unique', () => {
+      it('Email IDs must be unique', async () => {
         const userParams1 = {
           fullName: faker.name.findName(),
           email: faker.internet.email(),
@@ -128,26 +132,29 @@ describe('User usecases', () => {
         };
         const addedUser = addUser.add(userParams1);
         mockUsersData.fetchUserByEmail.mockReturnValueOnce(addedUser);
-        expect(() => addUser.add(userParams2)).toThrowError(ValidationError);
+        await expect(addUser.add(userParams2)).rejects.toThrowError(ValidationError);
         expect(mockUsersData.insertNewUser).toHaveBeenCalledTimes(1);
       });
     });
 
     describe('Password should be >= 8 characters', () => {
       ['', ' ', 'asa', 'as afsf', 'asf  '].forEach((password) => {
-        it(`Should throw error for ${password}`, () => {
-          expect(() => addUser.add({ ...sampleUserParams, password })).toThrow(ValidationError);
+        it(`Should throw error for ${password}`, async () => {
+          await expect(addUser.add({
+            ...sampleUserParams,
+            password,
+          })).rejects.toThrow(ValidationError);
           expect(mockUsersData.insertNewUser).not.toHaveBeenCalled();
         });
       });
     });
 
-    it('Should throw error if invalid parameters are provided', () => {
-      expect(() => addUser.add({
+    it('Should throw error if invalid parameters are provided', async () => {
+      await expect(addUser.add({
         fullName: 'nsda  asdad sd',
         email: 'efewndfa',
         password: '1234',
-      })).toThrow(ValidationError);
+      })).rejects.toThrow(ValidationError);
       expect(mockUsersData.insertNewUser).not.toHaveBeenCalled();
     });
   });
@@ -155,46 +162,48 @@ describe('User usecases', () => {
   describe('Get users', () => {
     const findUser = new FindUser(mockUsersData);
 
-    it('Can get all users', () => {
-      const users = findUser.findAllUsers();
+    it('Can get all users', async () => {
+      const users = await findUser.findAllUsers();
       expect(mockUsersData.fetchAllUsers).toHaveBeenCalled();
       expect(users.length).toStrictEqual(sampleUsers.length);
     });
 
-    it('Can get user by userId', () => {
+    it('Can get user by userId', async () => {
       // get any user
       const user = sampleUsers[0];
-      expect(findUser.findUserById(user.userId)).toStrictEqual(expect.objectContaining({
-        userId: user.userId,
-      }));
+      await expect(findUser.findUserById(user.userId))
+        .resolves.toStrictEqual(expect.objectContaining({
+          userId: user.userId,
+        }));
     });
 
-    it('Should return null if userId not found', () => {
+    it('Should return null if userId not found', async () => {
       const userId = id.createId();
-      expect(findUser.findUserById(userId)).toBeNull();
+      await expect(findUser.findUserById(userId)).resolves.toBeNull();
     });
 
-    it('Can get user by emailId', () => {
+    it('Can get user by emailId', async () => {
       // get any user
       const user = sampleUsers[0];
-      expect(findUser.findUserByEmail(user.email)).toStrictEqual(expect.objectContaining({
-        userId: user.userId,
-      }));
+      await expect(findUser.findUserByEmail(user.email))
+        .resolves.toStrictEqual(expect.objectContaining({
+          userId: user.userId,
+        }));
     });
 
-    it('Should return null if email not found', () => {
-      expect(findUser.findUserByEmail('wqernjskdfnvsf@gmail.com')).toBeNull();
+    it('Should return null if email not found', async () => {
+      await expect(findUser.findUserByEmail('wqernjskdfnvsf@gmail.com')).resolves.toBeNull();
     });
   });
 
   describe('Update user', () => {
     const editUser = new EditUser(mockUsersData, userValidator);
 
-    it('Can change fullName', () => {
+    it('Can change fullName', async () => {
       // get any user
       const user = sampleUsers[0];
       const newName = faker.name.findName();
-      editUser.edit({ userId: user.userId, fullName: newName });
+      await editUser.edit({ userId: user.userId, fullName: newName });
       expect(mockUsersData.updateUser).toHaveBeenCalledWith(expect.objectContaining({
         userId: user.userId,
       }));
@@ -203,11 +212,11 @@ describe('User usecases', () => {
     describe('Full name validation', () => {
       describe('Full name must be >= 3 letters', () => {
         ['', 'a', 'ab', 'a ', 'a    ', '     a'].forEach((fullName) => {
-          it(`should throw error for "${fullName}"`, () => {
-            expect(() => editUser.edit({
+          it(`should throw error for "${fullName}"`, async () => {
+            await expect(editUser.edit({
               userId: sampleUsers[0].userId,
               fullName,
-            })).toThrow(ValidationError);
+            })).rejects.toThrow(ValidationError);
             expect(mockUsersData.updateUser).not.toHaveBeenCalled();
           });
         });
@@ -215,19 +224,19 @@ describe('User usecases', () => {
 
       describe('Full name must only contain alphabet and spaces', () => {
         ['1', '2', '0', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '+', '=', '_', '\'', '"', ';', '.', '/', '\\', '?', '!'].forEach((char) => {
-          it(`should throw error for "asd${char}"`, () => {
-            expect(() => editUser.edit({
+          it(`should throw error for "asd${char}"`, async () => {
+            await expect(editUser.edit({
               userId: sampleUsers[0].userId,
               fullName: `asdfg${char}`,
-            })).toThrow(ValidationError);
-            expect(() => editUser.edit({
+            })).rejects.toThrow(ValidationError);
+            await expect(editUser.edit({
               userId: sampleUsers[0].userId,
               fullName: `asd ${char}`,
-            })).toThrow(ValidationError);
-            expect(() => editUser.edit({
+            })).rejects.toThrow(ValidationError);
+            await expect(editUser.edit({
               userId: sampleUsers[0].userId,
               fullName: `as${char}`,
-            })).toThrow(ValidationError);
+            })).rejects.toThrow(ValidationError);
             expect(mockUsersData.updateUser).not.toHaveBeenCalled();
           });
         });
@@ -235,11 +244,11 @@ describe('User usecases', () => {
 
       describe('Full name must only single spaces between words', () => {
         ['as  dfg', 'as df  g', 'as  df   g'].forEach((fullName) => {
-          it(`should throw error for "${fullName}"`, () => {
-            expect(() => editUser.edit({
+          it(`should throw error for "${fullName}"`, async () => {
+            await expect(editUser.edit({
               userId: sampleUsers[0].userId,
               fullName,
-            })).toThrow(ValidationError);
+            })).rejects.toThrow(ValidationError);
             expect(mockUsersData.updateUser).not.toHaveBeenCalled();
           });
         });
@@ -247,11 +256,11 @@ describe('User usecases', () => {
 
       describe('Full name must be <= 50 characters', () => {
         ['asdfghjklqwertyuioplkjhgfdsazxcvbnmlkjhgfdsaqwertyq', 'asdfghjklq wertyuioplkjhgfdsa zxcvbnmlkjhg fdsaqwertyq'].forEach((fullName) => {
-          it(`should throw error for ${fullName}`, () => {
-            expect(() => editUser.edit({
+          it(`should throw error for ${fullName}`, async () => {
+            await expect(editUser.edit({
               userId: sampleUsers[0].userId,
               fullName,
-            })).toThrow(ValidationError);
+            })).rejects.toThrow(ValidationError);
             expect(mockUsersData.updateUser).not.toHaveBeenCalled();
           });
         });
@@ -262,10 +271,10 @@ describe('User usecases', () => {
   describe('Change password', () => {
     const changePassword = new ChangePassword(mockUsersData, userValidator, passwordEncryption);
 
-    it('Can change password', () => {
+    it('Can change password', async () => {
       const user = sampleUsers[0];
       const newPassword = faker.internet.password(8);
-      changePassword.change(user.userId, newPassword);
+      await changePassword.change(user.userId, newPassword);
       expect(mockUsersData.updatePassword).toHaveBeenCalledWith(
         user.userId, expect.not.stringMatching(user.password),
       );
@@ -273,11 +282,11 @@ describe('User usecases', () => {
 
     describe('Password should be >= 8 characters', () => {
       ['', ' ', 'asa', 'as afsf', 'asf  '].forEach((password) => {
-        it(`Should throw error for ${password}`, () => {
-          expect(() => changePassword.change(
+        it(`Should throw error for ${password}`, async () => {
+          await expect(changePassword.change(
             sampleUsers[0].userId,
             password,
-          )).toThrow(ValidationError);
+          )).rejects.toThrow(ValidationError);
           expect(mockUsersData.updatePassword).not.toHaveBeenCalled();
         });
       });

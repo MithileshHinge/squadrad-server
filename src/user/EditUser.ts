@@ -16,7 +16,10 @@ export default class EditUser {
    * @throws ValidationError if invalid parameters are provided
    * @throws DatabaseError if operation fails
    */
-  edit(userInfo: { userId: string, fullName?: string }): { userId: string, fullName?: string } {
+  async edit(userInfo: { userId: string, fullName?: string }): Promise<{
+    userId: string,
+    fullName?: string,
+  }> {
     const fullNameValidated = userInfo.fullName === undefined
       ? undefined
       : this.userValidator.validateFullName(userInfo.fullName);
@@ -24,7 +27,7 @@ export default class EditUser {
       userId: userInfo.userId,
       fullName: fullNameValidated,
     };
-    const userEdited = this.usersData.updateUser(userToUpdate);
+    const userEdited = await this.usersData.updateUser(userToUpdate);
     return {
       userId: userEdited.userId,
       fullName: userEdited.fullName,

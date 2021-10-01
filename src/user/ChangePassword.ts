@@ -25,9 +25,9 @@ export default class ChangePassword {
    * @throws ValidationError if newPassword is invalid
    * @throws DatabaseError if operation fails
    */
-  change(userId: string, newPassword: string) {
+  async change(userId: string, newPassword: string) {
     const passwordValidated = this.userValidator.validatePassword(newPassword);
     const passwordHash = this.passwordEncryption.encrypt(passwordValidated);
-    this.usersData.updatePassword(userId, passwordHash);
+    await this.usersData.updatePassword(userId, passwordHash);
   }
 }

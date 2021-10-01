@@ -37,7 +37,7 @@ export default class AddUser {
    * @throws ValidationError if invalid parameters are provided or account already exists
    * @throws DatabaseError when there is an error in inserting user into database
    */
-  add({
+  async add({
     fullName,
     email,
     password,
@@ -45,15 +45,16 @@ export default class AddUser {
     fullName: string,
     email: string,
     password: string
-  }): { userId: string, fullName: string, email: string, profilePicSrc: string } {
+  }): Promise<{ userId: string, fullName: string, email: string, profilePicSrc: string }> {
     const emailValidated = this.userValidator.validateEmail(email);
-    if (this.usersData.fetchUserByEmail(emailValidated)) throw new ValidationError('Another account already exists with the same email ID');
+    if (await this.usersData.fetchUserByEmail(emailValidated)) throw new ValidationError('Another account already exists with the same email ID');
 
     let userId = this.id.createId();
     // check if userId already exists in database
     // Note: CUID collisions are extremely improbable,
     // but my paranoia insists me to make a sanity check
-    while (this.usersData.fetchUserById(userId)) {
+    // eslint-disable-next-line no-await-in-loop
+    while (await this.usersData.fetchUserById(userId)) {
       userId = this.id.createId();
     }
 
@@ -67,11 +68,11 @@ export default class AddUser {
       email: emailValidated,
       password: passwordHash,
     };
-    const userAdded = this.usersData.insertNewUser(userInfo);
+    const userAdded = await this.usersData.insertNewUser(userInfo);
 
     // Set a default profile picture
     const setProfilePic = new SetProfilePic(this.profilePicsData, profilePicValidator);
-    const profilePicSrc = setProfilePic.setDefault(userId);
+    const profilePicSrc = await setProfilePic.setDefault(userId);
 
     return {
       userId: userAdded.userId,

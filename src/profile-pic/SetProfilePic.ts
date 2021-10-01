@@ -13,19 +13,19 @@ export default class {
     this.profilePicValidator = profilePicValidator;
   }
 
-  setDefault(userId: string): string {
-    this.profilePicsData.updateProfilePic(userId, this.defaultSrc);
+  async setDefault(userId: string): Promise<string> {
+    await this.profilePicsData.updateProfilePic(userId, this.defaultSrc);
     return this.defaultSrc;
   }
 
-  setNew(userId: string, src: string): string {
+  async setNew(userId: string, src: string): Promise<string> {
     const srcValidated = this.profilePicValidator.validateProfilePic(src);
-    this.profilePicsData.updateProfilePic(userId, srcValidated);
+    await this.profilePicsData.updateProfilePic(userId, srcValidated);
     return srcValidated;
   }
 
-  revertToDefault(userId: string): string {
-    this.profilePicsData.updateProfilePic(userId, this.defaultSrc);
+  async revertToDefault(userId: string): Promise<string> {
+    await this.profilePicsData.updateProfilePic(userId, this.defaultSrc);
     return this.defaultSrc;
   }
 }

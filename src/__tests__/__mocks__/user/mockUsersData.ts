@@ -12,34 +12,34 @@ const mockUsersData = {
     fullName: string,
     email: string,
     password: string,
-  }) => ({ userId, fullName, email })),
-  fetchAllUsers: jest.fn(() => sampleUsers),
+  }) => (Promise.resolve({ userId, fullName, email }))),
+  fetchAllUsers: jest.fn(() => Promise.resolve(sampleUsers)),
   fetchUserById: jest.fn((
     userId: string,
   ) => {
     const user = sampleUsers.find((u) => u.userId === userId);
-    return user ? {
+    return user ? Promise.resolve({
       userId: user.userId,
       fullName: user.fullName,
       email: user.email,
       profilePicSrc: user.profilePicSrc,
-    } : null;
+    }) : Promise.resolve(null);
   }),
   fetchUserByEmail: jest.fn((
     email: string,
   ) => {
     const user = sampleUsers.find((u) => u.email === email);
-    return user ? {
+    return user ? Promise.resolve({
       userId: user.userId,
       fullName: user.fullName,
       email: user.email,
       profilePicSrc: user.profilePicSrc,
-    } : null;
+    }) : Promise.resolve(null);
   }),
   updateUser: jest.fn(({ userId, fullName }: {
     userId: string,
     fullName?: string,
-  }) => ({ userId, fullName })),
+  }) => Promise.resolve({ userId, fullName })),
   updatePassword: jest.fn(),
 };
 
