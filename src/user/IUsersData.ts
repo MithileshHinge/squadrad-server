@@ -2,8 +2,8 @@ export interface IUsersData {
 
   /**
    * Insert new row into Users table
-   * @returns data of the added user from the database
    * @throws DatabaseError if operation fails
+   * @returns data of the added user from the database
    */
   insertNewUser({
     userId,
@@ -23,8 +23,8 @@ export interface IUsersData {
 
   /**
    * Fetch all users in the database
-   * @returns array of user Data Transfer Objects if users exist, otherwise returns empty array []
    * @throws DatabaseError if operation fails
+   * @returns array of user Data Transfer Objects if users exist, otherwise returns empty array []
    */
   fetchAllUsers(): {
     userId: string,
@@ -35,8 +35,8 @@ export interface IUsersData {
 
   /**
    * Fetch user information by user Id
-   * @returns user Data Transfer Object if user id exists, otherwise returns null
    * @throws DatabaseError if operation fails
+   * @returns user Data Transfer Object if user id exists, otherwise returns null
    */
   fetchUserById(userId: string): {
     userId: string,
@@ -47,8 +47,8 @@ export interface IUsersData {
 
   /**
    * Fetch user information by email Id
-   * @returns user Data Transfer Object if email Id exists, otherwise returns null
    * @throws DatabaseError if operation fails
+   * @returns user Data Transfer Object if email Id exists, otherwise returns null
    */
   fetchUserByEmail(email: string): {
     userId: string,
@@ -59,8 +59,8 @@ export interface IUsersData {
 
   /**
    * Update user data
-   * @returns data updated in the database
    * @throws DatabaseError if operation fails
+   * @returns data updated in the database
    */
   updateUser({ userId, fullName }: {
     userId: string,
