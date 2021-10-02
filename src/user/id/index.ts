@@ -18,6 +18,7 @@ export interface IId {
 }
 
 let counter = Math.floor(Math.random() * 0xffffff);
+const checkForHexRegExp = new RegExp('^[0-9a-fA-F]{24}$');
 
 const id: IId = {
   createId() {
@@ -37,7 +38,7 @@ const id: IId = {
   },
 
   isValidId(idToCheck: string) {
-    return idToCheck.length === 24;
+    return (idToCheck.length === 24 && checkForHexRegExp.test(idToCheck));
   },
 };
 
