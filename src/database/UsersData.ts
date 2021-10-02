@@ -104,7 +104,7 @@ export default class UsersData extends BaseData implements IUsersData {
   }): Promise<{ userId: string, fullName?: string }> {
     const db = await this.getDb();
     try {
-      db.collection('users').updateOne({ _id: new ObjectId(userId) }, { $set: updateData });
+      await db.collection('users').updateOne({ _id: new ObjectId(userId) }, { $set: updateData });
       return {
         userId,
         ...updateData,
@@ -117,7 +117,7 @@ export default class UsersData extends BaseData implements IUsersData {
   async updatePassword(userId: string, newPassword: string): Promise<void> {
     const db = await this.getDb();
     try {
-      db.collection('users').updateOne({ _id: new ObjectId(userId) }, { $set: { password: newPassword } });
+      await db.collection('users').updateOne({ _id: new ObjectId(userId) }, { $set: { password: newPassword } });
     } catch (err: any) {
       this.handleDatabaseError(err, 'Could not fetch user');
     }
