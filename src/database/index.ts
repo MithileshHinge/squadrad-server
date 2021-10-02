@@ -1,5 +1,6 @@
 import { MongoClient, MongoError } from 'mongodb';
 import DatabaseError from '../common/errors/DatabaseError';
+import UsersData from './UsersData';
 
 const url = 'mongodb://localhost:27017';
 const dbName = 'squadrad';
@@ -21,3 +22,5 @@ export async function getDb() {
     return handleDatabaseError(err, 'Connection to MongoDb server failed');
   }
 }
+
+export const userData = new UsersData(getDb, handleDatabaseError);
