@@ -1,5 +1,6 @@
 import { MongoClient, MongoError } from 'mongodb';
 import DatabaseError from '../common/errors/DatabaseError';
+import ProfilePicsData from './ProfilePicsData';
 import UsersData from './UsersData';
 
 const url = 'mongodb://localhost:27017';
@@ -23,4 +24,5 @@ export async function getDb() {
   }
 }
 
-export const userData = new UsersData(getDb, handleDatabaseError);
+export const usersData = new UsersData(getDb, handleDatabaseError);
+export const profilePicsData = new ProfilePicsData(getDb, handleDatabaseError);
