@@ -1,17 +1,9 @@
 /* eslint-disable no-underscore-dangle */
-import { ObjectId, Db } from 'mongodb';
+import { ObjectId } from 'mongodb';
 import { IUsersData } from '../user/IUsersData';
+import BaseData from './BaseData';
 
-export default class UsersData implements IUsersData {
-  private getDb: () => Promise<Db>;
-
-  private handleDatabaseError: (err: any, message: string) => never;
-
-  constructor(getDb: () => Promise<Db>, handleDatabaseError: (err: any, message: string) => never) {
-    this.getDb = getDb;
-    this.handleDatabaseError = handleDatabaseError;
-  }
-
+export default class UsersData extends BaseData implements IUsersData {
   async insertNewUser({
     userId,
     fullName,
