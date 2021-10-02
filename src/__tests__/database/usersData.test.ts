@@ -72,6 +72,8 @@ describe('Users data access gateway', () => {
       await usersData.updateUser({ userId, fullName });
       await expect(usersData.updateUser({ userId, fullName }))
         .resolves.toStrictEqual(expect.objectContaining({ userId, fullName }));
+      await expect(userCollection.findOne({ _id: new ObjectId(userId) }))
+        .resolves.toStrictEqual(expect.objectContaining({ fullName }));
     });
   });
 
@@ -80,6 +82,8 @@ describe('Users data access gateway', () => {
       const { userId } = sampleUsers[0];
       const newPassword = 'nqeiwfjqnwekjqnwe';
       await expect(usersData.updatePassword(userId, newPassword)).resolves.not.toThrowError();
+      await expect(userCollection.findOne({ _id: new ObjectId(userId) }))
+        .resolves.toStrictEqual(expect.objectContaining({ password: newPassword }));
     });
   });
 
