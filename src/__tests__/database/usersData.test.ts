@@ -1,13 +1,14 @@
 /* eslint-disable no-underscore-dangle */
 import { Collection, Document, ObjectId } from 'mongodb';
 import DatabaseError from '../../common/errors/DatabaseError';
+import { handleDatabaseError } from '../../database';
 import UsersData from '../../database/UsersData';
 import id from '../../user/id';
 import mockDb, { closeConnection } from '../__mocks__/database/mockDb';
 import sampleUsers, { newUser } from '../__mocks__/user/users';
 
 describe('Users data access gateway', () => {
-  const usersData = new UsersData(mockDb);
+  const usersData = new UsersData(mockDb, handleDatabaseError);
   let userCollection: Collection<Document>;
   beforeEach(async () => {
     userCollection = (await mockDb()).collection('users');

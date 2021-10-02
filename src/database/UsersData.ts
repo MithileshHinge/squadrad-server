@@ -1,13 +1,15 @@
 /* eslint-disable no-underscore-dangle */
 import { ObjectId, Db } from 'mongodb';
-import { handleDatabaseError } from '.';
 import { IUsersData } from '../user/IUsersData';
 
 export default class UsersData implements IUsersData {
   private getDb: () => Promise<Db>;
 
-  constructor(getDb: () => Promise<Db>) {
+  private handleDatabaseError: (err: any, message: string) => never;
+
+  constructor(getDb: () => Promise<Db>, handleDatabaseError: (err: any, message: string) => never) {
     this.getDb = getDb;
+    this.handleDatabaseError = handleDatabaseError;
   }
 
   async insertNewUser({
@@ -35,7 +37,7 @@ export default class UsersData implements IUsersData {
         email,
       };
     } catch (err: any) {
-      return handleDatabaseError(err, 'Could not insert new user into database');
+      return this.handleDatabaseError(err, 'Could not insert new user into database');
     }
   }
 
@@ -79,7 +81,7 @@ export default class UsersData implements IUsersData {
         profilePicSrc: result.profilePicSrc,
       };
     } catch (err: any) {
-      return handleDatabaseError(err, 'Could not fetch user');
+      return this.handleDatabaseError(err, 'Could not fetch user');
     }
   }
 
@@ -100,7 +102,7 @@ export default class UsersData implements IUsersData {
         profilePicSrc: result.profilePicSrc,
       };
     } catch (err: any) {
-      return handleDatabaseError(err, 'Could not fetch user');
+      return this.handleDatabaseError(err, 'Could not fetch user');
     }
   }
 
@@ -116,7 +118,7 @@ export default class UsersData implements IUsersData {
         ...updateData,
       };
     } catch (err: any) {
-      return handleDatabaseError(err, 'Could not fetch user');
+      return this.handleDatabaseError(err, 'Could not fetch user');
     }
   }
 
@@ -125,7 +127,7 @@ export default class UsersData implements IUsersData {
     try {
       db.collection('users').updateOne({ _id: new ObjectId(userId) }, { $set: { password: newPassword } });
     } catch (err: any) {
-      handleDatabaseError(err, 'Could not fetch user');
+      this.handleDatabaseError(err, 'Could not fetch user');
     }
   }
 }
