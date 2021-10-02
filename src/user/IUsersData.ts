@@ -22,18 +22,6 @@ export interface IUsersData {
   }>;
 
   /**
-   * Fetch all users in the database
-   * @throws DatabaseError if operation fails
-   * @returns Promise to return array of user info if users exist, otherwise returns empty array []
-   */
-  fetchAllUsers(): Promise<{
-    userId: string,
-    fullName: string,
-    email: string,
-    profilePicSrc: string,
-  }[]>;
-
-  /**
    * Fetch user information by user Id
    * @throws DatabaseError if operation fails
    * @returns Promise to return user info if user id exists, otherwise returns null

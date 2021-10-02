@@ -11,7 +11,7 @@ export default class FindUser {
    * Find all users
    * @returns Promise to return array of user info if users exists, otherwise returns empty array []
    * @throws DatabaseError if operation fails
-   */
+   
   async findAllUsers(): Promise<{
     userId: string,
     fullName: string,
@@ -26,6 +26,7 @@ export default class FindUser {
 
     return usersInfoToReturn;
   }
+  */
 
   /**
    * Find user by userId

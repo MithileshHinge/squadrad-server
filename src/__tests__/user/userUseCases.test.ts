@@ -162,11 +162,13 @@ describe('User usecases', () => {
   describe('Get users', () => {
     const findUser = new FindUser(mockUsersData);
 
+    /*
     it('Can get all users', async () => {
       const users = await findUser.findAllUsers();
       expect(mockUsersData.fetchAllUsers).toHaveBeenCalled();
       expect(users.length).toStrictEqual(sampleUsers.length);
     });
+    */
 
     it('Can get user by userId', async () => {
       // get any user
