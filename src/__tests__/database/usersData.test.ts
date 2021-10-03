@@ -1,7 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 import { Collection, Document, ObjectId } from 'mongodb';
 import DatabaseError from '../../common/errors/DatabaseError';
-import { handleDatabaseError } from '../../database';
+import handleDatabaseError from '../../database/DatabaseErrorHandler';
 import UsersData from '../../database/UsersData';
 import id from '../../user/id';
 import mockDb, { closeConnection } from '../__mocks__/database/mockDb';

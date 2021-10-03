@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import { MongoClient, MongoClientOptions } from 'mongodb';
-import { handleDatabaseError } from '../../../database';
+import handleDatabaseError from '../../../database/DatabaseErrorHandler';
 
 const client = new MongoClient(process.env.MONGO_URL!, {
   useNewUrlParser: true,

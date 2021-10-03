@@ -1,17 +1,12 @@
-import { MongoClient, MongoError } from 'mongodb';
-import DatabaseError from '../common/errors/DatabaseError';
+import { MongoClient } from 'mongodb';
 import ProfilePicsData from './ProfilePicsData';
 import UsersData from './UsersData';
+import mockDb from '../__tests__/__mocks__/database/mockDb';
+import handleDatabaseError from './DatabaseErrorHandler';
 
 const url = 'mongodb://localhost:27017';
 const dbName = 'squadrad';
 const client = new MongoClient(url);
-
-export function handleDatabaseError(err: MongoError, message: string): never {
-  const databaseError = new DatabaseError(message);
-  databaseError.stack = err.stack;
-  throw databaseError;
-}
 
 export async function getDb() {
   try {
@@ -24,5 +19,7 @@ export async function getDb() {
   }
 }
 
-export const usersData = new UsersData(getDb, handleDatabaseError);
-export const profilePicsData = new ProfilePicsData(getDb, handleDatabaseError);
+const getDbDependency = process.env.NODE_ENV === 'test' ? mockDb : getDb; // NODE_ENV variable is set to 'test' by Jest
+
+export const usersData = new UsersData(getDbDependency, handleDatabaseError);
+export const profilePicsData = new ProfilePicsData(getDbDependency, handleDatabaseError);
