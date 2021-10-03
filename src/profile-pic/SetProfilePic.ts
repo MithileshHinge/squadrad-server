@@ -1,7 +1,7 @@
 import { IProfilePicsData } from './IProfilePicsData';
 import { IProfilePicValidator } from './validator/IProfilePicValidator';
 
-export default class {
+export default class SetProfilePic {
   private profilePicsData: IProfilePicsData;
 
   private profilePicValidator: IProfilePicValidator;
