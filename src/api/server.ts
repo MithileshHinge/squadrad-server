@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express';
+import helmet from 'helmet';
 import { hasKey } from '../common/helpers';
 import handleExpressRequest from './handleExpressRequest';
 import routes from './routes';
@@ -6,6 +7,8 @@ import routes from './routes';
 const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+app.use(helmet());
 
 routes.forEach((route) => {
   const { path, ...controllers } = route;
