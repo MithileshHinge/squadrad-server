@@ -27,6 +27,18 @@ describe('User Endpoints', () => {
       await expect(userCollection.findOne({ email: sampleUserParams.email }))
         .resolves.toStrictEqual(expect.objectContaining({ email: sampleUserParams.email }));
     });
+
+    it('Respond with error code if parameters are invalid', async () => {
+      const invalidParams = {
+        fullName: 'm3rn2  csd3',
+        email: 'aenfa efaej',
+        password: 'rvarv',
+      };
+      await Promise.all(Object.entries(invalidParams).map(async ([param, value]) => {
+        const res = await request(app).post('/user').send({ ...sampleUserParams, [param]: value });
+        expect(res.statusCode).toBeGreaterThanOrEqual(HTTPResponseCode.BAD_REQUEST);
+      }));
+    });
   });
 
   afterEach(async () => {
