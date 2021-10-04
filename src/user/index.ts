@@ -2,6 +2,7 @@ import { profilePicsData, usersData } from '../database';
 import AddUser from './AddUser';
 import ChangePassword from './ChangePassword';
 import EditUser from './EditUser';
+import emailVerification from './email-verification';
 import FindUser from './FindUser';
 import id from './id';
 import passwordEncryption from './password';
@@ -13,6 +14,7 @@ export const addUser = new AddUser(
   id,
   passwordEncryption,
   profilePicsData,
+  emailVerification,
 );
 
 export const findUser = new FindUser(

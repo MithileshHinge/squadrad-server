@@ -11,6 +11,7 @@ import ChangePassword from '../../user/ChangePassword';
 import userValidator from '../../user/validator';
 import passwordEncryption from '../../user/password';
 import mockProfilePicsData from '../__mocks__/profile-pic/mockProfilePicsData';
+import mockEmailVerification from '../__mocks__/mail/mockEmailVerification';
 
 describe('User usecases', () => {
   beforeEach(() => {
@@ -25,6 +26,7 @@ describe('User usecases', () => {
       id,
       passwordEncryption,
       mockProfilePicsData,
+      mockEmailVerification,
     );
 
     it('Can add a valid new user', async () => {
@@ -40,6 +42,9 @@ describe('User usecases', () => {
         user.userId,
         user.profilePicSrc,
       );
+
+      // Verification mail sender should be called
+      expect(mockEmailVerification.sendVerificationMail).toHaveBeenCalled();
     });
 
     describe('User Id validation', () => {

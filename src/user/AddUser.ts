@@ -6,6 +6,7 @@ import { IPasswordEncryption } from './password/IPasswordEncryption';
 import SetProfilePic from '../profile-pic/SetProfilePic';
 import profilePicValidator from '../profile-pic/validator';
 import { IProfilePicsData } from '../profile-pic/IProfilePicsData';
+import { IEmailVerification } from './email-verification/IEmailVerification';
 
 export default class AddUser {
   private usersData: IUsersData;
@@ -18,18 +19,22 @@ export default class AddUser {
 
   private passwordEncryption: IPasswordEncryption;
 
+  private emailVerification: IEmailVerification;
+
   constructor(
     usersData: IUsersData,
     userValidator: IUserValidator,
     id: IId,
     passwordEncryption: IPasswordEncryption,
     profilePicsData: IProfilePicsData,
+    emailVerification: IEmailVerification,
   ) {
     this.usersData = usersData;
     this.userValidator = userValidator;
     this.id = id;
     this.passwordEncryption = passwordEncryption;
     this.profilePicsData = profilePicsData;
+    this.emailVerification = emailVerification;
   }
 
   /**
@@ -67,12 +72,15 @@ export default class AddUser {
       fullName: fullNameValidated,
       email: emailValidated,
       password: passwordHash,
+      verified: false,
     };
     const userAdded = await this.usersData.insertNewUser(userInfo);
 
     // Set a default profile picture
     const setProfilePic = new SetProfilePic(this.profilePicsData, profilePicValidator);
     const profilePicSrc = await setProfilePic.setDefault(userId);
+
+    await this.emailVerification.sendVerificationMail(email);
 
     return {
       userId: userAdded.userId,
