@@ -28,7 +28,7 @@ describe('User Endpoints', () => {
         .resolves.toStrictEqual(expect.objectContaining({ email: sampleUserParams.email }));
     });
 
-    it('Respond with error code if parameters are invalid', async () => {
+    it('Respond with error code 400 (Bad Request) if parameters are invalid', async () => {
       const invalidParams = {
         fullName: 'm3rn2  csd3',
         email: 'aenfa efaej',
@@ -36,7 +36,7 @@ describe('User Endpoints', () => {
       };
       await Promise.all(Object.entries(invalidParams).map(async ([param, value]) => {
         const res = await request(app).post('/user').send({ ...sampleUserParams, [param]: value });
-        expect(res.statusCode).toBeGreaterThanOrEqual(HTTPResponseCode.BAD_REQUEST);
+        expect(res.statusCode).toBe(HTTPResponseCode.BAD_REQUEST);
       }));
     });
   });
