@@ -1,4 +1,5 @@
 import { profilePicsData, usersData } from '../database';
+import mockEmailVerification from '../__tests__/__mocks__/mail/mockEmailVerification';
 import AddUser from './AddUser';
 import ChangePassword from './ChangePassword';
 import EditUser from './EditUser';
@@ -14,7 +15,7 @@ export const addUser = new AddUser(
   id,
   passwordEncryption,
   profilePicsData,
-  emailVerification,
+  (process.env.NODE_ENV === 'test') ? mockEmailVerification : emailVerification,
 );
 
 export const findUser = new FindUser(
