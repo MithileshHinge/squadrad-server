@@ -50,12 +50,14 @@ export interface IUsersData {
    * @throws DatabaseError if operation fails
    * @returns Promise to return data updated in the database
    */
-  updateUser({ userId, fullName }: {
+  updateUser({ userId, fullName, verified }: {
     userId: string,
     fullName?: string,
+    verified?: boolean,
   }): Promise<{
     userId: string,
     fullName?: string,
+    verified?: boolean,
   }>;
 
   /**

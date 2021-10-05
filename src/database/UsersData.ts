@@ -101,7 +101,8 @@ export default class UsersData extends BaseData implements IUsersData {
   async updateUser({ userId, ...updateData }: {
     userId: string,
     fullName?: string,
-  }): Promise<{ userId: string, fullName?: string }> {
+    verified?: boolean,
+  }): Promise<{ userId: string, fullName?: string, verified?: boolean }> {
     const db = await this.getDb();
     try {
       await db.collection('users').updateOne({ _id: new ObjectId(userId) }, { $set: updateData });

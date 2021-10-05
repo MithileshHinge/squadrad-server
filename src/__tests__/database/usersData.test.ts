@@ -70,11 +70,21 @@ describe('Users data access gateway', () => {
     it('Update full name', async () => {
       const { userId } = sampleUsers[0];
       const fullName = 'nasdjna aacadaas';
-      await usersData.updateUser({ userId, fullName });
       await expect(usersData.updateUser({ userId, fullName }))
         .resolves.toStrictEqual(expect.objectContaining({ userId, fullName }));
       await expect(userCollection.findOne({ _id: new ObjectId(userId) }))
         .resolves.toStrictEqual(expect.objectContaining({ fullName }));
+    });
+
+    it('Update verified flag', async () => {
+      // insert user with verified: false
+      const { userId, ...userInfo } = newUser();
+      userCollection.insertOne({ _id: new ObjectId(userId), ...userInfo, verified: false });
+
+      await expect(usersData.updateUser({ userId, verified: true }))
+        .resolves.toStrictEqual(expect.objectContaining({ userId, verified: true }));
+      await expect(userCollection.findOne({ _id: new ObjectId(userId) }))
+        .resolves.toStrictEqual(expect.objectContaining({ verified: true }));
     });
   });
 

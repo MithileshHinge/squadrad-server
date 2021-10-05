@@ -1,7 +1,6 @@
-import { IEmailVerification } from '../../../user/email-verification/IEmailVerification';
-
-const mockEmailVerification: IEmailVerification = {
+const mockEmailVerification = {
   sendVerificationMail: jest.fn(),
+  verifyEmailToken: jest.fn(),
 };
 
 export default mockEmailVerification;

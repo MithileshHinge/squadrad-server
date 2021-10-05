@@ -8,6 +8,7 @@ import FindUser from './FindUser';
 import id from './id';
 import passwordEncryption from './password';
 import userValidator from './validator';
+import VerifyEmail from './VerifyEmail';
 
 export const addUser = new AddUser(
   usersData,
@@ -31,4 +32,9 @@ export const changePassword = new ChangePassword(
   usersData,
   userValidator,
   passwordEncryption,
+);
+
+export const verifyEmail = new VerifyEmail(
+  usersData,
+  emailVerification,
 );

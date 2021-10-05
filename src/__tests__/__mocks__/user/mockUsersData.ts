@@ -36,10 +36,11 @@ const mockUsersData = {
       profilePicSrc: user.profilePicSrc,
     }) : Promise.resolve(null);
   }),
-  updateUser: jest.fn(({ userId, fullName }: {
+  updateUser: jest.fn(({ userId, fullName, verified }: {
     userId: string,
     fullName?: string,
-  }) => Promise.resolve({ userId, fullName })),
+    verified?: boolean,
+  }) => Promise.resolve({ userId, fullName, verified })),
   updatePassword: jest.fn(),
 };
 

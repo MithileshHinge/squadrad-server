@@ -12,6 +12,10 @@ import userValidator from '../../user/validator';
 import passwordEncryption from '../../user/password';
 import mockProfilePicsData from '../__mocks__/profile-pic/mockProfilePicsData';
 import mockEmailVerification from '../__mocks__/mail/mockEmailVerification';
+import VerifyEmail from '../../user/VerifyEmail';
+import { issueJWT } from '../../common/jwt';
+import emailVerification from '../../user/email-verification';
+import JWTError from '../../common/errors/JWTError';
 
 describe('User usecases', () => {
   beforeEach(() => {
@@ -297,6 +301,36 @@ describe('User usecases', () => {
           expect(mockUsersData.updatePassword).not.toHaveBeenCalled();
         });
       });
+    });
+  });
+
+  describe('Verify email', () => {
+    const verifyEmail = new VerifyEmail(mockUsersData, emailVerification);
+
+    it('Set account verified to true if token is valid', async () => {
+      const { userId, email } = sampleUsers[0];
+      const jwt = issueJWT({ email }, 100);
+      await expect(verifyEmail.verify(jwt)).resolves.not.toThrowError();
+      expect(mockUsersData.updateUser).toHaveBeenCalledWith({ userId, verified: true });
+    });
+
+    it('Should not set account verified if token is expired', async () => {
+      const { email } = sampleUsers[0];
+      const jwt = issueJWT({ email }, 2);
+      await new Promise((resolve) => {
+        setTimeout(async () => {
+          await expect(verifyEmail.verify(jwt)).rejects.toThrow(JWTError);
+          resolve(null);
+        }, 3000);
+      });
+      expect(mockUsersData.updateUser).not.toHaveBeenCalled();
+    });
+
+    it('Should throw error if email id does not exist', async () => {
+      const email = faker.internet.email();
+      const jwt = issueJWT({ email }, 100);
+      await expect(verifyEmail.verify(jwt)).rejects.toThrow(ValidationError);
+      expect(mockUsersData.updateUser).not.toHaveBeenCalled();
     });
   });
 });

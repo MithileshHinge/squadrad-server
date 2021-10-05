@@ -1,4 +1,4 @@
-import { issueJWT } from '../../common/jwt';
+import { issueJWT, verifyJWT } from '../../common/jwt';
 import sendMail from '../../mail';
 import handleMailError from '../../mail/MailErrorHandler';
 import { IEmailVerification } from './IEmailVerification';
@@ -16,6 +16,13 @@ const emailVerification: IEmailVerification = {
     } catch (mailError) {
       return handleMailError(mailError, 'Could not send verification email');
     }
+  },
+
+  async verifyEmailToken(token: string) {
+    const data = await verifyJWT(token);
+    return {
+      email: data.email,
+    };
   },
 };
 

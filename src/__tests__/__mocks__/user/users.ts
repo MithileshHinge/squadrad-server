@@ -9,6 +9,7 @@ export function newUser() {
     email: faker.internet.email(),
     password: passwordEncryption.encrypt(faker.internet.password(8)),
     profilePicSrc: 'default.jpg',
+    verified: faker.datatype.boolean(),
   };
 }
 
