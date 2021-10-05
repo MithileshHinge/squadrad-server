@@ -12,13 +12,13 @@ describe('Mail test', () => {
     } catch (err) {
       console.log(err);
     }
-  });
+  }, 15000);
 
   it('Can send verification mail', async () => {
     jest.setTimeout(20000);
     await expect(emailVerification.sendVerificationMail(testAccount.email))
       .resolves.not.toThrowError();
-  });
+  }, 20000);
 
   afterAll(() => {
     closeMailTransporter();
