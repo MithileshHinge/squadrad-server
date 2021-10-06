@@ -6,6 +6,7 @@ import EditUser from './EditUser';
 import emailVerification from './email-verification';
 import FindUser from './FindUser';
 import id from './id';
+import LoginUser from './LoginUser';
 import passwordEncryption from './password';
 import userValidator from './validator';
 import VerifyEmail from './VerifyEmail';
@@ -37,4 +38,9 @@ export const changePassword = new ChangePassword(
 export const verifyEmail = new VerifyEmail(
   usersData,
   emailVerification,
+);
+
+export const loginUser = new LoginUser(
+  usersData,
+  passwordEncryption,
 );
