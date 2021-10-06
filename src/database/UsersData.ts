@@ -82,6 +82,7 @@ export default class UsersData extends BaseData implements IUsersData {
     fullName: string,
     email: string,
     profilePicSrc: string,
+    verified: boolean,
   } | null> {
     const db = await this.getDb();
     try {
@@ -92,6 +93,7 @@ export default class UsersData extends BaseData implements IUsersData {
         fullName: result.fullName,
         email: result.email,
         profilePicSrc: result.profilePicSrc,
+        verified: result.verified,
       };
     } catch (err: any) {
       return this.handleDatabaseError(err, 'Could not fetch user');
@@ -111,7 +113,7 @@ export default class UsersData extends BaseData implements IUsersData {
         ...updateData,
       };
     } catch (err: any) {
-      return this.handleDatabaseError(err, 'Could not fetch user');
+      return this.handleDatabaseError(err, 'Could not update user');
     }
   }
 
@@ -120,7 +122,17 @@ export default class UsersData extends BaseData implements IUsersData {
     try {
       await db.collection('users').updateOne({ _id: new ObjectId(userId) }, { $set: { password: newPassword } });
     } catch (err: any) {
-      this.handleDatabaseError(err, 'Could not fetch user');
+      this.handleDatabaseError(err, 'Could not update password');
+    }
+  }
+
+  async fetchPasswordById(userId: string): Promise<string> {
+    const db = await this.getDb();
+    try {
+      const result = await db.collection('users').findOne({ _id: new ObjectId(userId) }, { projection: { password: true } });
+      return result!.password;
+    } catch (err: any) {
+      return this.handleDatabaseError(err, 'Could not fetch password');
     }
   }
 }

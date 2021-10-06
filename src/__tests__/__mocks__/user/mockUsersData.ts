@@ -34,6 +34,7 @@ const mockUsersData = {
       fullName: user.fullName,
       email: user.email,
       profilePicSrc: user.profilePicSrc,
+      verified: user.verified,
     }) : Promise.resolve(null);
   }),
   updateUser: jest.fn(({ userId, fullName, verified }: {
@@ -42,6 +43,12 @@ const mockUsersData = {
     verified?: boolean,
   }) => Promise.resolve({ userId, fullName, verified })),
   updatePassword: jest.fn(),
+  fetchPasswordById: jest.fn((
+    userId: string,
+  ) => {
+    const user = sampleUsers.find((u) => u.userId === userId);
+    return Promise.resolve(user!.password);
+  }),
 };
 
 export default mockUsersData;

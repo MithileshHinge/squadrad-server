@@ -1,12 +1,14 @@
-import crypto from 'crypto';
+import bcrypt from 'bcrypt';
 import { IPasswordEncryption } from './IPasswordEncryption';
 
 const passwordEncryption: IPasswordEncryption = {
   encrypt(password) {
-    return password + crypto.randomBytes(16).toString('hex');
+    const salt = bcrypt.genSaltSync();
+    const hash = bcrypt.hashSync(password, salt);
+    return hash;
   },
-  compare() {
-    return true;
+  compare(password, passwordHash) {
+    return bcrypt.compareSync(password, passwordHash);
   },
 };
 

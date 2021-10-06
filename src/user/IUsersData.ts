@@ -43,6 +43,7 @@ export interface IUsersData {
     fullName: string,
     email: string,
     profilePicSrc: string,
+    verified: boolean,
   } | null>;
 
   /**
@@ -65,4 +66,11 @@ export interface IUsersData {
    * @throws DatabaseError if operation fails
    */
   updatePassword(userId: string, newPassword: string): Promise<void>;
+
+  /**
+   * Fetch user's password hash stored in database to compare with input password.
+   * To be used only for login/changing password
+   * @throws DatabaseError if operation fails
+   */
+  fetchPasswordById(userId: string): Promise<string>;
 }

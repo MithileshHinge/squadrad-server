@@ -1,6 +1,6 @@
 import faker from '../__mocks__/faker';
 import sampleUserParams from '../__mocks__/user/userParams';
-import sampleUsers from '../__mocks__/user/users';
+import sampleUsers, { newUser } from '../__mocks__/user/users';
 import mockUsersData from '../__mocks__/user/mockUsersData';
 import ValidationError from '../../common/errors/ValidationError';
 import id from '../../user/id';
@@ -16,6 +16,8 @@ import VerifyEmail from '../../user/VerifyEmail';
 import { issueJWT } from '../../common/jwt';
 import emailVerification from '../../user/email-verification';
 import JWTError from '../../common/errors/JWTError';
+import LoginUser from '../../user/LoginUser';
+import AuthenticationError from '../../common/errors/AuthenticationError';
 
 describe('User usecases', () => {
   beforeEach(() => {
@@ -139,8 +141,8 @@ describe('User usecases', () => {
           email: userParams1.email,
           password: faker.internet.password(8),
         };
-        const addedUser = addUser.add(userParams1);
-        mockUsersData.fetchUserByEmail.mockReturnValueOnce(addedUser);
+        const addedUser = await addUser.add(userParams1);
+        mockUsersData.fetchUserByEmail.mockResolvedValueOnce({ ...addedUser, verified: false });
         await expect(addUser.add(userParams2)).rejects.toThrowError(ValidationError);
         expect(mockUsersData.insertNewUser).toHaveBeenCalledTimes(1);
       });
@@ -331,6 +333,60 @@ describe('User usecases', () => {
       const jwt = issueJWT({ email }, 100);
       await expect(verifyEmail.verify(jwt)).rejects.toThrow(ValidationError);
       expect(mockUsersData.updateUser).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Login user', () => {
+    const loginUser = new LoginUser(mockUsersData, passwordEncryption);
+
+    const {
+      userId,
+      fullName,
+      email,
+      profilePicSrc,
+    } = newUser();
+    const password = faker.internet.password();
+
+    it('Can login with valid credentials', async () => {
+      mockUsersData.fetchUserByEmail.mockResolvedValueOnce({
+        userId,
+        fullName,
+        email,
+        profilePicSrc,
+        verified: true,
+      });
+      mockUsersData.fetchPasswordById.mockResolvedValueOnce(passwordEncryption.encrypt(password));
+      await expect(loginUser.login({ email, password }))
+        .resolves.toStrictEqual(expect.objectContaining({ userId, email }));
+    });
+
+    it('Should throw error if password is invalid', async () => {
+      mockUsersData.fetchUserByEmail.mockResolvedValueOnce({
+        userId,
+        fullName,
+        email,
+        profilePicSrc,
+        verified: true,
+      });
+      mockUsersData.fetchPasswordById.mockResolvedValueOnce(passwordEncryption.encrypt(password));
+      await expect(loginUser.login({ email, password: 'randomincorrectpassword' }))
+        .rejects.toThrow(AuthenticationError);
+    });
+
+    it('Should throw error if email id does not exist', async () => {
+      mockUsersData.fetchUserByEmail.mockResolvedValueOnce(null);
+      await expect(loginUser.login({ email, password })).rejects.toThrow(AuthenticationError);
+    });
+
+    it('Should throw error if user\'s email is not verified', async () => {
+      mockUsersData.fetchUserByEmail.mockResolvedValueOnce({
+        userId,
+        fullName,
+        email,
+        profilePicSrc,
+        verified: false,
+      });
+      await expect(loginUser.login({ email, password })).rejects.toThrow(ValidationError);
     });
   });
 });
