@@ -4,9 +4,9 @@ import { IUsersData } from './IUsersData';
 import { IPasswordEncryption } from './password/IPasswordEncryption';
 
 export default class LoginUser {
-  usersData: IUsersData;
+  private usersData: IUsersData;
 
-  passwordEncryption: IPasswordEncryption;
+  private passwordEncryption: IPasswordEncryption;
 
   constructor(usersData: IUsersData, passwordEncryption: IPasswordEncryption) {
     this.usersData = usersData;
