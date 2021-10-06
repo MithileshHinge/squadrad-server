@@ -13,7 +13,6 @@ const postUser: IBaseController = async (httpRequest) => {
       body: {},
     };
   } catch (err) {
-    console.log(err);
     if (err instanceof ValidationError) {
       return {
         statusCode: HTTPResponseCode.BAD_REQUEST,
