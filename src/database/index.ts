@@ -3,10 +3,10 @@ import ProfilePicsData from './ProfilePicsData';
 import UsersData from './UsersData';
 import mockDb from '../__tests__/__mocks__/database/mockDb';
 import handleDatabaseError from './DatabaseErrorHandler';
+import config from '../config';
 
-const url = 'mongodb://localhost:27017';
-const dbName = 'squadrad';
-const client = new MongoClient(url);
+const { uri, dbName } = config.database;
+const client = new MongoClient(uri);
 
 export async function getDb() {
   try {

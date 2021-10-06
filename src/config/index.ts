@@ -10,8 +10,17 @@ const SERVER = {
   port: SERVER_PORT,
 };
 
+const MONGODB_URI = 'mongodb://localhost:27017';
+const DB_NAME = 'squadrad';
+
+const DATABASE = {
+  uri: MONGODB_URI,
+  dbName: DB_NAME,
+};
+
 const config = {
   server: SERVER,
+  database: DATABASE,
 };
 
 export default config;
