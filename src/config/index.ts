@@ -12,10 +12,12 @@ const SERVER = {
 
 const MONGODB_URI = 'mongodb://localhost:27017';
 const DB_NAME = 'squadrad';
+const SESSIONS_COLLECTION_NAME = 'sessions'; // To store express sessions, used by store (MongoDbStore)
 
 const DATABASE = {
   uri: MONGODB_URI,
   dbName: DB_NAME,
+  sessionCollection: SESSIONS_COLLECTION_NAME,
 };
 
 const config = {

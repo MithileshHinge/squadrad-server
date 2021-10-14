@@ -4,11 +4,13 @@ import request from 'supertest';
 import { HTTPResponseCode } from '../../api/HttpResponse';
 import app from '../../api/server';
 import { issueJWT } from '../../common/jwt';
+import passwordEncryption from '../../user/password';
+import { closeMockStoreConnection } from '../__mocks__/api/mockStore';
 import mockDb, { closeConnection } from '../__mocks__/database/mockDb';
 import faker from '../__mocks__/faker';
 
 import sampleUserParams from '../__mocks__/user/userParams';
-import sampleUsers from '../__mocks__/user/users';
+import sampleUsers, { newUser } from '../__mocks__/user/users';
 
 describe('User Endpoints', () => {
   let userCollection: Collection<Document>;
@@ -73,11 +75,76 @@ describe('User Endpoints', () => {
     });
   });
 
+  describe('POST /user/login', () => {
+    it('Can login user', async () => {
+      // insert new verified user for testing
+      const {
+        userId,
+        password: tempPassword,
+        verified: tempVerified,
+        ...tempUser
+      } = newUser();
+      const password = faker.internet.password();
+      await userCollection.insertOne({
+        _id: new ObjectId(userId),
+        password: passwordEncryption.encrypt(password),
+        verified: true,
+        ...tempUser,
+      });
+
+      const res = await request(app).post('/user/login').send({ email: tempUser.email, password }).expect(HTTPResponseCode.OK);
+      console.log(res.headers);
+      expect(res.body).toStrictEqual(expect.objectContaining({ userId }));
+
+      // check if session cookie is set
+      expect(res.headers['set-cookie']).toBeDefined();
+    });
+
+    it('Respond with error code 401 (Unauthorized) if incorrect email or password provided', async () => {
+      // insert new verified user for testing
+      const {
+        userId,
+        password: tempPassword,
+        verified: tempVerified,
+        ...tempUser
+      } = newUser();
+      const password = faker.internet.password();
+      await userCollection.insertOne({
+        _id: new ObjectId(userId),
+        password: passwordEncryption.encrypt(password),
+        verified: true,
+        ...tempUser,
+      });
+
+      await request(app).post('/user/login').send({ email: tempUser.email, password: 'randomincorrectpassword' }).expect(HTTPResponseCode.UNAUTHORIZED);
+      await request(app).post('/user/login').send({ email: 'randomincorrectemail@gmail.com', password }).expect(HTTPResponseCode.UNAUTHORIZED);
+    });
+
+    it('Respond with error code 403 (Forbidden) if user\'s email address is not verified', async () => {
+      // insert new unverified user for testing
+      const {
+        userId,
+        password: tempPassword,
+        verified: tempVerified,
+        ...tempUser
+      } = newUser();
+      const password = faker.internet.password();
+      await userCollection.insertOne({
+        _id: new ObjectId(userId),
+        password: passwordEncryption.encrypt(password),
+        verified: false,
+        ...tempUser,
+      });
+      await request(app).post('/user/login').send({ email: tempUser.email, password }).expect(HTTPResponseCode.FORBIDDEN);
+    });
+  });
+
   afterEach(async () => {
     await (await mockDb()).dropCollection('users');
   });
 
   afterAll(async () => {
-    closeConnection();
+    await closeConnection();
+    await closeMockStoreConnection();
   });
 });
