@@ -32,6 +32,12 @@ describe('User Endpoints', () => {
         .resolves.toStrictEqual(expect.objectContaining({ email: sampleUserParams.email }));
     });
 
+    it('Respond with error code 400 (Bad Request) if user with email already exists', async () => {
+      // get existing user
+      const { email } = sampleUsers[0];
+      await request(app).post('/user').send({ ...sampleUserParams, email }).expect(HTTPResponseCode.BAD_REQUEST);
+    });
+
     it('Respond with error code 400 (Bad Request) if parameters are invalid', async () => {
       const invalidParams = {
         fullName: 'm3rn2  csd3',
@@ -93,11 +99,15 @@ describe('User Endpoints', () => {
       });
 
       const res = await request(app).post('/user/login').send({ email: tempUser.email, password }).expect(HTTPResponseCode.OK);
-      console.log(res.headers);
       expect(res.body).toStrictEqual(expect.objectContaining({ userId }));
 
       // check if session cookie is set
-      expect(res.headers['set-cookie']).toBeDefined();
+      const setCookieHeader: Array<string> = res.headers['set-cookie'];
+      const sessionCookie = setCookieHeader.find((c) => c.includes('connect.sid'));
+      expect(sessionCookie).toContain('HttpOnly');
+      expect(sessionCookie).toContain('SameSite=Strict');
+      expect(sessionCookie).not.toContain('Max-Age');
+      expect(sessionCookie).not.toContain('Expires');
     });
 
     it('Respond with error code 401 (Unauthorized) if incorrect email or password provided', async () => {
