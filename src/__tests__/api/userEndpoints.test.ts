@@ -103,7 +103,7 @@ describe('User Endpoints', () => {
 
       // check if session cookie is set
       const setCookieHeader: Array<string> = res.headers['set-cookie'];
-      const sessionCookie = setCookieHeader.find((c) => c.includes('connect.sid'));
+      const sessionCookie = setCookieHeader.find((c) => c.includes('sessionId'));
       expect(sessionCookie).toContain('HttpOnly');
       expect(sessionCookie).toContain('SameSite=Strict');
       expect(sessionCookie).not.toContain('Max-Age');

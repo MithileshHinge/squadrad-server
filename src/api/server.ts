@@ -14,6 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(session({
   secret: COOKIE_SECRET,
+  name: 'sessionId',
   cookie: {
     httpOnly: true,
     secure: process.env.NODE_ENV !== 'test',
