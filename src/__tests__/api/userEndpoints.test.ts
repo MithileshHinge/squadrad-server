@@ -156,6 +156,14 @@ describe('User Endpoints', () => {
     });
   });
 
+  describe('GET /user', () => {
+    it('Can get user self info', async () => {
+      const { agent, userId, email } = await getLoggedInUser();
+      const res = await agent.get('/user').set('Accept', 'application/json').expect(HTTPResponseCode.OK);
+      expect(res.body).toStrictEqual(expect.objectContaining({ userId, email }));
+    });
+  });
+
   describe('PATCH /user', () => {
     describe('Change fullname', () => {
       it('Can change self fullname', async () => {

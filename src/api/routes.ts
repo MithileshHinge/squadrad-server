@@ -4,6 +4,7 @@ export default [
   {
     path: '/user',
     post: UserController.postUser, // register new user
+    get: UserController.getUserSelf, // get self info
     patch: UserController.patchUser, // change user details
   },
   {

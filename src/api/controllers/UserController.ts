@@ -2,7 +2,7 @@ import AuthenticationError from '../../common/errors/AuthenticationError';
 import JWTError from '../../common/errors/JWTError';
 import ValidationError from '../../common/errors/ValidationError';
 import {
-  addUser, changePassword, editUser, verifyEmail,
+  addUser, changePassword, editUser, findUser, verifyEmail,
 } from '../../user';
 import { HTTPResponseCode } from '../HttpResponse';
 import { IBaseController } from './IBaseController';
@@ -48,6 +48,26 @@ const patchUserVerify: IBaseController = async (httpRequest) => {
         return { statusCode: HTTPResponseCode.INTERNAL_SERVER_ERROR, body: {} };
         break;
     }
+  }
+};
+
+const getUserSelf: IBaseController = async (httpRequest) => {
+  try {
+    const { userId } = httpRequest.user;
+    const user = await findUser.findUserById(userId, true);
+    if (!user) return { statusCode: HTTPResponseCode.NOT_FOUND, body: {} };
+
+    return {
+      statusCode: HTTPResponseCode.OK,
+      body: {
+        userId: user.userId,
+        fullName: user.fullName,
+        email: user.email,
+        profilePicSrc: user.profilePicSrc,
+      },
+    };
+  } catch (err:any) {
+    return { statusCode: HTTPResponseCode.INTERNAL_SERVER_ERROR, body: {} };
   }
 };
 
@@ -99,6 +119,7 @@ const patchUserPassword: IBaseController = async (httpRequest) => {
 export default {
   postUser,
   patchUserVerify,
+  getUserSelf,
   patchUser,
   patchUserPassword,
 };

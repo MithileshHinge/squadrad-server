@@ -190,6 +190,15 @@ describe('User usecases', () => {
         }));
     });
 
+    it('Should return private info if self is true', async () => {
+      const user = sampleUsers[0];
+      await expect(findUser.findUserById(user.userId, true))
+        .resolves.toStrictEqual(expect.objectContaining({
+          userId: user.userId,
+          email: user.email,
+        }));
+    });
+
     it('Should return null if userId not found', async () => {
       const userId = id.createId();
       await expect(findUser.findUserById(userId)).resolves.toBeNull();

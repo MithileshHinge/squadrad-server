@@ -29,13 +29,14 @@ export default class FindUser {
   */
 
   /**
-   * Find user by userId
+   * Find user by userId, returns private information if self is true
    * @returns Promise to return user info if id exists, otherwise returns null
    * @throws DatabaseError if operation fails
    */
-  async findUserById(userId: string): Promise<{
+  async findUserById(userId: string, self?: boolean): Promise<{
     userId: string,
     fullName: string,
+    email?: string,
     profilePicSrc: string,
   } | null> {
     const user = await this.usersData.fetchUserById(userId);
@@ -44,6 +45,7 @@ export default class FindUser {
         userId: user.userId,
         fullName: user.fullName,
         profilePicSrc: user.profilePicSrc,
+        email: self ? user.email : undefined,
       };
     }
     return null;
