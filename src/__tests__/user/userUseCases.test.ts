@@ -285,20 +285,39 @@ describe('User usecases', () => {
     const changePassword = new ChangePassword(mockUsersData, userValidator, passwordEncryption);
 
     it('Can change password', async () => {
-      const user = sampleUsers[0];
+      const { userId } = sampleUsers[0];
+      const oldPassword = faker.internet.password(8);
       const newPassword = faker.internet.password(8);
-      await changePassword.change(user.userId, newPassword);
+      mockUsersData.fetchPasswordById.mockResolvedValueOnce(passwordEncryption.encrypt(oldPassword));
+      await changePassword.change(userId, oldPassword, newPassword);
       expect(mockUsersData.updatePassword).toHaveBeenCalledWith(
-        user.userId, expect.not.stringMatching(user.password),
+        userId, expect.not.stringMatching(oldPassword),
       );
     });
 
+    it('Old password should match', async () => {
+      const { userId } = sampleUsers[0];
+      const oldPassword = faker.internet.password(8);
+      mockUsersData.fetchPasswordById.mockResolvedValueOnce(oldPassword);
+      const newPassword = faker.internet.password(8);
+      await expect(changePassword.change(
+        userId,
+        oldPassword,
+        newPassword,
+      )).rejects.toThrow(AuthenticationError);
+      expect(mockUsersData.updatePassword).not.toHaveBeenCalled();
+    });
+
     describe('Password should be >= 8 characters', () => {
-      ['', ' ', 'asa', 'as afsf', 'asf  '].forEach((password) => {
-        it(`Should throw error for ${password}`, async () => {
+      ['', ' ', 'asa', 'as afsf', 'asf  '].forEach((newPassword) => {
+        it(`Should throw error for ${newPassword}`, async () => {
+          const { userId } = sampleUsers[0];
+          const oldPassword = faker.internet.password(8);
+          mockUsersData.fetchPasswordById.mockResolvedValueOnce(passwordEncryption.encrypt(oldPassword));
           await expect(changePassword.change(
-            sampleUsers[0].userId,
-            password,
+            userId,
+            oldPassword,
+            newPassword,
           )).rejects.toThrow(ValidationError);
           expect(mockUsersData.updatePassword).not.toHaveBeenCalled();
         });
@@ -345,7 +364,7 @@ describe('User usecases', () => {
       email,
       profilePicSrc,
     } = newUser();
-    const password = faker.internet.password();
+    const password = faker.internet.password(8);
 
     it('Can login with valid credentials', async () => {
       mockUsersData.fetchUserByEmail.mockResolvedValueOnce({

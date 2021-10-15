@@ -176,6 +176,39 @@ describe('User Endpoints', () => {
     });
   });
 
+  describe('PATCH /user/password', () => {
+    it('Can change password', async () => {
+      const { agent, userId, password: oldPassword } = await getLoggedInUser();
+      const newPassword = faker.internet.password();
+      await agent.patch('/user/password').send({ oldPassword, newPassword }).expect(HTTPResponseCode.OK);
+      const { password: passwordHash } = (await userCollection.findOne({
+        _id: new ObjectId(userId),
+      }))!;
+      expect(passwordEncryption.compare(newPassword, passwordHash)).toBeTruthy();
+    });
+
+    it('Respond with error code 401 (Unauthorized) if oldPassword is incorrect or not provided', async () => {
+      const { agent, userId, password: oldPassword } = await getLoggedInUser();
+      const incorrectPassword = 'random incorrect password';
+      const newPassword = faker.internet.password();
+      await agent.patch('/user/password').send({ oldPassword: incorrectPassword, newPassword }).expect(HTTPResponseCode.UNAUTHORIZED);
+      const { password: passwordHash } = (await userCollection.findOne({
+        _id: new ObjectId(userId),
+      }))!;
+      expect(passwordEncryption.compare(oldPassword, passwordHash)).toBeTruthy();
+    });
+
+    it('Respond with error code 400 (Bad Request) if newPassword is not valid', async () => {
+      const { agent, userId, password: oldPassword } = await getLoggedInUser();
+      const newPassword = 'asd';
+      await agent.patch('/user/password').send({ oldPassword, newPassword }).expect(HTTPResponseCode.BAD_REQUEST);
+      const { password: passwordHash } = (await userCollection.findOne({
+        _id: new ObjectId(userId),
+      }))!;
+      expect(passwordEncryption.compare(oldPassword, passwordHash)).toBeTruthy();
+    });
+  });
+
   afterEach(async () => {
     await (await mockDb()).dropCollection('users');
   });

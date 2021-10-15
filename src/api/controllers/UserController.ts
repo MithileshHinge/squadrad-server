@@ -1,6 +1,9 @@
+import AuthenticationError from '../../common/errors/AuthenticationError';
 import JWTError from '../../common/errors/JWTError';
 import ValidationError from '../../common/errors/ValidationError';
-import { addUser, editUser, verifyEmail } from '../../user';
+import {
+  addUser, changePassword, editUser, verifyEmail,
+} from '../../user';
 import { HTTPResponseCode } from '../HttpResponse';
 import { IBaseController } from './IBaseController';
 
@@ -77,8 +80,33 @@ const patchUser: IBaseController = async (httpRequest) => {
   }
 };
 
+const patchUserPassword: IBaseController = async (httpRequest) => {
+  try {
+    const { userId } = httpRequest.user;
+    const { oldPassword, newPassword } = httpRequest.body;
+    await changePassword.change(userId, oldPassword, newPassword);
+    return {
+      statusCode: HTTPResponseCode.OK,
+      body: {},
+    };
+  } catch (err: any) {
+    switch (err.constructor) {
+      case ValidationError:
+        return { statusCode: HTTPResponseCode.BAD_REQUEST, body: {} };
+        break;
+      case AuthenticationError:
+        return { statusCode: HTTPResponseCode.UNAUTHORIZED, body: {} };
+        break;
+      default:
+        return { statusCode: HTTPResponseCode.INTERNAL_SERVER_ERROR, body: {} };
+        break;
+    }
+  }
+};
+
 export default {
   postUser,
   patchUserVerify,
   patchUser,
+  patchUserPassword,
 };
