@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import { Collection, Document, ObjectId } from 'mongodb';
-import request from 'supertest';
+import request, { SuperAgentTest } from 'supertest';
 import { HTTPResponseCode } from '../../api/HttpResponse';
 import app from '../../api/server';
 import { issueJWT } from '../../common/jwt';
@@ -146,6 +146,51 @@ describe('User Endpoints', () => {
         ...tempUser,
       });
       await request(app).post('/user/login').send({ email: tempUser.email, password }).expect(HTTPResponseCode.FORBIDDEN);
+    });
+  });
+
+  describe('PATCH /user', () => {
+    let agent: SuperAgentTest;
+    let userId: string;
+    let password: string;
+    beforeEach(async () => {
+      agent = request.agent(app);
+
+      // insert new verified user for testing
+      const {
+        userId: tempUserId,
+        password: tempPassword,
+        verified: tempVerified,
+        ...tempUser
+      } = newUser();
+
+      userId = tempUserId;
+      password = faker.internet.password();
+      await userCollection.insertOne({
+        _id: new ObjectId(userId),
+        password: passwordEncryption.encrypt(password),
+        verified: true,
+        ...tempUser,
+      });
+
+      // log in user
+      await agent.post('/user/login').send({ email: tempUser.email, password }).expect(HTTPResponseCode.OK);
+    });
+
+    describe('Change fullname', () => {
+      it('Can change self fullname', async () => {
+        const newFullName = faker.name.findName();
+        await agent.patch('/user').send({ fullName: newFullName }).expect(HTTPResponseCode.OK);
+        await expect(userCollection.findOne({ _id: new ObjectId(userId) }))
+          .resolves.toStrictEqual(expect.objectContaining({ fullName: newFullName }));
+      });
+
+      it('Respond with error code 400 (Bad Request) if fullname is invalid', async () => {
+        const newFullName = '3nir3no2 a a grg   sfdsdv23r';
+        await agent.patch('/user').send({ fullName: newFullName }).expect(HTTPResponseCode.BAD_REQUEST);
+        await expect(userCollection.findOne({ _id: new ObjectId(userId) }))
+          .resolves.not.toStrictEqual(expect.objectContaining({ fullName: newFullName }));
+      });
     });
   });
 

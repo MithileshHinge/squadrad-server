@@ -1,6 +1,6 @@
 import JWTError from '../../common/errors/JWTError';
 import ValidationError from '../../common/errors/ValidationError';
-import { addUser, verifyEmail } from '../../user';
+import { addUser, editUser, verifyEmail } from '../../user';
 import { HTTPResponseCode } from '../HttpResponse';
 import { IBaseController } from './IBaseController';
 
@@ -54,7 +54,31 @@ const patchUserVerify: IBaseController = async (httpRequest) => {
   }
 };
 
+const patchUser: IBaseController = async (httpRequest) => {
+  try {
+    const { userId } = httpRequest.user;
+    const { fullName } = httpRequest.body;
+    await editUser.edit({ userId, fullName });
+    return {
+      statusCode: HTTPResponseCode.OK,
+      body: {},
+    };
+  } catch (err: any) {
+    if (err instanceof ValidationError) {
+      return {
+        statusCode: HTTPResponseCode.BAD_REQUEST,
+        body: {},
+      };
+    }
+    return {
+      statusCode: HTTPResponseCode.INTERNAL_SERVER_ERROR,
+      body: {},
+    };
+  }
+};
+
 export default {
   postUser,
   patchUserVerify,
+  patchUser,
 };

@@ -13,6 +13,7 @@ export default async function handleExpressRequest(
     params: req.params,
     method: req.method as HTTPRequestMethod,
     path: req.path,
+    user: req.user,
   };
   const httpResponse = await controller(httpRequest);
   return res.status(httpResponse.statusCode).json(httpResponse.body);
