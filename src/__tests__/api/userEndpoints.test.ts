@@ -14,6 +14,52 @@ import sampleUsers, { newUser } from '../__mocks__/user/users';
 
 describe('User Endpoints', () => {
   let userCollection: Collection<Document>;
+
+  async function getRegisteredUser({ verified }: { verified: boolean }): Promise<{
+    userId: string, email: string, password: string,
+  }> {
+    // insert new verified user for testing
+    const {
+      userId: tempUserId,
+      password: tempPassword,
+      verified: tempVerified,
+      ...tempUser
+    } = newUser();
+
+    const userId = tempUserId;
+    const password = faker.internet.password();
+    await userCollection.insertOne({
+      _id: new ObjectId(userId),
+      password: passwordEncryption.encrypt(password),
+      verified,
+      ...tempUser,
+    });
+
+    return {
+      userId,
+      email: tempUser.email,
+      password,
+    };
+  }
+
+  async function getLoggedInUser(): Promise<{
+    agent: SuperAgentTest, userId: string, email: string, password: string,
+  }> {
+    const agent = request.agent(app);
+
+    const { userId, email, password } = await getRegisteredUser({ verified: true });
+
+    // log in user
+    await agent.post('/user/login').send({ email, password }).expect(HTTPResponseCode.OK);
+
+    return {
+      agent,
+      userId,
+      email,
+      password,
+    };
+  }
+
   beforeEach(async () => {
     userCollection = (await mockDb()).collection('users');
     await userCollection.insertMany(sampleUsers.map((user) => {
@@ -83,22 +129,9 @@ describe('User Endpoints', () => {
 
   describe('POST /user/login', () => {
     it('Can login user', async () => {
-      // insert new verified user for testing
-      const {
-        userId,
-        password: tempPassword,
-        verified: tempVerified,
-        ...tempUser
-      } = newUser();
-      const password = faker.internet.password();
-      await userCollection.insertOne({
-        _id: new ObjectId(userId),
-        password: passwordEncryption.encrypt(password),
-        verified: true,
-        ...tempUser,
-      });
+      const { userId, email, password } = await getRegisteredUser({ verified: true });
 
-      const res = await request(app).post('/user/login').send({ email: tempUser.email, password }).expect(HTTPResponseCode.OK);
+      const res = await request(app).post('/user/login').send({ email, password }).expect(HTTPResponseCode.OK);
       expect(res.body).toStrictEqual(expect.objectContaining({ userId }));
 
       // check if session cookie is set
@@ -111,74 +144,22 @@ describe('User Endpoints', () => {
     });
 
     it('Respond with error code 401 (Unauthorized) if incorrect email or password provided', async () => {
-      // insert new verified user for testing
-      const {
-        userId,
-        password: tempPassword,
-        verified: tempVerified,
-        ...tempUser
-      } = newUser();
-      const password = faker.internet.password();
-      await userCollection.insertOne({
-        _id: new ObjectId(userId),
-        password: passwordEncryption.encrypt(password),
-        verified: true,
-        ...tempUser,
-      });
+      const { email, password } = await getRegisteredUser({ verified: true });
 
-      await request(app).post('/user/login').send({ email: tempUser.email, password: 'randomincorrectpassword' }).expect(HTTPResponseCode.UNAUTHORIZED);
+      await request(app).post('/user/login').send({ email, password: 'randomincorrectpassword' }).expect(HTTPResponseCode.UNAUTHORIZED);
       await request(app).post('/user/login').send({ email: 'randomincorrectemail@gmail.com', password }).expect(HTTPResponseCode.UNAUTHORIZED);
     });
 
     it('Respond with error code 403 (Forbidden) if user\'s email address is not verified', async () => {
-      // insert new unverified user for testing
-      const {
-        userId,
-        password: tempPassword,
-        verified: tempVerified,
-        ...tempUser
-      } = newUser();
-      const password = faker.internet.password();
-      await userCollection.insertOne({
-        _id: new ObjectId(userId),
-        password: passwordEncryption.encrypt(password),
-        verified: false,
-        ...tempUser,
-      });
-      await request(app).post('/user/login').send({ email: tempUser.email, password }).expect(HTTPResponseCode.FORBIDDEN);
+      const { email, password } = await getRegisteredUser({ verified: false });
+      await request(app).post('/user/login').send({ email, password }).expect(HTTPResponseCode.FORBIDDEN);
     });
   });
 
   describe('PATCH /user', () => {
-    let agent: SuperAgentTest;
-    let userId: string;
-    let password: string;
-    beforeEach(async () => {
-      agent = request.agent(app);
-
-      // insert new verified user for testing
-      const {
-        userId: tempUserId,
-        password: tempPassword,
-        verified: tempVerified,
-        ...tempUser
-      } = newUser();
-
-      userId = tempUserId;
-      password = faker.internet.password();
-      await userCollection.insertOne({
-        _id: new ObjectId(userId),
-        password: passwordEncryption.encrypt(password),
-        verified: true,
-        ...tempUser,
-      });
-
-      // log in user
-      await agent.post('/user/login').send({ email: tempUser.email, password }).expect(HTTPResponseCode.OK);
-    });
-
     describe('Change fullname', () => {
       it('Can change self fullname', async () => {
+        const { agent, userId } = await getLoggedInUser();
         const newFullName = faker.name.findName();
         await agent.patch('/user').send({ fullName: newFullName }).expect(HTTPResponseCode.OK);
         await expect(userCollection.findOne({ _id: new ObjectId(userId) }))
@@ -186,6 +167,7 @@ describe('User Endpoints', () => {
       });
 
       it('Respond with error code 400 (Bad Request) if fullname is invalid', async () => {
+        const { agent, userId } = await getLoggedInUser();
         const newFullName = '3nir3no2 a a grg   sfdsdv23r';
         await agent.patch('/user').send({ fullName: newFullName }).expect(HTTPResponseCode.BAD_REQUEST);
         await expect(userCollection.findOne({ _id: new ObjectId(userId) }))
