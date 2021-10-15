@@ -15,17 +15,15 @@ const postUser: IBaseController = async (httpRequest) => {
       statusCode: HTTPResponseCode.CREATED,
       body: {},
     };
-  } catch (err) {
-    if (err instanceof ValidationError) {
-      return {
-        statusCode: HTTPResponseCode.BAD_REQUEST,
-        body: {},
-      };
+  } catch (err: any) {
+    switch (err.constructor) {
+      case ValidationError:
+        return { statusCode: HTTPResponseCode.BAD_REQUEST, body: {} };
+        break;
+      default:
+        return { statusCode: HTTPResponseCode.INTERNAL_SERVER_ERROR, body: {} };
+        break;
     }
-    return {
-      statusCode: HTTPResponseCode.INTERNAL_SERVER_ERROR,
-      body: {},
-    };
   }
 };
 
@@ -38,22 +36,18 @@ const patchUserVerify: IBaseController = async (httpRequest) => {
       body: {},
     };
   } catch (err: any) {
-    if (err instanceof ValidationError || (err instanceof JWTError && err.message !== 'Token expired')) {
-      return {
-        statusCode: HTTPResponseCode.BAD_REQUEST,
-        body: {},
-      };
+    switch (err.constructor) {
+      case ValidationError:
+        return { statusCode: HTTPResponseCode.BAD_REQUEST, body: {} };
+        break;
+      case JWTError:
+        if (err.message === 'Token expired') return { statusCode: HTTPResponseCode.FORBIDDEN, body: {} };
+        return { statusCode: HTTPResponseCode.BAD_REQUEST, body: {} };
+        break;
+      default:
+        return { statusCode: HTTPResponseCode.INTERNAL_SERVER_ERROR, body: {} };
+        break;
     }
-    if (err instanceof JWTError) {
-      return {
-        statusCode: HTTPResponseCode.FORBIDDEN,
-        body: {},
-      };
-    }
-    return {
-      statusCode: HTTPResponseCode.INTERNAL_SERVER_ERROR,
-      body: {},
-    };
   }
 };
 
@@ -67,16 +61,14 @@ const patchUser: IBaseController = async (httpRequest) => {
       body: {},
     };
   } catch (err: any) {
-    if (err instanceof ValidationError) {
-      return {
-        statusCode: HTTPResponseCode.BAD_REQUEST,
-        body: {},
-      };
+    switch (err.constructor) {
+      case ValidationError:
+        return { statusCode: HTTPResponseCode.BAD_REQUEST, body: {} };
+        break;
+      default:
+        return { statusCode: HTTPResponseCode.INTERNAL_SERVER_ERROR, body: {} };
+        break;
     }
-    return {
-      statusCode: HTTPResponseCode.INTERNAL_SERVER_ERROR,
-      body: {},
-    };
   }
 };
 
