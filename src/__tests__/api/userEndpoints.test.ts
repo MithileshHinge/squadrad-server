@@ -209,6 +209,14 @@ describe('User Endpoints', () => {
     });
   });
 
+  describe('POST /user/logout', () => {
+    it('Can log out user', async () => {
+      const { agent } = await getLoggedInUser();
+
+      await agent.post('/user/logout').send({}).expect(HTTPResponseCode.OK);
+    });
+  });
+
   afterEach(async () => {
     await (await mockDb()).dropCollection('users');
   });

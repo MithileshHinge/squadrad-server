@@ -59,4 +59,8 @@ export default function initializePassport(app: Express) {
   initializeLocalStrategy();
 
   app.post('/user/login', localAuthenticationMiddleware);
+  app.post('/user/logout', (req, res) => {
+    req.logout();
+    return res.status(HTTPResponseCode.OK).json({});
+  });
 }
