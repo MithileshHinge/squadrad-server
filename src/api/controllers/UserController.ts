@@ -53,7 +53,7 @@ const patchUserVerify: IBaseController = async (httpRequest) => {
 
 const getUserSelf: IBaseController = async (httpRequest) => {
   try {
-    const { userId } = httpRequest.user;
+    const userId = httpRequest.userId!;
     const user = await findUser.findUserById(userId, true);
     if (!user) return { statusCode: HTTPResponseCode.NOT_FOUND, body: {} };
 
@@ -73,7 +73,7 @@ const getUserSelf: IBaseController = async (httpRequest) => {
 
 const patchUser: IBaseController = async (httpRequest) => {
   try {
-    const { userId } = httpRequest.user;
+    const userId = httpRequest.userId!;
     const { fullName } = httpRequest.body;
     await editUser.edit({ userId, fullName });
     return {
@@ -94,7 +94,7 @@ const patchUser: IBaseController = async (httpRequest) => {
 
 const patchUserPassword: IBaseController = async (httpRequest) => {
   try {
-    const { userId } = httpRequest.user;
+    const userId = httpRequest.userId!;
     const { oldPassword, newPassword } = httpRequest.body;
     await changePassword.change(userId, oldPassword, newPassword);
     return {

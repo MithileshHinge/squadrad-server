@@ -1,18 +1,19 @@
 import UserController from './controllers/UserController';
+import { authorizationMiddleware } from './services/passport.service';
 
 export default [
   {
     path: '/user',
-    post: UserController.postUser, // register new user
-    get: UserController.getUserSelf, // get self info
-    patch: UserController.patchUser, // change user details
+    post: [UserController.postUser], // register new user
+    get: [authorizationMiddleware, UserController.getUserSelf], // get self info
+    patch: [authorizationMiddleware, UserController.patchUser], // change user details
   },
   {
     path: '/user/verify',
-    patch: UserController.patchUserVerify, // verify user's email address
+    patch: [UserController.patchUserVerify], // verify user's email address
   },
   {
     path: '/user/password',
-    patch: UserController.patchUserPassword,
+    patch: [authorizationMiddleware, UserController.patchUserPassword],
   },
 ];

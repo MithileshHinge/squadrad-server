@@ -34,9 +34,10 @@ initializePassport(app);
 
 routes.forEach((route) => {
   const { path, ...controllers } = route;
-  Object.entries(controllers).forEach(([method, controller]) => {
+  Object.entries(controllers).forEach(([method, middlewares]: [string, Array<any>]) => {
     if (hasKey(app, method)) {
-      app[method](path, async (req: Request, res: Response) => {
+      const [controller] = middlewares.splice(middlewares.length - 1, 1);
+      app[method](path, middlewares, async (req: Request, res: Response) => {
         await handleExpressRequest(req, res, controller);
       });
     }

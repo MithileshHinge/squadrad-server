@@ -130,8 +130,9 @@ describe('User Endpoints', () => {
   describe('POST /user/login', () => {
     it('Can login user', async () => {
       const { userId, email, password } = await getRegisteredUser({ verified: true });
+      const agent = request.agent(app);
 
-      const res = await request(app).post('/user/login').send({ email, password }).expect(HTTPResponseCode.OK);
+      const res = await agent.post('/user/login').send({ email, password }).expect(HTTPResponseCode.OK);
       expect(res.body).toStrictEqual(expect.objectContaining({ userId }));
 
       // check if session cookie is set
@@ -141,6 +142,9 @@ describe('User Endpoints', () => {
       expect(sessionCookie).toContain('SameSite=Strict');
       expect(sessionCookie).not.toContain('Max-Age');
       expect(sessionCookie).not.toContain('Expires');
+
+      const resget = await agent.get('/user').set('Accept', 'application/json').expect(HTTPResponseCode.OK);
+      expect(resget.body).toStrictEqual(expect.objectContaining({ userId, email }));
     });
 
     it('Respond with error code 401 (Unauthorized) if incorrect email or password provided', async () => {
@@ -162,6 +166,10 @@ describe('User Endpoints', () => {
       const res = await agent.get('/user').set('Accept', 'application/json').expect(HTTPResponseCode.OK);
       expect(res.body).toStrictEqual(expect.objectContaining({ userId, email }));
     });
+
+    it('Respond with error code 401 (Unauthorized) if user is not logged in', async () => {
+      await request(app).get('/user').set('Accept', 'application/json').expect(HTTPResponseCode.UNAUTHORIZED);
+    });
   });
 
   describe('PATCH /user', () => {
@@ -181,6 +189,10 @@ describe('User Endpoints', () => {
         await expect(userCollection.findOne({ _id: new ObjectId(userId) }))
           .resolves.not.toStrictEqual(expect.objectContaining({ fullName: newFullName }));
       });
+    });
+
+    it('Respond with error code 401 (Unauthorized) if user is not logged in', async () => {
+      await request(app).patch('/user').send({}).expect(HTTPResponseCode.UNAUTHORIZED);
     });
   });
 
@@ -215,6 +227,10 @@ describe('User Endpoints', () => {
       }))!;
       expect(passwordEncryption.compare(oldPassword, passwordHash)).toBeTruthy();
     });
+
+    it('Respond with error code 401 (Unauthorized) if user is not logged in', async () => {
+      await request(app).patch('/user/password').send({}).expect(HTTPResponseCode.UNAUTHORIZED);
+    });
   });
 
   describe('POST /user/logout', () => {
@@ -222,6 +238,7 @@ describe('User Endpoints', () => {
       const { agent } = await getLoggedInUser();
 
       await agent.post('/user/logout').send({}).expect(HTTPResponseCode.OK);
+      await agent.get('/user').set('Accept', 'application/json').expect(HTTPResponseCode.UNAUTHORIZED);
     });
   });
 

@@ -4,7 +4,7 @@ export type HTTPRequest = {
   params: Object,
   method: HTTPRequestMethod,
   path: string,
-  user?: any,
+  userId?: string,
 };
 
 export enum HTTPRequestMethod {

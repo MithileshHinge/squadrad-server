@@ -15,7 +15,6 @@ function initializeLocalStrategy() {
 
   passport.deserializeUser((userId: string, done) => {
     findUser.findUserById(userId).then((user) => {
-      if (!user) done(new AuthenticationError(`User with userId "${userId}" not found`));
       done(null, user);
     });
   });
@@ -33,7 +32,7 @@ function initializeLocalStrategy() {
 
 function localAuthenticationMiddleware(req: Request, res: Response, next: NextFunction) {
   const customAuthenticator = passport.authenticate('local', (useCaseErr, user) => {
-    if (useCaseErr || !user) {
+    if (useCaseErr) {
       if (useCaseErr instanceof AuthenticationError) {
         return res.status(HTTPResponseCode.UNAUTHORIZED).json({});
       }
@@ -42,6 +41,7 @@ function localAuthenticationMiddleware(req: Request, res: Response, next: NextFu
       }
       return next(useCaseErr);
     }
+    if (!user) return res.status(HTTPResponseCode.UNAUTHORIZED).json({});
     req.login(user, (passportErr) => {
       if (passportErr) return next(passportErr);
       return res.status(HTTPResponseCode.OK).json(user);
@@ -63,4 +63,9 @@ export default function initializePassport(app: Express) {
     req.logout();
     return res.status(HTTPResponseCode.OK).json({});
   });
+}
+
+export function authorizationMiddleware(req: Request, res: Response, next: NextFunction) {
+  if (req.isAuthenticated()) return next();
+  return res.status(HTTPResponseCode.UNAUTHORIZED).json({});
 }
