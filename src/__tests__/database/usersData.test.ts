@@ -29,7 +29,7 @@ describe('Users data access gateway', () => {
 
     it('Should throw error if duplicate userId are provided', async () => {
       const { userId, ...userInfo } = newUser();
-      userCollection.insertOne({
+      await userCollection.insertOne({
         _id: new ObjectId(userId),
         ...userInfo,
       });
@@ -40,7 +40,7 @@ describe('Users data access gateway', () => {
   describe('fetchUserById', () => {
     it('Can fetch user by id', async () => {
       const { userId, ...userInfo } = newUser();
-      userCollection.insertOne({
+      await userCollection.insertOne({
         _id: new ObjectId(userId),
         ...userInfo,
       });
@@ -57,7 +57,7 @@ describe('Users data access gateway', () => {
   describe('fetchUserByEmail', () => {
     it('Can fetch user by email', async () => {
       const { userId, ...userInfo } = newUser();
-      userCollection.insertOne({
+      await userCollection.insertOne({
         _id: new ObjectId(userId),
         ...userInfo,
       });
@@ -74,7 +74,7 @@ describe('Users data access gateway', () => {
   describe('updateUser', () => {
     it('Update full name', async () => {
       const { userId, ...userInfo } = newUser();
-      userCollection.insertOne({
+      await userCollection.insertOne({
         _id: new ObjectId(userId),
         ...userInfo,
       });
@@ -88,7 +88,7 @@ describe('Users data access gateway', () => {
     it('Update verified flag', async () => {
       // insert user with verified: false
       const { userId, ...userInfo } = newUser();
-      userCollection.insertOne({ _id: new ObjectId(userId), ...userInfo, verified: false });
+      await userCollection.insertOne({ _id: new ObjectId(userId), ...userInfo, verified: false });
 
       await expect(usersData.updateUser({ userId, verified: true }))
         .resolves.toStrictEqual(expect.objectContaining({ userId, verified: true }));
@@ -100,7 +100,7 @@ describe('Users data access gateway', () => {
   describe('updatePassword', () => {
     it('Can update password', async () => {
       const { userId, ...userInfo } = newUser();
-      userCollection.insertOne({
+      await userCollection.insertOne({
         _id: new ObjectId(userId),
         ...userInfo,
       });
