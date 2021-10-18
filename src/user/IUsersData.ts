@@ -31,6 +31,7 @@ export interface IUsersData {
     fullName: string,
     email: string,
     profilePicSrc: string,
+    verified: boolean,
   } | null>;
 
   /**

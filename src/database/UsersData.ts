@@ -61,6 +61,7 @@ export default class UsersData extends BaseData implements IUsersData {
     fullName: string,
     email: string,
     profilePicSrc: string,
+    verified: boolean,
   } | null> {
     const db = await this.getDb();
     try {
@@ -71,6 +72,7 @@ export default class UsersData extends BaseData implements IUsersData {
         fullName: result.fullName,
         email: result.email,
         profilePicSrc: result.profilePicSrc,
+        verified: result.verified,
       };
     } catch (err: any) {
       return this.handleDatabaseError(err, 'Could not fetch user');

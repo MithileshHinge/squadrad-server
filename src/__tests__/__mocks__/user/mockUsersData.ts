@@ -23,6 +23,7 @@ const mockUsersData = {
       fullName: user.fullName,
       email: user.email,
       profilePicSrc: user.profilePicSrc,
+      verified: user.verified,
     }) : Promise.resolve(null);
   }),
   fetchUserByEmail: jest.fn((
