@@ -30,7 +30,7 @@ export interface ICreatorsData {
     pageName: string,
     bio: string,
     isPlural: boolean,
-  }>
+  } | null>
 
   /**
    * Update creator information
