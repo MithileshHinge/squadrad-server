@@ -1,7 +1,7 @@
 export type HTTPRequest = {
   body: any,
-  query: Object,
-  params: Object,
+  query: object,
+  params: object,
   method: HTTPRequestMethod,
   path: string,
   userId?: string,
