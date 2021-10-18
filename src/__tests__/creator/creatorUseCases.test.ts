@@ -1,0 +1,122 @@
+import ValidationError from '../../common/errors/ValidationError';
+import BecomeCreator from '../../creator/BecomeCreator';
+import creatorValidator from '../../creator/validator';
+import id from '../../user/id';
+import sampleCreatorParams from '../__mocks__/creator/creatorParams';
+import mockCreatorsData from '../__mocks__/creator/mockCreatorsData';
+import mockUsersData from '../__mocks__/user/mockUsersData';
+import { newUser } from '../__mocks__/user/users';
+
+describe('Creator Use Cases', () => {
+  beforeEach(() => {
+    Object.values(mockUsersData).forEach((mockMethod) => {
+      mockMethod.mockClear();
+    });
+    Object.values(mockCreatorsData).forEach((mockMethod) => {
+      mockMethod.mockClear();
+    });
+  });
+
+  describe('BecomeCreator use case', () => {
+    const becomeCreator = new BecomeCreator(mockUsersData, mockCreatorsData, creatorValidator);
+    const existingVerifiedUser = newUser();
+    existingVerifiedUser.verified = true;
+    mockUsersData.fetchUserById.mockResolvedValue(existingVerifiedUser);
+
+    it('Can become a creator', async () => {
+      await expect(becomeCreator.becomeCreator({ userId: existingVerifiedUser.userId, ...sampleCreatorParams })).resolves.not.toThrow();
+      expect(mockCreatorsData.insertNewCreator).toHaveBeenCalledWith(expect.objectContaining({ userId: existingVerifiedUser.userId }));
+    });
+
+    describe('User validation', () => {
+      it('Should throw error if userId does not exist in usersData', async () => {
+        mockUsersData.fetchUserById.mockResolvedValueOnce(null);
+        await expect(becomeCreator.becomeCreator({ userId: id.createId(), ...sampleCreatorParams })).rejects.toThrow(ValidationError);
+        expect(mockCreatorsData.insertNewCreator).not.toHaveBeenCalled();
+      });
+
+      it('Should throw error if user is already a creator', async () => {
+        mockCreatorsData.fetchCreatorById.mockResolvedValueOnce({ userId: existingVerifiedUser.userId });
+        await expect(becomeCreator.becomeCreator({ userId: existingVerifiedUser.userId, ...sampleCreatorParams })).rejects.toThrow(ValidationError);
+        expect(mockCreatorsData.insertNewCreator).not.toHaveBeenCalled();
+      });
+
+      it('Should throw error if user is not verified', async () => {
+        const user = newUser();
+        user.verified = false;
+        mockUsersData.fetchUserById.mockResolvedValueOnce(user);
+        await expect(becomeCreator.becomeCreator({ userId: user.userId, ...sampleCreatorParams })).rejects.toThrow(ValidationError);
+        expect(mockCreatorsData.insertNewCreator).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('Page name validation', () => {
+      describe('Page name must be >= 3 letters', () => {
+        ['', 'a', 'ab', 'a ', 'a    ', '     a'].forEach((pageName) => {
+          it(`should throw error for "${pageName}"`, async () => {
+            await expect(becomeCreator.becomeCreator({ userId: existingVerifiedUser.userId, ...sampleCreatorParams, pageName })).rejects.toThrow(ValidationError);
+            expect(mockCreatorsData.insertNewCreator).not.toHaveBeenCalled();
+          });
+        });
+      });
+
+      describe('Page name must contain only single space between words', () => {
+        ['as  dfg', 'as df  g', 'as  df   g'].forEach((pageName) => {
+          it(`should throw error for "${pageName}"`, async () => {
+            await expect(becomeCreator.becomeCreator({ userId: existingVerifiedUser.userId, ...sampleCreatorParams, pageName })).rejects.toThrow(ValidationError);
+            expect(mockCreatorsData.insertNewCreator).not.toHaveBeenCalled();
+          });
+        });
+      });
+
+      describe('Page name must be <= 50 characters', () => {
+        ['asdfghjklqwertyuioplkjhgfdsazxcvbnmlkjhgfdsaqwertyq', 'asdfghjklq wertyuioplkjhgfdsa zxcvbnmlkjhg fdsaqwertyq'].forEach((pageName) => {
+          it(`should throw error for ${pageName}`, async () => {
+            await expect(becomeCreator.becomeCreator({ userId: existingVerifiedUser.userId, ...sampleCreatorParams, pageName })).rejects.toThrow(ValidationError);
+            expect(mockCreatorsData.insertNewCreator).not.toHaveBeenCalled();
+          });
+        });
+      });
+    });
+
+    describe('Bio validation', () => {
+      describe('Bio must be >= 3 letters', () => {
+        ['', 'a', 'ab', 'a ', 'a    ', '     a'].forEach((bio) => {
+          it(`should throw error for "${bio}"`, async () => {
+            await expect(becomeCreator.becomeCreator({ userId: existingVerifiedUser.userId, ...sampleCreatorParams, bio })).rejects.toThrow(ValidationError);
+            expect(mockCreatorsData.insertNewCreator).not.toHaveBeenCalled();
+          });
+        });
+      });
+
+      describe('Bio must only contain alphabet and spaces', () => {
+        ['1', '2', '0', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '+', '=', '_', '\'', '"', ';', '.', '/', '\\', '?', '!'].forEach((char) => {
+          it(`should throw error for "asd${char}"`, async () => {
+            await expect(becomeCreator.becomeCreator({ userId: existingVerifiedUser.userId, ...sampleCreatorParams, bio: `asdfg${char}` })).rejects.toThrow(ValidationError);
+            await expect(becomeCreator.becomeCreator({ userId: existingVerifiedUser.userId, ...sampleCreatorParams, bio: `asd ${char}` })).rejects.toThrow(ValidationError);
+            await expect(becomeCreator.becomeCreator({ userId: existingVerifiedUser.userId, ...sampleCreatorParams, bio: `as${char}` })).rejects.toThrow(ValidationError);
+            expect(mockCreatorsData.insertNewCreator).not.toHaveBeenCalled();
+          });
+        });
+      });
+
+      describe('Bio must contain only single space between words', () => {
+        ['as  dfg', 'as df  g', 'as  df   g'].forEach((bio) => {
+          it(`should throw error for "${bio}"`, async () => {
+            await expect(becomeCreator.becomeCreator({ userId: existingVerifiedUser.userId, ...sampleCreatorParams, bio })).rejects.toThrow(ValidationError);
+            expect(mockCreatorsData.insertNewCreator).not.toHaveBeenCalled();
+          });
+        });
+      });
+
+      describe('Bio must be <= 50 characters', () => {
+        ['asdfghjklqwertyuioplkjhgfdsazxcvbnmlkjhgfdsaqwertyq', 'asdfghjklq wertyuioplkjhgfdsa zxcvbnmlkjhg fdsaqwertyq'].forEach((bio) => {
+          it(`should throw error for ${bio}`, async () => {
+            await expect(becomeCreator.becomeCreator({ userId: existingVerifiedUser.userId, ...sampleCreatorParams, bio })).rejects.toThrow(ValidationError);
+            expect(mockCreatorsData.insertNewCreator).not.toHaveBeenCalled();
+          });
+        });
+      });
+    });
+  });
+});
