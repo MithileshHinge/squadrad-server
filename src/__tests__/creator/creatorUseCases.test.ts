@@ -1,8 +1,10 @@
 import ValidationError from '../../common/errors/ValidationError';
 import BecomeCreator from '../../creator/BecomeCreator';
+import EditCreator from '../../creator/EditCreator';
 import creatorValidator from '../../creator/validator';
 import id from '../../user/id';
 import sampleCreatorParams from '../__mocks__/creator/creatorParams';
+import newCreator from '../__mocks__/creator/creators';
 import mockCreatorsData from '../__mocks__/creator/mockCreatorsData';
 import mockUsersData from '../__mocks__/user/mockUsersData';
 import { newUser } from '../__mocks__/user/users';
@@ -117,6 +119,42 @@ describe('Creator Use Cases', () => {
           });
         });
       });
+    });
+  });
+
+  describe('EditCreator use case', () => {
+    const editCreator = new EditCreator(mockCreatorsData, creatorValidator);
+
+    it('Can change page name', async () => {
+      const { userId, pageName } = newCreator();
+      await expect(editCreator.edit({ userId, pageName })).resolves.not.toThrow();
+      expect(mockCreatorsData.updateCreator).toHaveBeenCalledWith(expect.objectContaining({ userId }));
+    });
+
+    it('Should throw error if page name is invalid', async () => {
+      const userId = id.createId();
+      await expect(editCreator.edit({ userId, pageName: 'as' })).rejects.toThrow(ValidationError);
+      await expect(editCreator.edit({ userId, pageName: 'as  aasvda' })).rejects.toThrow(ValidationError);
+      expect(mockCreatorsData.updateCreator).not.toHaveBeenCalled();
+    });
+
+    it('Can change bio', async () => {
+      const { userId, bio } = newCreator();
+      await expect(editCreator.edit({ userId, bio })).resolves.not.toThrow();
+      expect(mockCreatorsData.updateCreator).toHaveBeenCalledWith(expect.objectContaining({ userId }));
+    });
+
+    it('Should throw error if bio is invalid', async () => {
+      const userId = id.createId();
+      await expect(editCreator.edit({ userId, bio: 'asn23d2' })).rejects.toThrow(ValidationError);
+      await expect(editCreator.edit({ userId, bio: 'as &( ][' })).rejects.toThrow(ValidationError);
+      expect(mockCreatorsData.updateCreator).not.toHaveBeenCalled();
+    });
+
+    it('Can change isPlural', async () => {
+      const userId = id.createId();
+      await expect(editCreator.edit({ userId, isPlural: false })).resolves.not.toThrow();
+      expect(mockCreatorsData.updateCreator).toHaveBeenCalledWith(expect.objectContaining({ userId }));
     });
   });
 });

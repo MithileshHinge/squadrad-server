@@ -31,4 +31,23 @@ export interface ICreatorsData {
     bio: string,
     isPlural: boolean,
   }>
+
+  /**
+   * Update creator information
+   * @throws DatabaseError if operation fails
+   * @returns Promise to return data updated in the database
+   */
+  updateCreator({
+    userId, pageName, bio, isPlural,
+  } : {
+    userId: string,
+    pageName?: string,
+    bio?: string,
+    isPlural?: boolean,
+  }): Promise<{
+    userId: string,
+    pageName?: string,
+    bio?: string,
+    isPlural?: boolean,
+  }>
 }
