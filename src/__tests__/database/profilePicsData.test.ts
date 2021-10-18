@@ -3,23 +3,23 @@ import handleDatabaseError from '../../database/DatabaseErrorHandler';
 import ProfilePicsData from '../../database/ProfilePicsData';
 import id from '../../user/id';
 import mockDb, { closeConnection } from '../__mocks__/database/mockDb';
-import sampleUsers from '../__mocks__/user/users';
+import { newUser } from '../__mocks__/user/users';
 
 describe('Profile Pics data access gateway', () => {
   const profilePicsData = new ProfilePicsData(mockDb, handleDatabaseError);
   let userCollection: Collection<Document>;
   beforeEach(async () => {
-    userCollection = (await mockDb()).collection('users');
-    const { userId, ...tempUser } = sampleUsers[0];
-    await userCollection.insertOne({
-      _id: new ObjectId(userId),
-      ...tempUser,
-    });
+    userCollection = await (await mockDb()).createCollection('users');
   });
 
   describe('updateProfilePic', () => {
     it('Can update profile picture', async () => {
-      const { userId } = sampleUsers[0];
+      // insert new user
+      const { userId, ...userInfo } = newUser();
+      await userCollection.insertOne({
+        _id: new ObjectId(userId),
+        ...userInfo,
+      });
       const newProfilePicSrc = '/src/__tests__/__mocks__/profile-pic/sample-profile-pic.jpg';
       await expect(profilePicsData.updateProfilePic(userId, newProfilePicSrc))
         .resolves.not.toThrowError();
@@ -30,10 +30,15 @@ describe('Profile Pics data access gateway', () => {
 
   describe('fetchProfilePic', () => {
     it('Can fetch profile picture', async () => {
-      const { userId } = sampleUsers[0];
-      const newProfilePicSrc = '/src/__tests__/__mocks__/profile-pic/sample-profile-pic.jpg';
-      await profilePicsData.updateProfilePic(userId, newProfilePicSrc);
-      await expect(profilePicsData.fetchProfilePic(userId)).resolves.toMatch(newProfilePicSrc);
+      const { userId, ...userInfo } = newUser();
+      const profilePicSrc = '/src/__tests__/__mocks__/profile-pic/sample-profile-pic.jpg';
+      await userCollection.insertOne({
+        _id: new ObjectId(userId),
+        ...userInfo,
+        profilePicSrc,
+      });
+      await profilePicsData.updateProfilePic(userId, profilePicSrc);
+      await expect(profilePicsData.fetchProfilePic(userId)).resolves.toMatch(profilePicSrc);
     });
 
     it('Returns null if user id does not exist', async () => {

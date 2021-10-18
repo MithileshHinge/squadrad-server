@@ -10,7 +10,7 @@ import mockDb, { closeConnection } from '../__mocks__/database/mockDb';
 import faker from '../__mocks__/faker';
 
 import sampleUserParams from '../__mocks__/user/userParams';
-import sampleUsers, { newUser } from '../__mocks__/user/users';
+import { newUser } from '../__mocks__/user/users';
 
 describe('User Endpoints', () => {
   let userCollection: Collection<Document>;
@@ -61,14 +61,7 @@ describe('User Endpoints', () => {
   }
 
   beforeEach(async () => {
-    userCollection = (await mockDb()).collection('users');
-    await userCollection.insertMany(sampleUsers.map((user) => {
-      const { userId, ...tempUser } = user;
-      return {
-        _id: new ObjectId(userId),
-        ...tempUser,
-      };
-    }));
+    userCollection = await (await mockDb()).createCollection('users');
   });
 
   describe('POST /user', () => {
@@ -79,9 +72,12 @@ describe('User Endpoints', () => {
     });
 
     it('Respond with error code 400 (Bad Request) if user with email already exists', async () => {
-      // get existing user
-      const { email } = sampleUsers[0];
-      await request(app).post('/user').send({ ...sampleUserParams, email }).expect(HTTPResponseCode.BAD_REQUEST);
+      const { userId, ...userInfo } = newUser();
+      userCollection.insertOne({
+        _id: new ObjectId(userId),
+        ...userInfo,
+      });
+      await request(app).post('/user').send({ ...sampleUserParams, email: userInfo.email }).expect(HTTPResponseCode.BAD_REQUEST);
     });
 
     it('Respond with error code 400 (Bad Request) if parameters are invalid', async () => {
@@ -99,11 +95,15 @@ describe('User Endpoints', () => {
 
   describe('PATCH /user/verify', () => {
     it('Can verify user', async () => {
-      // get unverified user, assuming there is at least one unverified user
-      const { email } = sampleUsers.find((user) => !user.verified)!;
-      const token = issueJWT({ email }, 100);
+      const { userId, ...userInfo } = newUser();
+      userCollection.insertOne({
+        _id: new ObjectId(userId),
+        ...userInfo,
+        verified: false,
+      });
+      const token = issueJWT({ email: userInfo.email }, 100);
       await request(app).patch('/user/verify').send({ token }).expect(HTTPResponseCode.OK);
-      await expect(userCollection.findOne({ email }))
+      await expect(userCollection.findOne({ email: userInfo.email }))
         .resolves.toStrictEqual(expect.objectContaining({ verified: true }));
     });
 
@@ -114,15 +114,20 @@ describe('User Endpoints', () => {
     });
 
     it('Respond with error code 403 (Forbidden) if token is expired', async () => {
-      const { email } = sampleUsers.find((user) => !user.verified)!;
-      const token = issueJWT({ email }, 2);
+      const { userId, ...userInfo } = newUser();
+      userCollection.insertOne({
+        _id: new ObjectId(userId),
+        ...userInfo,
+        verified: false,
+      });
+      const token = issueJWT({ email: userInfo.email }, 2);
       await new Promise((resolve) => {
         setTimeout(() => {
           resolve(null);
         }, 3000);
       });
       await request(app).patch('/user/verify').send({ token }).expect(HTTPResponseCode.FORBIDDEN);
-      await expect(userCollection.findOne({ email }))
+      await expect(userCollection.findOne({ email: userInfo.email }))
         .resolves.toStrictEqual(expect.objectContaining({ verified: false }));
     });
   });

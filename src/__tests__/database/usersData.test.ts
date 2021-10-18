@@ -5,20 +5,13 @@ import handleDatabaseError from '../../database/DatabaseErrorHandler';
 import UsersData from '../../database/UsersData';
 import id from '../../user/id';
 import mockDb, { closeConnection } from '../__mocks__/database/mockDb';
-import sampleUsers, { newUser } from '../__mocks__/user/users';
+import { newUser } from '../__mocks__/user/users';
 
 describe('Users data access gateway', () => {
   const usersData = new UsersData(mockDb, handleDatabaseError);
   let userCollection: Collection<Document>;
   beforeEach(async () => {
-    userCollection = (await mockDb()).collection('users');
-    await userCollection.insertMany(sampleUsers.map((user) => {
-      const { userId, ...tempUser } = user;
-      return {
-        _id: new ObjectId(user.userId),
-        ...tempUser,
-      };
-    }));
+    userCollection = await (await mockDb()).createCollection('users');
   });
 
   describe('insertNewUser', () => {
@@ -35,14 +28,22 @@ describe('Users data access gateway', () => {
     });
 
     it('Should throw error if duplicate userId are provided', async () => {
-      const user = sampleUsers[0];
-      await expect(usersData.insertNewUser(user)).rejects.toThrow(DatabaseError);
+      const { userId, ...userInfo } = newUser();
+      userCollection.insertOne({
+        _id: new ObjectId(userId),
+        ...userInfo,
+      });
+      await expect(usersData.insertNewUser({ userId, ...userInfo })).rejects.toThrow(DatabaseError);
     });
   });
 
   describe('fetchUserById', () => {
     it('Can fetch user by id', async () => {
-      const { userId } = sampleUsers[0];
+      const { userId, ...userInfo } = newUser();
+      userCollection.insertOne({
+        _id: new ObjectId(userId),
+        ...userInfo,
+      });
       await expect(usersData.fetchUserById(userId))
         .resolves.toStrictEqual(expect.objectContaining({ userId }));
     });
@@ -55,8 +56,12 @@ describe('Users data access gateway', () => {
 
   describe('fetchUserByEmail', () => {
     it('Can fetch user by email', async () => {
-      const { userId, email } = sampleUsers[0];
-      await expect(usersData.fetchUserByEmail(email))
+      const { userId, ...userInfo } = newUser();
+      userCollection.insertOne({
+        _id: new ObjectId(userId),
+        ...userInfo,
+      });
+      await expect(usersData.fetchUserByEmail(userInfo.email))
         .resolves.toStrictEqual(expect.objectContaining({ userId }));
     });
 
@@ -68,7 +73,11 @@ describe('Users data access gateway', () => {
 
   describe('updateUser', () => {
     it('Update full name', async () => {
-      const { userId } = sampleUsers[0];
+      const { userId, ...userInfo } = newUser();
+      userCollection.insertOne({
+        _id: new ObjectId(userId),
+        ...userInfo,
+      });
       const fullName = 'nasdjna aacadaas';
       await expect(usersData.updateUser({ userId, fullName }))
         .resolves.toStrictEqual(expect.objectContaining({ userId, fullName }));
@@ -90,7 +99,11 @@ describe('Users data access gateway', () => {
 
   describe('updatePassword', () => {
     it('Can update password', async () => {
-      const { userId } = sampleUsers[0];
+      const { userId, ...userInfo } = newUser();
+      userCollection.insertOne({
+        _id: new ObjectId(userId),
+        ...userInfo,
+      });
       const newPassword = 'nqeiwfjqnwekjqnwe';
       await expect(usersData.updatePassword(userId, newPassword)).resolves.not.toThrowError();
       await expect(userCollection.findOne({ _id: new ObjectId(userId) }))
