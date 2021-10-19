@@ -1,3 +1,4 @@
+import CreatorController from './controllers/CreatorController';
 import UserController from './controllers/UserController';
 import { authorizationMiddleware } from './services/passport.service';
 
@@ -15,5 +16,10 @@ export default [
   {
     path: '/user/password',
     patch: [authorizationMiddleware, UserController.patchUserPassword],
+  },
+  {
+    path: '/creator',
+    post: [authorizationMiddleware, CreatorController.postCreator],
+    patch: [authorizationMiddleware, CreatorController.patchCreator],
   },
 ];

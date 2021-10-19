@@ -4,6 +4,7 @@ import UsersData from './UsersData';
 import mockDb from '../__tests__/__mocks__/database/mockDb';
 import handleDatabaseError from './DatabaseErrorHandler';
 import config from '../config';
+import CreatorsData from './CreatorsData';
 
 const { uri, dbName } = config.database;
 const client = new MongoClient(uri);
@@ -23,3 +24,4 @@ const getDbDependency = process.env.NODE_ENV === 'test' ? mockDb : getDb; // NOD
 
 export const usersData = new UsersData(getDbDependency, handleDatabaseError);
 export const profilePicsData = new ProfilePicsData(getDbDependency, handleDatabaseError);
+export const creatorsData = new CreatorsData(getDbDependency, handleDatabaseError);
