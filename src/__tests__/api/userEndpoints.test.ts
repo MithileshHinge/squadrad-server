@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import { Collection, Document, ObjectId } from 'mongodb';
-import request, { SuperAgentTest } from 'supertest';
+import request from 'supertest';
 import { HTTPResponseCode } from '../../api/HttpResponse';
 import app from '../../api/server';
 import { issueJWT } from '../../common/jwt';
@@ -10,55 +10,10 @@ import mockDb, { closeConnection } from '../__mocks__/database/mockDb';
 import faker from '../__mocks__/faker';
 
 import sampleUserParams from '../__mocks__/user/userParams';
-import { newUser } from '../__mocks__/user/users';
+import { getLoggedInUser, getRegisteredUser, newUser } from '../__mocks__/user/users';
 
 describe('User Endpoints', () => {
   let userCollection: Collection<Document>;
-
-  async function getRegisteredUser({ verified }: { verified: boolean }): Promise<{
-    userId: string, email: string, password: string,
-  }> {
-    // insert new verified user for testing
-    const {
-      userId: tempUserId,
-      password: tempPassword,
-      verified: tempVerified,
-      ...tempUser
-    } = newUser();
-
-    const userId = tempUserId;
-    const password = faker.internet.password();
-    await userCollection.insertOne({
-      _id: new ObjectId(userId),
-      password: passwordEncryption.encrypt(password),
-      verified,
-      ...tempUser,
-    });
-
-    return {
-      userId,
-      email: tempUser.email,
-      password,
-    };
-  }
-
-  async function getLoggedInUser(): Promise<{
-    agent: SuperAgentTest, userId: string, email: string, password: string,
-  }> {
-    const agent = request.agent(app);
-
-    const { userId, email, password } = await getRegisteredUser({ verified: true });
-
-    // log in user
-    await agent.post('/user/login').send({ email, password }).expect(HTTPResponseCode.OK);
-
-    return {
-      agent,
-      userId,
-      email,
-      password,
-    };
-  }
 
   beforeEach(async () => {
     userCollection = await (await mockDb()).createCollection('users');
@@ -134,7 +89,7 @@ describe('User Endpoints', () => {
 
   describe('POST /user/login', () => {
     it('Can login user', async () => {
-      const { userId, email, password } = await getRegisteredUser({ verified: true });
+      const { userId, email, password } = await getRegisteredUser(userCollection, { verified: true });
       const agent = request.agent(app);
 
       const res = await agent.post('/user/login').send({ email, password }).expect(HTTPResponseCode.OK);
@@ -153,21 +108,21 @@ describe('User Endpoints', () => {
     });
 
     it('Respond with error code 401 (Unauthorized) if incorrect email or password provided', async () => {
-      const { email, password } = await getRegisteredUser({ verified: true });
+      const { email, password } = await getRegisteredUser(userCollection, { verified: true });
 
       await request(app).post('/user/login').send({ email, password: 'randomincorrectpassword' }).expect(HTTPResponseCode.UNAUTHORIZED);
       await request(app).post('/user/login').send({ email: 'randomincorrectemail@gmail.com', password }).expect(HTTPResponseCode.UNAUTHORIZED);
     });
 
     it('Respond with error code 403 (Forbidden) if user\'s email address is not verified', async () => {
-      const { email, password } = await getRegisteredUser({ verified: false });
+      const { email, password } = await getRegisteredUser(userCollection, { verified: false });
       await request(app).post('/user/login').send({ email, password }).expect(HTTPResponseCode.FORBIDDEN);
     });
   });
 
   describe('GET /user', () => {
     it('Can get user self info', async () => {
-      const { agent, userId, email } = await getLoggedInUser();
+      const { agent, userId, email } = await getLoggedInUser(app, userCollection);
       const res = await agent.get('/user').set('Accept', 'application/json').expect(HTTPResponseCode.OK);
       expect(res.body).toStrictEqual(expect.objectContaining({ userId, email }));
     });
@@ -180,7 +135,7 @@ describe('User Endpoints', () => {
   describe('PATCH /user', () => {
     describe('Change fullname', () => {
       it('Can change self fullname', async () => {
-        const { agent, userId } = await getLoggedInUser();
+        const { agent, userId } = await getLoggedInUser(app, userCollection);
         const newFullName = faker.name.findName();
         await agent.patch('/user').send({ fullName: newFullName }).expect(HTTPResponseCode.OK);
         await expect(userCollection.findOne({ _id: new ObjectId(userId) }))
@@ -188,7 +143,7 @@ describe('User Endpoints', () => {
       });
 
       it('Respond with error code 400 (Bad Request) if fullname is invalid', async () => {
-        const { agent, userId } = await getLoggedInUser();
+        const { agent, userId } = await getLoggedInUser(app, userCollection);
         const newFullName = '3nir3no2 a a grg   sfdsdv23r';
         await agent.patch('/user').send({ fullName: newFullName }).expect(HTTPResponseCode.BAD_REQUEST);
         await expect(userCollection.findOne({ _id: new ObjectId(userId) }))
@@ -203,7 +158,7 @@ describe('User Endpoints', () => {
 
   describe('PATCH /user/password', () => {
     it('Can change password', async () => {
-      const { agent, userId, password: oldPassword } = await getLoggedInUser();
+      const { agent, userId, password: oldPassword } = await getLoggedInUser(app, userCollection);
       const newPassword = faker.internet.password();
       await agent.patch('/user/password').send({ oldPassword, newPassword }).expect(HTTPResponseCode.OK);
       const { password: passwordHash } = (await userCollection.findOne({
@@ -213,7 +168,7 @@ describe('User Endpoints', () => {
     });
 
     it('Respond with error code 401 (Unauthorized) if oldPassword is incorrect or not provided', async () => {
-      const { agent, userId, password: oldPassword } = await getLoggedInUser();
+      const { agent, userId, password: oldPassword } = await getLoggedInUser(app, userCollection);
       const incorrectPassword = 'random incorrect password';
       const newPassword = faker.internet.password();
       await agent.patch('/user/password').send({ oldPassword: incorrectPassword, newPassword }).expect(HTTPResponseCode.UNAUTHORIZED);
@@ -224,7 +179,7 @@ describe('User Endpoints', () => {
     });
 
     it('Respond with error code 400 (Bad Request) if newPassword is not valid', async () => {
-      const { agent, userId, password: oldPassword } = await getLoggedInUser();
+      const { agent, userId, password: oldPassword } = await getLoggedInUser(app, userCollection);
       const newPassword = 'asd';
       await agent.patch('/user/password').send({ oldPassword, newPassword }).expect(HTTPResponseCode.BAD_REQUEST);
       const { password: passwordHash } = (await userCollection.findOne({
@@ -240,7 +195,7 @@ describe('User Endpoints', () => {
 
   describe('POST /user/logout', () => {
     it('Can log out user', async () => {
-      const { agent } = await getLoggedInUser();
+      const { agent } = await getLoggedInUser(app, userCollection);
 
       await agent.post('/user/logout').send({}).expect(HTTPResponseCode.OK);
       await agent.get('/user').set('Accept', 'application/json').expect(HTTPResponseCode.UNAUTHORIZED);
