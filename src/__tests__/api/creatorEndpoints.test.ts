@@ -39,10 +39,11 @@ describe('Creator Endpoints', () => {
       const badParams = {
         pageName: '4f4 f4   f24f2',
         bio: 'nfoi322n3d',
-        isPlural: false,
       };
-      await agent.post('/creator').send({ userId, ...badParams }).expect(HTTPResponseCode.BAD_REQUEST);
-      await expect(creatorCollection.findOne({ _id: new ObjectId(userId) })).resolves.toBeNull();
+      await Promise.all(Object.entries(badParams).map(async ([param, value]) => {
+        await agent.post('/creator').send({ userId, ...sampleCreatorParams, [param]: value }).expect(HTTPResponseCode.BAD_REQUEST);
+        await expect(creatorCollection.findOne({ _id: new ObjectId(userId) })).resolves.toBeNull();
+      }));
     });
   });
 
@@ -64,13 +65,16 @@ describe('Creator Endpoints', () => {
     it('Respond with error code 400 (Bad Request) if parameters are invalid', async () => {
       const { agent, userId } = await getLoggedInCreator(app, userCollection);
       const { pageName: pageNamePrev, bio: bioPrev, isPlural } = (await creatorCollection.findOne({ _id: new ObjectId(userId) }))!;
-      const pageName = 'c4f  2     23d23';
-      const bio = 'ca4232d';
-      await agent.patch('/creator').send({
-        userId, pageName, bio, isPlural,
-      }).expect(HTTPResponseCode.BAD_REQUEST);
-      await expect(creatorCollection.findOne({ _id: new ObjectId(userId) })).resolves.toStrictEqual(expect.objectContaining({
-        pageName: pageNamePrev, bio: bioPrev, isPlural,
+      const prevParams = { pageName: pageNamePrev, bio: bioPrev, isPlural };
+      const badParams = {
+        pageName: '4f4 f4   f24f2',
+        bio: 'nfoi322n3d',
+      };
+      await Promise.all(Object.entries(badParams).map(async ([param, value]) => {
+        await agent.patch('/creator').send({
+          userId, ...prevParams, [param]: value,
+        }).expect(HTTPResponseCode.BAD_REQUEST);
+        await expect(creatorCollection.findOne({ _id: new ObjectId(userId) })).resolves.toStrictEqual(expect.objectContaining(prevParams));
       }));
     });
   });
