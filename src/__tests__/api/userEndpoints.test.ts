@@ -46,6 +46,18 @@ describe('User Endpoints', () => {
         expect(res.statusCode).toBe(HTTPResponseCode.BAD_REQUEST);
       }));
     });
+
+    it('Respond with error code 400 (Bad Request) if parameter types are not as expected', async () => {
+      const invalidParams = {
+        fullName: 1234,
+        email: false,
+        password: { blah: 'adnaosna' },
+      };
+      await Promise.all(Object.entries(invalidParams).map(async ([param, value]) => {
+        const res = await request(app).post('/user').send({ ...sampleUserParams, [param]: value });
+        expect(res.statusCode).toBe(HTTPResponseCode.BAD_REQUEST);
+      }));
+    });
   });
 
   describe('PATCH /user/verify', () => {

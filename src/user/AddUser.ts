@@ -7,6 +7,7 @@ import SetProfilePic from '../profile-pic/SetProfilePic';
 import profilePicValidator from '../profile-pic/validator';
 import { IProfilePicsData } from '../profile-pic/IProfilePicsData';
 import { IEmailVerification } from './email-verification/IEmailVerification';
+import validateType from '../common/validators/typeValidator';
 
 export default class AddUser {
   private usersData: IUsersData;
@@ -43,14 +44,19 @@ export default class AddUser {
    * @throws DatabaseError when there is an error in inserting user into database
    */
   async add({
-    fullName,
-    email,
-    password,
+    fullName: fullNameParam,
+    email: emailParam,
+    password: passwordParam,
   }: {
     fullName: string,
     email: string,
     password: string
   }): Promise<{ userId: string, fullName: string, email: string, profilePicSrc: string }> {
+    const { fullName, email, password } = validateType({ fullName: fullNameParam, email: emailParam, password: passwordParam }, {
+      fullName: 'string',
+      email: 'string',
+      password: 'string',
+    });
     const emailValidated = this.userValidator.validateEmail(email);
     if (await this.usersData.fetchUserByEmail(emailValidated)) throw new ValidationError('Another account already exists with the same email ID');
 
