@@ -5,7 +5,6 @@ import ChangePassword from './ChangePassword';
 import EditUser from './EditUser';
 import emailVerification from './email-verification';
 import FindUser from './FindUser';
-import id from './id';
 import LoginUser from './LoginUser';
 import passwordEncryption from './password';
 import userValidator from './validator';
@@ -14,7 +13,6 @@ import VerifyEmail from './VerifyEmail';
 export const addUser = new AddUser(
   usersData,
   userValidator,
-  id,
   passwordEncryption,
   profilePicsData,
   (process.env.NODE_ENV === 'test') ? mockEmailVerification : emailVerification,

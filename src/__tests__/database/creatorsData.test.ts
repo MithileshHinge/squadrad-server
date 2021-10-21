@@ -2,7 +2,7 @@ import { Collection, Document, ObjectId } from 'mongodb';
 import DatabaseError from '../../common/errors/DatabaseError';
 import CreatorsData from '../../database/CreatorsData';
 import handleDatabaseError from '../../database/DatabaseErrorHandler';
-import id from '../../user/id';
+import id from '../../common/id';
 import newCreator from '../__mocks__/creator/creators';
 import mockDb, { closeConnection } from '../__mocks__/database/mockDb';
 import faker from '../__mocks__/faker';

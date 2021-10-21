@@ -1,3 +1,4 @@
+import { validateUserId } from '../userId';
 import { IUsersData } from './IUsersData';
 import { IUserValidator } from './validator/IUserValidator';
 
@@ -43,7 +44,7 @@ export default class FindUser {
     email?: string,
     profilePicSrc: string,
   } | null> {
-    const userIdValidated = this.userValidator.validateUserId(userId);
+    const userIdValidated = validateUserId.validate(userId);
     const user = await this.usersData.fetchUserById(userIdValidated);
     if (user) {
       return {

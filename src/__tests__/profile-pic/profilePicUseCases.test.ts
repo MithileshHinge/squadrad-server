@@ -2,7 +2,7 @@ import ValidationError from '../../common/errors/ValidationError';
 import GetProfilePic from '../../profile-pic/GetProfilePic';
 import SetProfilePic from '../../profile-pic/SetProfilePic';
 import profilePicValidator from '../../profile-pic/validator';
-import id from '../../user/id';
+import id from '../../common/id';
 import mockProfilePicsData from '../__mocks__/profile-pic/mockProfilePicsData';
 import sampleUsers from '../__mocks__/user/users';
 

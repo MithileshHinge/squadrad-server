@@ -1,3 +1,4 @@
+import { validateUserId } from '../userId';
 import { IUsersData } from './IUsersData';
 import { IUserValidator } from './validator/IUserValidator';
 
@@ -20,7 +21,7 @@ export default class EditUser {
     userId: string,
     fullName?: string,
   }> {
-    const userIdValidated = this.userValidator.validateUserId(userInfo.userId);
+    const userIdValidated = validateUserId.validate(userInfo.userId);
     const fullNameValidated = userInfo.fullName === undefined
       ? undefined
       : this.userValidator.validateFullName(userInfo.fullName);

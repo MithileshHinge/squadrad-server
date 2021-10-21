@@ -1,7 +1,7 @@
 import { Collection, Document, ObjectId } from 'mongodb';
 import handleDatabaseError from '../../database/DatabaseErrorHandler';
 import ProfilePicsData from '../../database/ProfilePicsData';
-import id from '../../user/id';
+import id from '../../common/id';
 import mockDb, { closeConnection } from '../__mocks__/database/mockDb';
 import { newUser } from '../__mocks__/user/users';
 

@@ -1,6 +1,6 @@
 import { Express } from 'express';
 import { Collection, Document } from 'mongodb';
-import id from '../../../user/id';
+import id from '../../../common/id';
 import faker from '../faker';
 import { getLoggedInUser } from '../user/users';
 import sampleCreatorParams from './creatorParams';

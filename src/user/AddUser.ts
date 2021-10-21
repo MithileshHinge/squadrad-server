@@ -1,12 +1,12 @@
 import ValidationError from '../common/errors/ValidationError';
 import { IUsersData } from './IUsersData';
 import { IUserValidator } from './validator/IUserValidator';
-import { IId } from './id';
 import { IPasswordEncryption } from './password/IPasswordEncryption';
 import SetProfilePic from '../profile-pic/SetProfilePic';
 import profilePicValidator from '../profile-pic/validator';
 import { IProfilePicsData } from '../profile-pic/IProfilePicsData';
 import { IEmailVerification } from './email-verification/IEmailVerification';
+import { createUserId } from '../userId';
 
 export default class AddUser {
   private usersData: IUsersData;
@@ -15,8 +15,6 @@ export default class AddUser {
 
   private userValidator: IUserValidator;
 
-  private id: IId;
-
   private passwordEncryption: IPasswordEncryption;
 
   private emailVerification: IEmailVerification;
@@ -24,14 +22,12 @@ export default class AddUser {
   constructor(
     usersData: IUsersData,
     userValidator: IUserValidator,
-    id: IId,
     passwordEncryption: IPasswordEncryption,
     profilePicsData: IProfilePicsData,
     emailVerification: IEmailVerification,
   ) {
     this.usersData = usersData;
     this.userValidator = userValidator;
-    this.id = id;
     this.passwordEncryption = passwordEncryption;
     this.profilePicsData = profilePicsData;
     this.emailVerification = emailVerification;
@@ -54,14 +50,7 @@ export default class AddUser {
     const emailValidated = this.userValidator.validateEmail(email);
     if (await this.usersData.fetchUserByEmail(emailValidated)) throw new ValidationError('Another account already exists with the same email ID');
 
-    let userId = this.id.createId();
-    // check if userId already exists in database
-    // Note: CUID collisions are extremely improbable,
-    // but my paranoia insists me to make a sanity check
-    // eslint-disable-next-line no-await-in-loop
-    while (await this.usersData.fetchUserById(userId)) {
-      userId = this.id.createId();
-    }
+    const userId = await createUserId.create(this.usersData);
 
     const fullNameValidated = this.userValidator.validateFullName(fullName);
     const passwordValidated = this.userValidator.validatePassword(password);

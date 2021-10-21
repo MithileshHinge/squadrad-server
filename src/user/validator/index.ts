@@ -1,16 +1,8 @@
 import ValidationError from '../../common/errors/ValidationError';
 import stringValidator from '../../common/validators/stringValidator';
-import id from '../id';
 import { IUserValidator } from './IUserValidator';
 
 const userValidator: IUserValidator = {
-  validateUserId(userId: string): string {
-    if (typeof userId !== 'string') throw new ValidationError('userId must be a string');
-    const userIdTrimmed = userId.trim();
-    if (!id.isValidId(userIdTrimmed)) throw new ValidationError(`userId "${userIdTrimmed}" is not a valid userId`);
-    return userIdTrimmed;
-  },
-
   validateFullName(fullName: string): string {
     if (typeof fullName !== 'string') throw new ValidationError('Full name must be a string');
     const fullNameTrimmed = fullName.trim();

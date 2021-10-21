@@ -2,7 +2,7 @@ import { Collection, Document, ObjectId } from 'mongodb';
 import request, { SuperAgentTest } from 'supertest';
 import { Express } from 'express';
 import passwordEncryption from '../../../user/password';
-import id from '../../../user/id';
+import id from '../../../common/id';
 import faker from '../faker';
 import { HTTPResponseCode } from '../../../api/HttpResponse';
 

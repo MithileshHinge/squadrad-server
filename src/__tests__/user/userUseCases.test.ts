@@ -3,7 +3,7 @@ import sampleUserParams from '../__mocks__/user/userParams';
 import sampleUsers, { newUser } from '../__mocks__/user/users';
 import mockUsersData from '../__mocks__/user/mockUsersData';
 import ValidationError from '../../common/errors/ValidationError';
-import id from '../../user/id';
+import id from '../../common/id';
 import AddUser from '../../user/AddUser';
 import FindUser from '../../user/FindUser';
 import EditUser from '../../user/EditUser';
@@ -29,7 +29,6 @@ describe('User usecases', () => {
     const addUser = new AddUser(
       mockUsersData,
       userValidator,
-      id,
       passwordEncryption,
       mockProfilePicsData,
       mockEmailVerification,
@@ -56,15 +55,6 @@ describe('User usecases', () => {
     describe('User Id validation', () => {
       it('User must have a userId', async () => {
         expect((await addUser.add(sampleUserParams)).userId).toBeTruthy();
-      });
-
-      it('userId must be unique', async () => {
-        const userIdSet = new Set();
-        for (let i = 0; i < 5; i += 1) {
-          // eslint-disable-next-line no-await-in-loop
-          userIdSet.add((await addUser.add(sampleUserParams)).userId);
-        }
-        expect(userIdSet.size).toBe(5);
       });
     });
 

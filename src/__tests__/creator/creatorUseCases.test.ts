@@ -2,7 +2,7 @@ import ValidationError from '../../common/errors/ValidationError';
 import BecomeCreator from '../../creator/BecomeCreator';
 import EditCreator from '../../creator/EditCreator';
 import creatorValidator from '../../creator/validator';
-import id from '../../user/id';
+import id from '../../common/id';
 import sampleCreatorParams from '../__mocks__/creator/creatorParams';
 import newCreator from '../__mocks__/creator/creators';
 import mockCreatorsData from '../__mocks__/creator/mockCreatorsData';
