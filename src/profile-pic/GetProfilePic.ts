@@ -1,4 +1,5 @@
 import ValidationError from '../common/errors/ValidationError';
+import { validateUserId } from '../userId';
 import { IProfilePicsData } from './IProfilePicsData';
 
 export default class GetProfilePic {
@@ -14,8 +15,9 @@ export default class GetProfilePic {
    * @throws DatabaseError if operation fails
    */
   async get(userId: string): Promise<string> {
-    const src = await this.profilePicsData.fetchProfilePic(userId);
-    if (!src) throw new ValidationError(`User with userId="${userId}" does not exist.`);
+    const userIdValidated = validateUserId.validate(userId);
+    const src = await this.profilePicsData.fetchProfilePic(userIdValidated);
+    if (!src) throw new ValidationError(`User with userId="${userIdValidated}" does not exist.`);
     return src;
   }
 }
