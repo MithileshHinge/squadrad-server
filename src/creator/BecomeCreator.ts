@@ -1,5 +1,6 @@
 import ValidationError from '../common/errors/ValidationError';
 import { IUsersData } from '../user/IUsersData';
+import { validateUserId } from '../userId';
 import { ICreatorsData } from './ICreatorsData';
 import { ICreatorValidator } from './validator/ICreatorValidator';
 
@@ -32,23 +33,25 @@ export default class BecomeCreator {
     bio: string,
     isPlural: boolean,
   }) {
-    const user = await this.usersData.fetchUserById(userId);
+    const userIdValidated = validateUserId.validate(userId);
+    const user = await this.usersData.fetchUserById(userIdValidated);
     if (!user) throw new ValidationError('User with user Id does not exist');
     if (!user.verified) throw new ValidationError('User with userId is not verified');
-    if (await this.creatorsData.fetchCreatorById(userId)) throw new ValidationError('User is already a creator');
+    if (await this.creatorsData.fetchCreatorById(userIdValidated)) throw new ValidationError('User is already a creator');
 
     const pageNameValidated = this.creatorValidator.validatePageName(pageName);
     const bioValidated = this.creatorValidator.validateBio(bio);
+    const isPluralValidated = this.creatorValidator.validateIsPlural(isPlural);
 
     const creatorAdded = await this.creatorsData.insertNewCreator({
-      userId,
+      userId: userIdValidated,
       pageName: pageNameValidated,
       bio: bioValidated,
-      isPlural,
+      isPlural: isPluralValidated,
     });
 
     return {
-      userId,
+      userId: creatorAdded.userId,
       pageName: creatorAdded.pageName,
       bio: creatorAdded.bio,
       isPlural: creatorAdded.isPlural,

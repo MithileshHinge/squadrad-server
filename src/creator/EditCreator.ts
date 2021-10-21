@@ -1,3 +1,4 @@
+import { validateUserId } from '../userId';
 import { ICreatorsData } from './ICreatorsData';
 import { ICreatorValidator } from './validator/ICreatorValidator';
 
@@ -22,14 +23,16 @@ export default class EditCreator {
     bio?: string,
     isPlural?: boolean,
   }> {
+    const userIdValidated = validateUserId.validate(creatorInfo.userId);
     const pageNameValidated = creatorInfo.pageName === undefined ? undefined : this.creatorValidator.validatePageName(creatorInfo.pageName);
     const bioValidated = creatorInfo.bio === undefined ? undefined : this.creatorValidator.validateBio(creatorInfo.bio);
+    const isPluralValidated = creatorInfo.isPlural === undefined ? undefined : this.creatorValidator.validateIsPlural(creatorInfo.isPlural);
 
     const creatorToUpdate = {
-      userId: creatorInfo.userId,
+      userId: userIdValidated,
       pageName: pageNameValidated,
       bio: bioValidated,
-      isPlural: creatorInfo.isPlural,
+      isPlural: isPluralValidated,
     };
     const creatorEdited = await this.creatorsData.updateCreator(creatorToUpdate);
 

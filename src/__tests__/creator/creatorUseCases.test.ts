@@ -50,9 +50,24 @@ describe('Creator Use Cases', () => {
         await expect(becomeCreator.becomeCreator({ userId: user.userId, ...sampleCreatorParams })).rejects.toThrow(ValidationError);
         expect(mockCreatorsData.insertNewCreator).not.toHaveBeenCalled();
       });
+
+      it('Should throw error if userId is not a string', async () => {
+        const userId: any = 523523523;
+        await expect(becomeCreator.becomeCreator({ userId, ...sampleCreatorParams })).rejects.toThrow(ValidationError);
+        expect(mockCreatorsData.insertNewCreator).not.toHaveBeenCalled();
+      });
     });
 
     describe('Page name validation', () => {
+      describe('Page name must be a string', () => {
+        [true, false, 345415334, { pageName: 'fvsdf' }].forEach((pageName: any) => {
+          it(`should throw error for "${pageName}"`, async () => {
+            await expect(becomeCreator.becomeCreator({ userId: existingVerifiedUser.userId, ...sampleCreatorParams, pageName })).rejects.toThrow(ValidationError);
+            expect(mockCreatorsData.insertNewCreator).not.toHaveBeenCalled();
+          });
+        });
+      });
+
       describe('Page name must be >= 3 letters', () => {
         ['', 'a', 'ab', 'a ', 'a    ', '     a'].forEach((pageName) => {
           it(`should throw error for "${pageName}"`, async () => {
@@ -82,6 +97,15 @@ describe('Creator Use Cases', () => {
     });
 
     describe('Bio validation', () => {
+      describe('Bio must be a string', () => {
+        [true, false, 345415334, { bio: 'fvsdf' }].forEach((bio: any) => {
+          it(`should throw error for "${bio}"`, async () => {
+            await expect(becomeCreator.becomeCreator({ userId: existingVerifiedUser.userId, ...sampleCreatorParams, bio })).rejects.toThrow(ValidationError);
+            expect(mockCreatorsData.insertNewCreator).not.toHaveBeenCalled();
+          });
+        });
+      });
+
       describe('Bio must be >= 3 letters', () => {
         ['', 'a', 'ab', 'a ', 'a    ', '     a'].forEach((bio) => {
           it(`should throw error for "${bio}"`, async () => {
@@ -120,6 +144,17 @@ describe('Creator Use Cases', () => {
         });
       });
     });
+
+    describe('isPlural validation', () => {
+      describe('isPlural must be boolean', () => {
+        ['true', 1, 'dfbsdfbsf', { isPlural: true }].forEach((isPlural: any) => {
+          it(`should throw error for "${isPlural}"`, async () => {
+            await expect(becomeCreator.becomeCreator({ userId: existingVerifiedUser.userId, ...sampleCreatorParams, isPlural })).rejects.toThrow(ValidationError);
+            expect(mockCreatorsData.insertNewCreator).not.toHaveBeenCalled();
+          });
+        });
+      });
+    });
   });
 
   describe('EditCreator use case', () => {
@@ -135,6 +170,8 @@ describe('Creator Use Cases', () => {
       const userId = id.createId();
       await expect(editCreator.edit({ userId, pageName: 'as' })).rejects.toThrow(ValidationError);
       await expect(editCreator.edit({ userId, pageName: 'as  aasvda' })).rejects.toThrow(ValidationError);
+      const pageName: any = 34141214;
+      await expect(editCreator.edit({ userId, pageName })).rejects.toThrow(ValidationError);
       expect(mockCreatorsData.updateCreator).not.toHaveBeenCalled();
     });
 
@@ -148,6 +185,8 @@ describe('Creator Use Cases', () => {
       const userId = id.createId();
       await expect(editCreator.edit({ userId, bio: 'asn23d2' })).rejects.toThrow(ValidationError);
       await expect(editCreator.edit({ userId, bio: 'as &( ][' })).rejects.toThrow(ValidationError);
+      const bio: any = 345542345;
+      await expect(editCreator.edit({ userId, bio })).rejects.toThrow(ValidationError);
       expect(mockCreatorsData.updateCreator).not.toHaveBeenCalled();
     });
 
@@ -155,6 +194,15 @@ describe('Creator Use Cases', () => {
       const userId = id.createId();
       await expect(editCreator.edit({ userId, isPlural: false })).resolves.not.toThrow();
       expect(mockCreatorsData.updateCreator).toHaveBeenCalledWith(expect.objectContaining({ userId }));
+    });
+
+    it('Should throw error if isPlural is invalid', async () => {
+      const userId = id.createId();
+      let isPlural: any = 1;
+      await expect(editCreator.edit({ userId, isPlural })).rejects.toThrow(ValidationError);
+      isPlural = 'true';
+      await expect(editCreator.edit({ userId, isPlural })).rejects.toThrow(ValidationError);
+      expect(mockCreatorsData.updateCreator).not.toHaveBeenCalled();
     });
   });
 });
