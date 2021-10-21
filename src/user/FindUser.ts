@@ -1,10 +1,14 @@
 import { IUsersData } from './IUsersData';
+import { IUserValidator } from './validator/IUserValidator';
 
 export default class FindUser {
   private usersData: IUsersData;
 
-  constructor(usersData: IUsersData) {
+  private userValidator: IUserValidator;
+
+  constructor(usersData: IUsersData, userValidator: IUserValidator) {
     this.usersData = usersData;
+    this.userValidator = userValidator;
   }
 
   /**
@@ -39,7 +43,8 @@ export default class FindUser {
     email?: string,
     profilePicSrc: string,
   } | null> {
-    const user = await this.usersData.fetchUserById(userId);
+    const userIdValidated = this.userValidator.validateUserId(userId);
+    const user = await this.usersData.fetchUserById(userIdValidated);
     if (user) {
       return {
         userId: user.userId,
@@ -61,7 +66,8 @@ export default class FindUser {
     fullName: string,
     profilePicSrc: string,
   } | null> {
-    const user = await this.usersData.fetchUserByEmail(email);
+    const emailValidated = this.userValidator.validateEmail(email);
+    const user = await this.usersData.fetchUserByEmail(emailValidated);
     if (user) {
       return {
         userId: user.userId,

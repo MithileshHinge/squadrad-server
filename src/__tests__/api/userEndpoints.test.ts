@@ -97,6 +97,11 @@ describe('User Endpoints', () => {
       await expect(userCollection.findOne({ email: userInfo.email }))
         .resolves.toStrictEqual(expect.objectContaining({ verified: false }));
     });
+
+    it('Respond with error code 400 (Bad Request) if token is not a string', async () => {
+      const token = 3412415;
+      await request(app).patch('/user/verify').send({ token }).expect(HTTPResponseCode.BAD_REQUEST);
+    });
   });
 
   describe('POST /user/login', () => {
@@ -130,6 +135,18 @@ describe('User Endpoints', () => {
       const { email, password } = await getRegisteredUser(userCollection, { verified: false });
       await request(app).post('/user/login').send({ email, password }).expect(HTTPResponseCode.FORBIDDEN);
     });
+
+    it('Respond with error code 400 (Bad Request) if parameter types are not as expected', async () => {
+      const { email, password } = sampleUserParams;
+      const invalidParams = {
+        email: false,
+        password: { blah: 'adnaosna' },
+      };
+      await Promise.all(Object.entries(invalidParams).map(async ([param, value]) => {
+        const res = await request(app).post('/user').send({ ...{ email, password }, [param]: value });
+        expect(res.statusCode).toBe(HTTPResponseCode.BAD_REQUEST);
+      }));
+    });
   });
 
   describe('GET /user', () => {
@@ -157,6 +174,14 @@ describe('User Endpoints', () => {
       it('Respond with error code 400 (Bad Request) if fullname is invalid', async () => {
         const { agent, userId } = await getLoggedInUser(app, userCollection);
         const newFullName = '3nir3no2 a a grg   sfdsdv23r';
+        await agent.patch('/user').send({ fullName: newFullName }).expect(HTTPResponseCode.BAD_REQUEST);
+        await expect(userCollection.findOne({ _id: new ObjectId(userId) }))
+          .resolves.not.toStrictEqual(expect.objectContaining({ fullName: newFullName }));
+      });
+
+      it('Respond with error code 400 (Bad Request) if parameter types are not as expected', async () => {
+        const { agent, userId } = await getLoggedInUser(app, userCollection);
+        const newFullName = false;
         await agent.patch('/user').send({ fullName: newFullName }).expect(HTTPResponseCode.BAD_REQUEST);
         await expect(userCollection.findOne({ _id: new ObjectId(userId) }))
           .resolves.not.toStrictEqual(expect.objectContaining({ fullName: newFullName }));
@@ -193,6 +218,16 @@ describe('User Endpoints', () => {
     it('Respond with error code 400 (Bad Request) if newPassword is not valid', async () => {
       const { agent, userId, password: oldPassword } = await getLoggedInUser(app, userCollection);
       const newPassword = 'asd';
+      await agent.patch('/user/password').send({ oldPassword, newPassword }).expect(HTTPResponseCode.BAD_REQUEST);
+      const { password: passwordHash } = (await userCollection.findOne({
+        _id: new ObjectId(userId),
+      }))!;
+      expect(passwordEncryption.compare(oldPassword, passwordHash)).toBeTruthy();
+    });
+
+    it('Respond with error code 400 (Bad Request) if newPassword is not string', async () => {
+      const { agent, userId, password: oldPassword } = await getLoggedInUser(app, userCollection);
+      const newPassword = 1257295245238;
       await agent.patch('/user/password').send({ oldPassword, newPassword }).expect(HTTPResponseCode.BAD_REQUEST);
       const { password: passwordHash } = (await userCollection.findOne({
         _id: new ObjectId(userId),

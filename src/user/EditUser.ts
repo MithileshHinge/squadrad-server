@@ -20,11 +20,12 @@ export default class EditUser {
     userId: string,
     fullName?: string,
   }> {
+    const userIdValidated = this.userValidator.validateUserId(userInfo.userId);
     const fullNameValidated = userInfo.fullName === undefined
       ? undefined
       : this.userValidator.validateFullName(userInfo.fullName);
     const userToUpdate = {
-      userId: userInfo.userId,
+      userId: userIdValidated,
       fullName: fullNameValidated,
     };
     const userEdited = await this.usersData.updateUser(userToUpdate);

@@ -69,6 +69,18 @@ describe('User usecases', () => {
     });
 
     describe('Full name validation', () => {
+      describe('Full name must be string', () => {
+        [true, false, 345415334, { fullName: 'fvsdf' }].forEach((fullName: any) => {
+          it(`should throw error for "${fullName}"`, async () => {
+            await expect(addUser.add({
+              ...sampleUserParams,
+              fullName,
+            })).rejects.toThrow(ValidationError);
+            expect(mockUsersData.insertNewUser).not.toHaveBeenCalled();
+          });
+        });
+      });
+
       describe('Full name must be >= 3 letters', () => {
         ['', 'a', 'ab', 'a ', 'a    ', '     a'].forEach((fullName) => {
           it(`should throw error for "${fullName}"`, async () => {
@@ -118,6 +130,18 @@ describe('User usecases', () => {
     });
 
     describe('Email Id validation', () => {
+      describe('Email must be a string', () => {
+        [false, true, 43759128341, { email: 'fsvsfvca@gmail.com' }].forEach((email: any) => {
+          it(`Should throw error for "${email}"`, async () => {
+            await expect(addUser.add({
+              ...sampleUserParams,
+              email,
+            })).rejects.toThrow(ValidationError);
+            expect(mockUsersData.insertNewUser).not.toHaveBeenCalled();
+          });
+        });
+      });
+
       describe('User must have a valid email address', () => {
         ['', ' ', 'mithihi', 'mihbhg@', 'mibg hv nv@gmail.com', '@gmail.com', 'vghjhb@gmail'].forEach((email) => {
           it(`Should throw error for "${email}"`, async () => {
@@ -148,14 +172,28 @@ describe('User usecases', () => {
       });
     });
 
-    describe('Password should be >= 8 characters', () => {
-      ['', ' ', 'asa', 'as afsf', 'asf  '].forEach((password) => {
-        it(`Should throw error for ${password}`, async () => {
-          await expect(addUser.add({
-            ...sampleUserParams,
-            password,
-          })).rejects.toThrow(ValidationError);
-          expect(mockUsersData.insertNewUser).not.toHaveBeenCalled();
+    describe('Password validation', () => {
+      describe('Password must be a string', () => {
+        [false, true, 4391230491, { password: 'fvsdfvs' }].forEach((password: any) => {
+          it(`Should throw error for ${password}`, async () => {
+            await expect(addUser.add({
+              ...sampleUserParams,
+              password,
+            })).rejects.toThrow(ValidationError);
+            expect(mockUsersData.insertNewUser).not.toHaveBeenCalled();
+          });
+        });
+      });
+
+      describe('Password must be >= 8 characters', () => {
+        ['', ' ', 'asa', 'as afsf', 'asf  '].forEach((password) => {
+          it(`Should throw error for ${password}`, async () => {
+            await expect(addUser.add({
+              ...sampleUserParams,
+              password,
+            })).rejects.toThrow(ValidationError);
+            expect(mockUsersData.insertNewUser).not.toHaveBeenCalled();
+          });
         });
       });
     });
@@ -171,7 +209,7 @@ describe('User usecases', () => {
   });
 
   describe('Get users', () => {
-    const findUser = new FindUser(mockUsersData);
+    const findUser = new FindUser(mockUsersData, userValidator);
 
     /*
     it('Can get all users', async () => {
@@ -204,6 +242,11 @@ describe('User usecases', () => {
       await expect(findUser.findUserById(userId)).resolves.toBeNull();
     });
 
+    it('Should throw error if userId is not string', async () => {
+      const userId: any = 4235450934;
+      await expect(findUser.findUserById(userId)).rejects.toThrow(ValidationError);
+    });
+
     it('Can get user by emailId', async () => {
       // get any user
       const user = sampleUsers[0];
@@ -215,6 +258,11 @@ describe('User usecases', () => {
 
     it('Should return null if email not found', async () => {
       await expect(findUser.findUserByEmail('wqernjskdfnvsf@gmail.com')).resolves.toBeNull();
+    });
+
+    it('Should throw error if email is not string', async () => {
+      const email: any = 4235450934;
+      await expect(findUser.findUserByEmail(email)).rejects.toThrow(ValidationError);
     });
   });
 
@@ -232,6 +280,18 @@ describe('User usecases', () => {
     });
 
     describe('Full name validation', () => {
+      describe('Full name must be string', () => {
+        [true, false, 345415334, { fullName: 'fvsdf' }].forEach((fullName: any) => {
+          it(`should throw error for "${fullName}"`, async () => {
+            await expect(editUser.edit({
+              userId: sampleUsers[0].userId,
+              fullName,
+            })).rejects.toThrow(ValidationError);
+            expect(mockUsersData.updateUser).not.toHaveBeenCalled();
+          });
+        });
+      });
+
       describe('Full name must be >= 3 letters', () => {
         ['', 'a', 'ab', 'a ', 'a    ', '     a'].forEach((fullName) => {
           it(`should throw error for "${fullName}"`, async () => {
@@ -317,25 +377,43 @@ describe('User usecases', () => {
       expect(mockUsersData.updatePassword).not.toHaveBeenCalled();
     });
 
-    describe('Password should be >= 8 characters', () => {
-      ['', ' ', 'asa', 'as afsf', 'asf  '].forEach((newPassword) => {
-        it(`Should throw error for ${newPassword}`, async () => {
-          const { userId } = sampleUsers[0];
-          const oldPassword = faker.internet.password(8);
-          mockUsersData.fetchPasswordById.mockResolvedValueOnce(passwordEncryption.encrypt(oldPassword));
-          await expect(changePassword.change(
-            userId,
-            oldPassword,
-            newPassword,
-          )).rejects.toThrow(ValidationError);
-          expect(mockUsersData.updatePassword).not.toHaveBeenCalled();
+    describe('Password validation', () => {
+      describe('Password must be a string', () => {
+        [false, true, 4391230491, { newPassword: 'fvsdfvs' }].forEach((newPassword: any) => {
+          it(`Should throw error for ${newPassword}`, async () => {
+            const { userId } = sampleUsers[0];
+            const oldPassword = faker.internet.password(8);
+            mockUsersData.fetchPasswordById.mockResolvedValueOnce(passwordEncryption.encrypt(oldPassword));
+            await expect(changePassword.change(
+              userId,
+              oldPassword,
+              newPassword,
+            )).rejects.toThrow(ValidationError);
+            expect(mockUsersData.updatePassword).not.toHaveBeenCalled();
+          });
+        });
+      });
+
+      describe('Password must be >= 8 characters', () => {
+        ['', ' ', 'asa', 'as afsf', 'asf  '].forEach((newPassword) => {
+          it(`Should throw error for ${newPassword}`, async () => {
+            const { userId } = sampleUsers[0];
+            const oldPassword = faker.internet.password(8);
+            mockUsersData.fetchPasswordById.mockResolvedValueOnce(passwordEncryption.encrypt(oldPassword));
+            await expect(changePassword.change(
+              userId,
+              oldPassword,
+              newPassword,
+            )).rejects.toThrow(ValidationError);
+            expect(mockUsersData.updatePassword).not.toHaveBeenCalled();
+          });
         });
       });
     });
   });
 
   describe('Verify email', () => {
-    const verifyEmail = new VerifyEmail(mockUsersData, emailVerification);
+    const verifyEmail = new VerifyEmail(mockUsersData, userValidator, emailVerification);
 
     it('Set account verified to true if token is valid', async () => {
       const { userId, email } = sampleUsers[0];
@@ -361,6 +439,15 @@ describe('User usecases', () => {
       const jwt = issueJWT({ email }, 100);
       await expect(verifyEmail.verify(jwt)).rejects.toThrow(ValidationError);
       expect(mockUsersData.updateUser).not.toHaveBeenCalled();
+    });
+
+    describe('Token validation', () => {
+      [true, false, 49123041923, { jwt: 'mcoicsamdociam' }, ['vfsdfvsd']].forEach((jwt: any) => {
+        it(`Should throw error for "${jwt}"`, async () => {
+          await expect(verifyEmail.verify(jwt)).rejects.toThrow(ValidationError);
+          expect(mockUsersData.updateUser).not.toHaveBeenCalled();
+        });
+      });
     });
   });
 
@@ -415,6 +502,10 @@ describe('User usecases', () => {
         verified: false,
       });
       await expect(loginUser.login({ email, password })).rejects.toThrow(ValidationError);
+    });
+
+    describe('Email input type validation', () => {
+
     });
   });
 });

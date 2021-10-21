@@ -27,10 +27,12 @@ export default class ChangePassword {
    * @throws DatabaseError if operation fails
    */
   async change(userId: string, oldPassword: string, newPassword: string) {
-    const oldPasswordHash = await this.usersData.fetchPasswordById(userId);
-    if (!this.passwordEncryption.compare(oldPassword, oldPasswordHash)) throw new AuthenticationError('Old password is incorrect');
+    const userIdValidated = this.userValidator.validateUserId(userId);
+    const oldPasswordValidated = this.userValidator.validatePassword(oldPassword);
+    const oldPasswordHash = await this.usersData.fetchPasswordById(userIdValidated);
+    if (!this.passwordEncryption.compare(oldPasswordValidated, oldPasswordHash)) throw new AuthenticationError('Old password is incorrect');
     const passwordValidated = this.userValidator.validatePassword(newPassword);
     const passwordHash = this.passwordEncryption.encrypt(passwordValidated);
-    await this.usersData.updatePassword(userId, passwordHash);
+    await this.usersData.updatePassword(userIdValidated, passwordHash);
   }
 }

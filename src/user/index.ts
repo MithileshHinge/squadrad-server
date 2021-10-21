@@ -22,6 +22,7 @@ export const addUser = new AddUser(
 
 export const findUser = new FindUser(
   usersData,
+  userValidator,
 );
 
 export const editUser = new EditUser(
@@ -37,6 +38,7 @@ export const changePassword = new ChangePassword(
 
 export const verifyEmail = new VerifyEmail(
   usersData,
+  userValidator,
   emailVerification,
 );
 
