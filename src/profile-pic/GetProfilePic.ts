@@ -14,9 +14,9 @@ export default class GetProfilePic {
    * @throws ValidationError if user does not exist
    * @throws DatabaseError if operation fails
    */
-  async get(userId: string): Promise<string> {
+  async get(userId: string, forCreator: boolean): Promise<string> {
     const userIdValidated = validateUserId.validate(userId);
-    const src = await this.profilePicsData.fetchProfilePic(userIdValidated);
+    const src = await this.profilePicsData.fetchProfilePic(userIdValidated, forCreator);
     if (!src) throw new ValidationError(`User with userId="${userIdValidated}" does not exist.`);
     return src;
   }

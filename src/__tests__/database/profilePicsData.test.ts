@@ -21,7 +21,7 @@ describe('Profile Pics data access gateway', () => {
         ...userInfo,
       });
       const newProfilePicSrc = '/src/__tests__/__mocks__/profile-pic/sample-profile-pic.jpg';
-      await expect(profilePicsData.updateProfilePic(userId, newProfilePicSrc))
+      await expect(profilePicsData.updateProfilePic(userId, newProfilePicSrc, false))
         .resolves.not.toThrowError();
       await expect(userCollection.findOne({ _id: new ObjectId(userId) }))
         .resolves.toStrictEqual(expect.objectContaining({ profilePicSrc: newProfilePicSrc }));
@@ -37,13 +37,13 @@ describe('Profile Pics data access gateway', () => {
         ...userInfo,
         profilePicSrc,
       });
-      await profilePicsData.updateProfilePic(userId, profilePicSrc);
-      await expect(profilePicsData.fetchProfilePic(userId)).resolves.toMatch(profilePicSrc);
+      await profilePicsData.updateProfilePic(userId, profilePicSrc, false);
+      await expect(profilePicsData.fetchProfilePic(userId, false)).resolves.toMatch(profilePicSrc);
     });
 
     it('Returns null if user id does not exist', async () => {
       const userId = id.createId();
-      await expect(profilePicsData.fetchProfilePic(userId)).resolves.toBeNull();
+      await expect(profilePicsData.fetchProfilePic(userId, false)).resolves.toBeNull();
     });
   });
 

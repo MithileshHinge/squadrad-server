@@ -46,6 +46,7 @@ describe('User usecases', () => {
       expect(mockProfilePicsData.updateProfilePic).toHaveBeenCalledWith(
         user.userId,
         user.profilePicSrc,
+        false,
       );
 
       // Verification mail sender should be called

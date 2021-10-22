@@ -67,7 +67,7 @@ export default class AddUser {
 
     // Set a default profile picture
     const setProfilePic = new SetProfilePic(this.profilePicsData, profilePicValidator);
-    const profilePicSrc = await setProfilePic.setDefault(userId);
+    const profilePicSrc = await setProfilePic.setDefault(userId, false);
 
     await this.emailVerification.sendVerificationMail(email);
 

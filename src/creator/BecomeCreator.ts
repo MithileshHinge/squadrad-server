@@ -1,4 +1,5 @@
 import ValidationError from '../common/errors/ValidationError';
+import SetProfilePic from '../profile-pic/SetProfilePic';
 import { IUsersData } from '../user/IUsersData';
 import { validateUserId } from '../userId';
 import { ICreatorsData } from './ICreatorsData';
@@ -11,10 +12,13 @@ export default class BecomeCreator {
 
   private creatorValidator: ICreatorValidator;
 
-  constructor(usersData: IUsersData, creatorsData: ICreatorsData, creatorValidator: ICreatorValidator) {
+  private setProfilePic: SetProfilePic;
+
+  constructor(usersData: IUsersData, creatorsData: ICreatorsData, creatorValidator: ICreatorValidator, setProfilePic: SetProfilePic) {
     this.usersData = usersData;
     this.creatorsData = creatorsData;
     this.creatorValidator = creatorValidator;
+    this.setProfilePic = setProfilePic;
   }
 
   /**
@@ -50,11 +54,14 @@ export default class BecomeCreator {
       isPlural: isPluralValidated,
     });
 
+    const profilePicSrc = await this.setProfilePic.setDefault(userIdValidated, true);
+
     return {
       userId: creatorAdded.userId,
       pageName: creatorAdded.pageName,
       bio: creatorAdded.bio,
       isPlural: creatorAdded.isPlural,
+      profilePicSrc,
     };
   }
 }

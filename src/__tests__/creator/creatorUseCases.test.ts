@@ -8,6 +8,9 @@ import newCreator from '../__mocks__/creator/creators';
 import mockCreatorsData from '../__mocks__/creator/mockCreatorsData';
 import mockUsersData from '../__mocks__/user/mockUsersData';
 import { newUser } from '../__mocks__/user/users';
+import SetProfilePic from '../../profile-pic/SetProfilePic';
+import mockProfilePicsData from '../__mocks__/profile-pic/mockProfilePicsData';
+import profilePicValidator from '../../profile-pic/validator';
 
 describe('Creator Use Cases', () => {
   beforeEach(() => {
@@ -20,7 +23,8 @@ describe('Creator Use Cases', () => {
   });
 
   describe('BecomeCreator use case', () => {
-    const becomeCreator = new BecomeCreator(mockUsersData, mockCreatorsData, creatorValidator);
+    const setProfilePic = new SetProfilePic(mockProfilePicsData, profilePicValidator);
+    const becomeCreator = new BecomeCreator(mockUsersData, mockCreatorsData, creatorValidator, setProfilePic);
     const existingVerifiedUser = newUser();
     existingVerifiedUser.verified = true;
     mockUsersData.fetchUserById.mockResolvedValue(existingVerifiedUser);
