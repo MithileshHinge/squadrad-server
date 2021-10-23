@@ -50,15 +50,21 @@ describe('Creator Endpoints', () => {
   describe('PATCH /creator', () => {
     it('Can edit creator', async () => {
       const { agent, userId } = await getLoggedInCreator(app, userCollection);
-      const { pageName: pageNamePrev, bio: bioPrev, isPlural: isPluralPrev } = (await creatorCollection.findOne({ _id: new ObjectId(userId) }))!;
+      const {
+        pageName: pageNamePrev,
+        bio: bioPrev,
+        isPlural: isPluralPrev,
+        showTotalSquadMembers: showTotalSquadMembersPrev,
+      } = (await creatorCollection.findOne({ _id: new ObjectId(userId) }))!;
       const pageName = faker.name.findName();
       const bio = faker.lorem.word(5);
       const isPlural = !isPluralPrev;
+      const showTotalSquadMembers = !showTotalSquadMembersPrev;
       await agent.patch('/creator').send({
-        userId, pageName, bio, isPlural,
+        userId, pageName, bio, isPlural, showTotalSquadMembers,
       }).expect(HTTPResponseCode.OK);
       await expect(creatorCollection.findOne({ _id: new ObjectId(userId) })).resolves.not.toStrictEqual(expect.objectContaining({
-        pageName: pageNamePrev, bio: bioPrev, isPlural: isPluralPrev,
+        pageName: pageNamePrev, bio: bioPrev, isPlural: isPluralPrev, showTotalSquadMembers: showTotalSquadMembersPrev,
       }));
     });
 
