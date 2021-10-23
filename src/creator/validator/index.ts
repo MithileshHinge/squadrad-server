@@ -24,6 +24,10 @@ const creatorValidator: ICreatorValidator = {
     if (typeof isPlural !== 'boolean') throw new ValidationError('isPlural must be a boolean');
     return isPlural;
   },
+  validateShowTotalSquadMembers(showTotalSquadMembers: boolean): boolean {
+    if (typeof showTotalSquadMembers !== 'boolean') throw new ValidationError('showTotalSquadMembers must be a boolean');
+    return showTotalSquadMembers;
+  },
 };
 
 export default creatorValidator;

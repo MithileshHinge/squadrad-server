@@ -49,36 +49,26 @@ describe('Creators data access gateway', () => {
   });
 
   describe('updateCreator', () => {
-    it('Can update pageName', async () => {
-      const { userId, ...creatorsInfo } = newCreator();
-      await creatorsCollection.insertOne({
-        _id: new ObjectId(userId),
-        ...creatorsInfo,
-      });
-      const newPageName = faker.name.findName();
-      await expect(creatorsData.updateCreator({ userId, pageName: newPageName })).resolves.toBeTruthy();
-      await expect(creatorsCollection.findOne({ _id: new ObjectId(userId) })).resolves.toStrictEqual(expect.objectContaining({ pageName: newPageName }));
-    });
+    describe('Can update creator', () => {
+      const updateParamsArr = ['pageName', 'bio', 'isPlural', 'showTotalSquadMembers'];
 
-    it('Can update bio', async () => {
-      const { userId, ...creatorsInfo } = newCreator();
-      await creatorsCollection.insertOne({
-        _id: new ObjectId(userId),
-        ...creatorsInfo,
+      updateParamsArr.forEach((param) => {
+        it(`Can update ${param}`, async () => {
+          const { userId, ...creatorsInfo } = newCreator();
+          await creatorsCollection.insertOne({
+            _id: new ObjectId(userId),
+            ...creatorsInfo,
+          });
+          const updateParams: any = {
+            pageName: faker.name.findName(),
+            bio: faker.name.findName(),
+            isPlural: !creatorsInfo.isPlural,
+            showTotalSquadMembers: !creatorsInfo.showTotalSquadMembers,
+          };
+          await expect(creatorsData.updateCreator({ userId, [param]: updateParams[param] })).resolves.toBeTruthy();
+          await expect(creatorsCollection.findOne({ _id: new ObjectId(userId) })).resolves.toStrictEqual(expect.objectContaining({ [param]: updateParams[param] }));
+        });
       });
-      const newBio = faker.name.findName();
-      await expect(creatorsData.updateCreator({ userId, bio: newBio })).resolves.toBeTruthy();
-      await expect(creatorsCollection.findOne({ _id: new ObjectId(userId) })).resolves.toStrictEqual(expect.objectContaining({ bio: newBio }));
-    });
-
-    it('Can update isPlural', async () => {
-      const { userId, ...creatorsInfo } = newCreator();
-      await creatorsCollection.insertOne({
-        _id: new ObjectId(userId),
-        ...creatorsInfo,
-      });
-      await expect(creatorsData.updateCreator({ userId, isPlural: !creatorsInfo.isPlural })).resolves.toBeTruthy();
-      await expect(creatorsCollection.findOne({ _id: new ObjectId(userId) })).resolves.toStrictEqual(expect.objectContaining({ isPlural: !creatorsInfo.isPlural }));
     });
   });
 

@@ -8,16 +8,19 @@ export interface ICreatorsData {
     pageName,
     bio,
     isPlural,
+    showTotalSquadMembers,
   }: {
     userId: string,
     pageName: string,
     bio: string,
     isPlural: boolean,
+    showTotalSquadMembers: boolean,
   }): Promise<{
     userId: string,
     pageName: string,
     bio: string,
     isPlural: boolean,
+    showTotalSquadMembers: boolean,
   }>
 
   /**
@@ -30,6 +33,7 @@ export interface ICreatorsData {
     pageName: string,
     bio: string,
     isPlural: boolean,
+    showTotalSquadMembers: boolean,
   } | null>
 
   /**
@@ -44,10 +48,12 @@ export interface ICreatorsData {
     pageName?: string,
     bio?: string,
     isPlural?: boolean,
+    showTotalSquadMembers?: boolean,
   }): Promise<{
     userId: string,
     pageName?: string,
     bio?: string,
     isPlural?: boolean,
+    showTotalSquadMembers?: boolean,
   }>
 }

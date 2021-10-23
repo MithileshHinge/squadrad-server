@@ -5,13 +5,14 @@ import { ICreatorsData } from '../creator/ICreatorsData';
 
 export default class CreatorsData extends BaseData implements ICreatorsData {
   async insertNewCreator({
-    userId, pageName, bio, isPlural,
+    userId, pageName, bio, isPlural, showTotalSquadMembers,
   }: {
     userId: string,
     pageName: string,
     bio: string,
     isPlural: boolean,
-  }): Promise<{ userId: string; pageName: string; bio: string; isPlural: boolean; }> {
+    showTotalSquadMembers: boolean,
+  }): Promise<{ userId: string; pageName: string; bio: string; isPlural: boolean; showTotalSquadMembers: boolean }> {
     const db = await this.getDb();
     try {
       await db.collection('creators').insertOne({
@@ -19,19 +20,21 @@ export default class CreatorsData extends BaseData implements ICreatorsData {
         pageName,
         bio,
         isPlural,
+        showTotalSquadMembers,
       });
       return {
         userId,
         pageName,
         bio,
         isPlural,
+        showTotalSquadMembers,
       };
     } catch (err: any) {
       return this.handleDatabaseError(err, 'Could not insert new creator into database');
     }
   }
 
-  async fetchCreatorById(userId: string): Promise<{ userId: string, pageName: string, bio: string, isPlural: boolean } | null> {
+  async fetchCreatorById(userId: string): Promise<{ userId: string, pageName: string, bio: string, isPlural: boolean, showTotalSquadMembers: boolean } | null> {
     const db = await this.getDb();
     try {
       const result = await db.collection('creators').findOne({ _id: new ObjectId(userId) });
@@ -41,6 +44,7 @@ export default class CreatorsData extends BaseData implements ICreatorsData {
         pageName: result.pageName,
         bio: result.bio,
         isPlural: result.isPlural,
+        showTotalSquadMembers: result.showTotalSquadMembers,
       };
     } catch (err: any) {
       return this.handleDatabaseError(err, 'Could not fetch creator');
@@ -49,10 +53,11 @@ export default class CreatorsData extends BaseData implements ICreatorsData {
 
   async updateCreator({ userId, ...updateData }: {
     userId: string,
-    pageName?: string | undefined,
-    bio?: string | undefined,
-    isPlural?: boolean | undefined,
-  }): Promise<{ userId: string, pageName?: string | undefined, bio?: string | undefined, isPlural?: boolean | undefined }> {
+    pageName?: string,
+    bio?: string,
+    isPlural?: boolean,
+    showTotalSquadMembers?: boolean,
+  }): Promise<{ userId: string, pageName?: string, bio?: string, isPlural?: boolean, showTotalSquadMembers?: boolean }> {
     const db = await this.getDb();
     try {
       await db.collection('creators').updateOne({ _id: new ObjectId(userId) }, { $set: updateData });

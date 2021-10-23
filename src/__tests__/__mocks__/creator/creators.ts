@@ -11,6 +11,7 @@ export default function newCreator() {
     pageName: faker.name.findName(),
     bio: faker.lorem.word(5),
     isPlural: faker.datatype.boolean(),
+    showTotalSquadMembers: faker.datatype.boolean(),
   };
 }
 

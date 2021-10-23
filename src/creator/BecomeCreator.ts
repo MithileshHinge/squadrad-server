@@ -52,6 +52,7 @@ export default class BecomeCreator {
       pageName: pageNameValidated,
       bio: bioValidated,
       isPlural: isPluralValidated,
+      showTotalSquadMembers: false,
     });
 
     const profilePicSrc = await this.setProfilePic.setDefault(userIdValidated, true);
