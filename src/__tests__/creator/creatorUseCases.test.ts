@@ -208,5 +208,20 @@ describe('Creator Use Cases', () => {
       await expect(editCreator.edit({ userId, isPlural })).rejects.toThrow(ValidationError);
       expect(mockCreatorsData.updateCreator).not.toHaveBeenCalled();
     });
+
+    it('Can change showTotalSquadMembers', async () => {
+      const userId = id.createId();
+      await expect(editCreator.edit({ userId, showTotalSquadMembers: true })).resolves.not.toThrow();
+      expect(mockCreatorsData.updateCreator).toHaveBeenCalledWith(expect.objectContaining({ userId }));
+    });
+
+    it('Should throw error if showTotalSquadMembers is invalid', async () => {
+      const userId = id.createId();
+      let showTotalSquadMembers: any = 1;
+      await expect(editCreator.edit({ userId, showTotalSquadMembers })).rejects.toThrow(ValidationError);
+      showTotalSquadMembers = 'true';
+      await expect(editCreator.edit({ userId, showTotalSquadMembers })).rejects.toThrow(ValidationError);
+      expect(mockCreatorsData.updateCreator).not.toHaveBeenCalled();
+    });
   });
 });
