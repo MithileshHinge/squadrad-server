@@ -1,6 +1,6 @@
-import ValidationError from '../../common/errors/ValidationError';
 import { becomeCreator, editCreator } from '../../creator';
 import { HTTPResponseCode } from '../HttpResponse';
+import handleControllerError from './ControllerErrorHandler';
 import { IBaseController } from './IBaseController';
 
 const postCreator: IBaseController = async (httpRequest) => {
@@ -19,14 +19,7 @@ const postCreator: IBaseController = async (httpRequest) => {
     });
     return { statusCode: HTTPResponseCode.OK, body: {} };
   } catch (err: any) {
-    switch (err.constructor) {
-      case ValidationError:
-        return { statusCode: HTTPResponseCode.BAD_REQUEST, body: {} };
-        break;
-      default:
-        return { statusCode: HTTPResponseCode.INTERNAL_SERVER_ERROR, body: {} };
-        break;
-    }
+    return handleControllerError(err);
   }
 };
 
@@ -53,14 +46,7 @@ const patchCreator: IBaseController = async (httpRequest) => {
     });
     return { statusCode: HTTPResponseCode.OK, body: {} };
   } catch (err: any) {
-    switch (err.constructor) {
-      case ValidationError:
-        return { statusCode: HTTPResponseCode.BAD_REQUEST, body: {} };
-        break;
-      default:
-        return { statusCode: HTTPResponseCode.INTERNAL_SERVER_ERROR, body: {} };
-        break;
-    }
+    return handleControllerError(err);
   }
 };
 
