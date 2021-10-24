@@ -50,7 +50,7 @@ describe('Creators data access gateway', () => {
 
   describe('updateCreator', () => {
     describe('Can update creator', () => {
-      const updateParamsArr = ['pageName', 'bio', 'isPlural', 'showTotalSquadMembers'];
+      const updateParamsArr = ['pageName', 'bio', 'isPlural', 'showTotalSquadMembers', 'about'];
 
       updateParamsArr.forEach((param) => {
         it(`Can update ${param}`, async () => {
@@ -64,6 +64,7 @@ describe('Creators data access gateway', () => {
             bio: faker.name.findName(),
             isPlural: !creatorsInfo.isPlural,
             showTotalSquadMembers: !creatorsInfo.showTotalSquadMembers,
+            about: faker.lorem.paragraph(),
           };
           await expect(creatorsData.updateCreator({ userId, [param]: updateParams[param] })).resolves.toBeTruthy();
           await expect(creatorsCollection.findOne({ _id: new ObjectId(userId) })).resolves.toStrictEqual(expect.objectContaining({ [param]: updateParams[param] }));

@@ -55,26 +55,33 @@ describe('Creator Endpoints', () => {
         bio: bioPrev,
         isPlural: isPluralPrev,
         showTotalSquadMembers: showTotalSquadMembersPrev,
+        about: aboutPrev,
       } = (await creatorCollection.findOne({ _id: new ObjectId(userId) }))!;
       const pageName = faker.name.findName();
       const bio = faker.lorem.word(5);
       const isPlural = !isPluralPrev;
       const showTotalSquadMembers = !showTotalSquadMembersPrev;
+      const about = faker.lorem.paragraph();
       await agent.patch('/creator').send({
-        userId, pageName, bio, isPlural, showTotalSquadMembers,
+        userId, pageName, bio, isPlural, showTotalSquadMembers, about,
       }).expect(HTTPResponseCode.OK);
       await expect(creatorCollection.findOne({ _id: new ObjectId(userId) })).resolves.not.toStrictEqual(expect.objectContaining({
-        pageName: pageNamePrev, bio: bioPrev, isPlural: isPluralPrev, showTotalSquadMembers: showTotalSquadMembersPrev,
+        pageName: pageNamePrev, bio: bioPrev, isPlural: isPluralPrev, showTotalSquadMembers: showTotalSquadMembersPrev, about: aboutPrev,
       }));
     });
 
     it('Respond with error code 400 (Bad Request) if parameters are invalid', async () => {
       const { agent, userId } = await getLoggedInCreator(app, userCollection);
-      const { pageName: pageNamePrev, bio: bioPrev, isPlural } = (await creatorCollection.findOne({ _id: new ObjectId(userId) }))!;
-      const prevParams = { pageName: pageNamePrev, bio: bioPrev, isPlural };
+      const {
+        pageName: pageNamePrev, bio: bioPrev, isPlural, showTotalSquadMembers, about: aboutPrev,
+      } = (await creatorCollection.findOne({ _id: new ObjectId(userId) }))!;
+      const prevParams = {
+        pageName: pageNamePrev, bio: bioPrev, isPlural, showTotalSquadMembers, about: aboutPrev,
+      };
       const badParams = {
         pageName: '4f4 f4   f24f2',
         bio: 'nfoi322n3d',
+        about: 42341234234,
       };
       await Promise.all(Object.entries(badParams).map(async ([param, value]) => {
         await agent.patch('/creator').send({

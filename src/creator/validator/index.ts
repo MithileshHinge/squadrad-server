@@ -28,6 +28,10 @@ const creatorValidator: ICreatorValidator = {
     if (typeof showTotalSquadMembers !== 'boolean') throw new ValidationError('showTotalSquadMembers must be a boolean');
     return showTotalSquadMembers;
   },
+  validateAbout(about: string): string {
+    if (typeof about !== 'string') throw new ValidationError('About must be a string');
+    return about;
+  },
 };
 
 export default creatorValidator;

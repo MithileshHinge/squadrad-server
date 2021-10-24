@@ -3,4 +3,5 @@ export interface ICreatorValidator {
   validateBio(bio: string): string;
   validateIsPlural(isPlural: boolean): boolean;
   validateShowTotalSquadMembers(showTotalSquadMembers: boolean): boolean;
+  validateAbout(about: string): string;
 }

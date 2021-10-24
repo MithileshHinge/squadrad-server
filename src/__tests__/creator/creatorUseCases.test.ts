@@ -223,5 +223,18 @@ describe('Creator Use Cases', () => {
       await expect(editCreator.edit({ userId, showTotalSquadMembers })).rejects.toThrow(ValidationError);
       expect(mockCreatorsData.updateCreator).not.toHaveBeenCalled();
     });
+
+    it('Can change about', async () => {
+      const { userId, about } = newCreator();
+      await expect(editCreator.edit({ userId, about })).resolves.not.toThrow();
+      expect(mockCreatorsData.updateCreator).toHaveBeenCalledWith(expect.objectContaining({ userId }));
+    });
+
+    it('Should throw error if about is invalid', async () => {
+      const userId = id.createId();
+      const about: any = 345542345;
+      await expect(editCreator.edit({ userId, about })).rejects.toThrow(ValidationError);
+      expect(mockCreatorsData.updateCreator).not.toHaveBeenCalled();
+    });
   });
 });

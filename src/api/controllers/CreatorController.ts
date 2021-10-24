@@ -33,10 +33,14 @@ const postCreator: IBaseController = async (httpRequest) => {
 const patchCreator: IBaseController = async (httpRequest) => {
   try {
     const userId = httpRequest.userId!;
-    const { pageName, bio, isPlural }: {
+    const {
+      pageName, bio, isPlural, showTotalSquadMembers, about,
+    }: {
       pageName?: string,
       bio?: string,
       isPlural?: boolean,
+      showTotalSquadMembers?: boolean,
+      about?: string,
     } = httpRequest.body;
 
     await editCreator.edit({
@@ -44,6 +48,8 @@ const patchCreator: IBaseController = async (httpRequest) => {
       pageName,
       bio,
       isPlural,
+      showTotalSquadMembers,
+      about,
     });
     return { statusCode: HTTPResponseCode.OK, body: {} };
   } catch (err: any) {

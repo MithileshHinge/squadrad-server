@@ -5,14 +5,15 @@ import { ICreatorsData } from '../creator/ICreatorsData';
 
 export default class CreatorsData extends BaseData implements ICreatorsData {
   async insertNewCreator({
-    userId, pageName, bio, isPlural, showTotalSquadMembers,
+    userId, pageName, bio, isPlural, showTotalSquadMembers, about,
   }: {
     userId: string,
     pageName: string,
     bio: string,
     isPlural: boolean,
     showTotalSquadMembers: boolean,
-  }): Promise<{ userId: string; pageName: string; bio: string; isPlural: boolean; showTotalSquadMembers: boolean }> {
+    about: string,
+  }): Promise<{ userId: string; pageName: string; bio: string; isPlural: boolean; showTotalSquadMembers: boolean; about: string; }> {
     const db = await this.getDb();
     try {
       await db.collection('creators').insertOne({
@@ -21,6 +22,7 @@ export default class CreatorsData extends BaseData implements ICreatorsData {
         bio,
         isPlural,
         showTotalSquadMembers,
+        about,
       });
       return {
         userId,
@@ -28,13 +30,14 @@ export default class CreatorsData extends BaseData implements ICreatorsData {
         bio,
         isPlural,
         showTotalSquadMembers,
+        about,
       };
     } catch (err: any) {
       return this.handleDatabaseError(err, 'Could not insert new creator into database');
     }
   }
 
-  async fetchCreatorById(userId: string): Promise<{ userId: string, pageName: string, bio: string, isPlural: boolean, showTotalSquadMembers: boolean } | null> {
+  async fetchCreatorById(userId: string): Promise<{ userId: string, pageName: string, bio: string, isPlural: boolean, showTotalSquadMembers: boolean, about: string } | null> {
     const db = await this.getDb();
     try {
       const result = await db.collection('creators').findOne({ _id: new ObjectId(userId) });
@@ -45,6 +48,7 @@ export default class CreatorsData extends BaseData implements ICreatorsData {
         bio: result.bio,
         isPlural: result.isPlural,
         showTotalSquadMembers: result.showTotalSquadMembers,
+        about: result.about,
       };
     } catch (err: any) {
       return this.handleDatabaseError(err, 'Could not fetch creator');
@@ -57,8 +61,10 @@ export default class CreatorsData extends BaseData implements ICreatorsData {
     bio?: string,
     isPlural?: boolean,
     showTotalSquadMembers?: boolean,
-  }): Promise<{ userId: string, pageName?: string, bio?: string, isPlural?: boolean, showTotalSquadMembers?: boolean }> {
+    about?: string,
+  }): Promise<{ userId: string, pageName?: string, bio?: string, isPlural?: boolean, showTotalSquadMembers?: boolean, about?: string }> {
     const db = await this.getDb();
+    console.log(updateData);
     try {
       await db.collection('creators').updateOne({ _id: new ObjectId(userId) }, { $set: updateData });
       return {

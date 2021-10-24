@@ -12,6 +12,7 @@ export default function newCreator() {
     bio: faker.lorem.word(5),
     isPlural: faker.datatype.boolean(),
     showTotalSquadMembers: faker.datatype.boolean(),
+    about: faker.lorem.paragraph(),
   };
 }
 

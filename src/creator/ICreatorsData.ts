@@ -9,18 +9,21 @@ export interface ICreatorsData {
     bio,
     isPlural,
     showTotalSquadMembers,
+    about,
   }: {
     userId: string,
     pageName: string,
     bio: string,
     isPlural: boolean,
     showTotalSquadMembers: boolean,
+    about: string,
   }): Promise<{
     userId: string,
     pageName: string,
     bio: string,
     isPlural: boolean,
     showTotalSquadMembers: boolean,
+    about: string,
   }>
 
   /**
@@ -34,6 +37,7 @@ export interface ICreatorsData {
     bio: string,
     isPlural: boolean,
     showTotalSquadMembers: boolean,
+    about: string,
   } | null>
 
   /**
@@ -42,18 +46,20 @@ export interface ICreatorsData {
    * @returns Promise to return data updated in the database
    */
   updateCreator({
-    userId, pageName, bio, isPlural,
+    userId, pageName, bio, isPlural, about,
   } : {
     userId: string,
     pageName?: string,
     bio?: string,
     isPlural?: boolean,
     showTotalSquadMembers?: boolean,
+    about?: string,
   }): Promise<{
     userId: string,
     pageName?: string,
     bio?: string,
     isPlural?: boolean,
     showTotalSquadMembers?: boolean,
+    about?: string,
   }>
 }
