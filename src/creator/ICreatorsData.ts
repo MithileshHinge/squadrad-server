@@ -46,7 +46,7 @@ export interface ICreatorsData {
    * @returns Promise to return data updated in the database
    */
   updateCreator({
-    userId, pageName, bio, isPlural, about,
+    userId, pageName, bio, isPlural, showTotalSquadMembers, about,
   } : {
     userId: string,
     pageName?: string,

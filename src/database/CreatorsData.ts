@@ -64,7 +64,6 @@ export default class CreatorsData extends BaseData implements ICreatorsData {
     about?: string,
   }): Promise<{ userId: string, pageName?: string, bio?: string, isPlural?: boolean, showTotalSquadMembers?: boolean, about?: string }> {
     const db = await this.getDb();
-    console.log(updateData);
     try {
       await db.collection('creators').updateOne({ _id: new ObjectId(userId) }, { $set: updateData });
       return {
