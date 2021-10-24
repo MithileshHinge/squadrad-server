@@ -60,7 +60,7 @@ describe('User Endpoints', () => {
     });
   });
 
-  describe('GET /user/verify', () => {
+  describe('PATCH /user/verify', () => {
     it('Can verify user', async () => {
       const { userId, ...userInfo } = newUser();
       userCollection.insertOne({
@@ -69,7 +69,7 @@ describe('User Endpoints', () => {
         verified: false,
       });
       const token = issueJWT({ email: userInfo.email }, 100);
-      await request(app).get('/user/verify').query({ token }).expect(HTTPResponseCode.OK);
+      await request(app).patch('/user/verify').send({ token }).expect(HTTPResponseCode.OK);
       await expect(userCollection.findOne({ email: userInfo.email }))
         .resolves.toStrictEqual(expect.objectContaining({ verified: true }));
     });
@@ -77,7 +77,7 @@ describe('User Endpoints', () => {
     it('Respond with error code 400 (Bad Request) if email id does not exist', async () => {
       const email = faker.internet.email();
       const token = issueJWT({ email }, 100);
-      await request(app).get('/user/verify').query({ token }).expect(HTTPResponseCode.BAD_REQUEST);
+      await request(app).patch('/user/verify').send({ token }).expect(HTTPResponseCode.BAD_REQUEST);
     });
 
     it('Respond with error code 403 (Forbidden) if token is expired', async () => {
@@ -93,14 +93,14 @@ describe('User Endpoints', () => {
           resolve(null);
         }, 3000);
       });
-      await request(app).get('/user/verify').query({ token }).expect(HTTPResponseCode.FORBIDDEN);
+      await request(app).patch('/user/verify').send({ token }).expect(HTTPResponseCode.FORBIDDEN);
       await expect(userCollection.findOne({ email: userInfo.email }))
         .resolves.toStrictEqual(expect.objectContaining({ verified: false }));
     });
 
     it('Respond with error code 400 (Bad Request) if token is not a string', async () => {
       const token = 3412415;
-      await request(app).get('/user/verify').query({ token }).expect(HTTPResponseCode.BAD_REQUEST);
+      await request(app).patch('/user/verify').send({ token }).expect(HTTPResponseCode.BAD_REQUEST);
     });
   });
 

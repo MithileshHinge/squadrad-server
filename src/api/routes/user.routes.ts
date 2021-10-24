@@ -10,7 +10,7 @@ export default [
   },
   {
     path: '/user/verify',
-    get: [UserController.getUserVerify], // verify user's email address
+    patch: [UserController.patchUserVerify], // verify user's email address
   },
   {
     path: '/user/password',

@@ -18,9 +18,9 @@ const postUser: IBaseController = async (httpRequest) => {
   }
 };
 
-const getUserVerify: IBaseController = async (httpRequest) => {
+const patchUserVerify: IBaseController = async (httpRequest) => {
   try {
-    const { token } = httpRequest.query;
+    const { token } = httpRequest.body;
     await verifyEmail.verify(token);
     return {
       statusCode: HTTPResponseCode.OK,
@@ -81,7 +81,7 @@ const patchUserPassword: IBaseController = async (httpRequest) => {
 
 export default {
   postUser,
-  getUserVerify,
+  patchUserVerify,
   getUserSelf,
   patchUser,
   patchUserPassword,
