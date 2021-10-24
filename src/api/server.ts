@@ -3,7 +3,6 @@ import session from 'express-session';
 import helmet from 'helmet';
 import { hasKey } from '../common/helpers';
 import { COOKIE_SECRET } from '../common/secretKeys';
-import getMockStore from '../__tests__/__mocks__/api/mockStore';
 import handleExpressRequest from './handleExpressRequest';
 import routes from './routes';
 import initializePassport from './services/passport.service';
@@ -20,7 +19,7 @@ app.use(session({
     secure: process.env.NODE_ENV !== 'test',
     sameSite: 'strict',
   },
-  store: process.env.NODE_ENV === 'test' ? getMockStore() : getStore(),
+  store: getStore(),
 
   // Boilerplate options, see:
   // * https://www.npmjs.com/package/express-session#resave

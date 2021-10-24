@@ -5,7 +5,7 @@ import config from '../../../config';
 
 let mockStore: ConnectMongoDBSession.MongoDBStore;
 
-export default function getMockStore() {
+export default function getStore() {
   const MongoDBStore = ConnectMongoDBSession(session);
 
   mockStore = new MongoDBStore({

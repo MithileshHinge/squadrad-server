@@ -6,4 +6,5 @@ module.exports = {
   ...shelfPreset,
   testEnvironment: 'node',
   modulePathIgnorePatterns: ['__tests__/__mocks__'],
+  setupFiles: ['./src/__tests__/__mocks__/setupGlobalMocks.ts'],
 };

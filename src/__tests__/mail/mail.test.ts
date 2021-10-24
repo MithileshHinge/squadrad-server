@@ -2,6 +2,8 @@ import { closeMailTransporter } from '../../mail';
 import emailVerification from '../../user/email-verification';
 import getTestAccount from '../__mocks__/mail/mockMailAccount';
 
+jest.unmock('../../mail');
+
 describe('Mail test', () => {
   let testAccount: { email: string, password: string };
 
