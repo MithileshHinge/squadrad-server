@@ -16,7 +16,7 @@ app.use(session({
   name: 'sessionId',
   cookie: {
     httpOnly: true,
-    secure: process.env.NODE_ENV !== 'test',
+    secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
   },
   store: getStore(),
