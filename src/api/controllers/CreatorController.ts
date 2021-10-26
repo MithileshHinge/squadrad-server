@@ -64,7 +64,29 @@ const getCreator: IBaseController = async (httpRequest) => {
         bio: creatorPageInfo.bio,
         isPlural: creatorPageInfo.isPlural,
         profilePicSrc: creatorPageInfo.profilePicSrc,
-        ...(creatorPageInfo.showTotalSquadMembers && { showTotalSquadMembers: creatorPageInfo.showTotalSquadMembers }),
+        showTotalSquadMembers: creatorPageInfo.showTotalSquadMembers!,
+        about: creatorPageInfo.about,
+      },
+    };
+  } catch (err: any) {
+    return handleControllerError(err);
+  }
+};
+
+const getCreatorUserId: IBaseController = async (httpRequest) => {
+  try {
+    const { userId: creatorUserId } = httpRequest.params;
+    const creatorPageInfo = await findCreator.findCreatorPage(creatorUserId, false);
+    if (!creatorPageInfo) return { statusCode: HTTPResponseCode.NOT_FOUND, body: {} };
+
+    return {
+      statusCode: HTTPResponseCode.OK,
+      body: {
+        userId: creatorPageInfo.userId,
+        pageName: creatorPageInfo.pageName,
+        bio: creatorPageInfo.bio,
+        isPlural: creatorPageInfo.isPlural,
+        profilePicSrc: creatorPageInfo.profilePicSrc,
         about: creatorPageInfo.about,
       },
     };
@@ -77,4 +99,5 @@ export default {
   postCreator,
   patchCreator,
   getCreator,
+  getCreatorUserId,
 };

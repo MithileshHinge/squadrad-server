@@ -8,4 +8,8 @@ export default [
     patch: [authorizationMiddleware, CreatorController.patchCreator],
     get: [authorizationMiddleware, CreatorController.getCreator],
   },
+  {
+    path: '/creator/:userId',
+    get: [CreatorController.getCreatorUserId],
+  },
 ];

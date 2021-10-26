@@ -109,4 +109,22 @@ describe('Creator Endpoints', () => {
       await request(app).get('/creator').expect(HTTPResponseCode.UNAUTHORIZED);
     });
   });
+
+  describe('GET /creator/:userId', () => {
+    it('Can get a creator by userId', async () => {
+      const { userId } = await getLoggedInCreator(app, userCollection);
+      const res = await request(app).get(`/creator/${userId}`).expect(HTTPResponseCode.OK);
+      expect(res.body).toStrictEqual(expect.objectContaining({ userId }));
+    });
+
+    it('Respond with error code 404 (Not found) if user is not a creator', async () => {
+      const { userId } = await getLoggedInUser(app, userCollection);
+      await request(app).get(`/creator/${userId}`).expect(HTTPResponseCode.NOT_FOUND);
+    });
+
+    it('Respond with error code 400 (Bad request) if userId is invalid', async () => {
+      const userId = '3nro3ro32emo3e';
+      await request(app).get(`/creator/${userId}`).expect(HTTPResponseCode.BAD_REQUEST);
+    });
+  });
 });
