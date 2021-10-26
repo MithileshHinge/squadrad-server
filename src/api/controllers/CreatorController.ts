@@ -1,4 +1,4 @@
-import { becomeCreator, editCreator } from '../../creator';
+import { becomeCreator, editCreator, findCreator } from '../../creator';
 import { HTTPResponseCode } from '../HttpResponse';
 import handleControllerError from './ControllerErrorHandler';
 import { IBaseController } from './IBaseController';
@@ -50,7 +50,31 @@ const patchCreator: IBaseController = async (httpRequest) => {
   }
 };
 
+const getCreator: IBaseController = async (httpRequest) => {
+  try {
+    const userId = httpRequest.userId!;
+    const creatorPageInfo = await findCreator.findCreatorPage(userId, true);
+    if (!creatorPageInfo) return { statusCode: HTTPResponseCode.NOT_FOUND, body: {} };
+
+    return {
+      statusCode: HTTPResponseCode.OK,
+      body: {
+        userId: creatorPageInfo.userId,
+        pageName: creatorPageInfo.pageName,
+        bio: creatorPageInfo.bio,
+        isPlural: creatorPageInfo.isPlural,
+        profilePicSrc: creatorPageInfo.profilePicSrc,
+        ...(creatorPageInfo.showTotalSquadMembers && { showTotalSquadMembers: creatorPageInfo.showTotalSquadMembers }),
+        about: creatorPageInfo.about,
+      },
+    };
+  } catch (err: any) {
+    return handleControllerError(err);
+  }
+};
+
 export default {
   postCreator,
   patchCreator,
+  getCreator,
 };

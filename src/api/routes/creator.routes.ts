@@ -6,5 +6,6 @@ export default [
     path: '/creator',
     post: [authorizationMiddleware, CreatorController.postCreator],
     patch: [authorizationMiddleware, CreatorController.patchCreator],
+    get: [authorizationMiddleware, CreatorController.getCreator],
   },
 ];

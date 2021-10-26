@@ -1,3 +1,4 @@
+import request from 'supertest';
 import { Collection, Document, ObjectId } from 'mongodb';
 import app from '../../api/server';
 import mockDb, { closeConnection } from '../__mocks__/database/mockDb';
@@ -89,6 +90,23 @@ describe('Creator Endpoints', () => {
         }).expect(HTTPResponseCode.BAD_REQUEST);
         await expect(creatorCollection.findOne({ _id: new ObjectId(userId) })).resolves.toStrictEqual(expect.objectContaining(prevParams));
       }));
+    });
+  });
+
+  describe('GET /creator', () => {
+    it('Can get self creator page', async () => {
+      const { agent, userId } = await getLoggedInCreator(app, userCollection);
+      const res = await agent.get('/creator').expect(HTTPResponseCode.OK);
+      expect(res.body).toStrictEqual(expect.objectContaining({ userId }));
+    });
+
+    it('Respond with error code 404 (Not found) if user is not a creator', async () => {
+      const { agent } = await getLoggedInUser(app, userCollection);
+      await agent.get('/creator').expect(HTTPResponseCode.NOT_FOUND);
+    });
+
+    it('Respond with error code 401 (Unauthorized) if not logged in', async () => {
+      await request(app).get('/creator').expect(HTTPResponseCode.UNAUTHORIZED);
     });
   });
 });
