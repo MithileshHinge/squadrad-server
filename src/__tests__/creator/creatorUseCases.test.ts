@@ -255,5 +255,17 @@ describe('Creator Use Cases', () => {
       expect(pageInfo).toStrictEqual(expect.objectContaining({ userId: creator.userId }));
       expect(pageInfo).not.toHaveProperty('showTotalSquadMembers');
     });
+
+    it('Return null if user with userId is not a creator', async () => {
+      const userId = id.createId();
+      await expect(findCreator.findCreatorPage(userId, true)).resolves.toBeNull();
+      await expect(findCreator.findCreatorPage(userId, false)).resolves.toBeNull();
+    });
+
+    it('Throw error if userId is not a valid id', async () => {
+      const userId: any = 4235450934;
+      await expect(findCreator.findCreatorPage(userId, true)).rejects.toThrow(ValidationError);
+      await expect(findCreator.findCreatorPage('na4ofiq3n4rq34', false)).rejects.toThrow(ValidationError);
+    });
   });
 });
