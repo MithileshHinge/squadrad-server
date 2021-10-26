@@ -37,7 +37,7 @@ export default class CreatorsData extends BaseData implements ICreatorsData {
     }
   }
 
-  async fetchCreatorById(userId: string): Promise<{ userId: string, pageName: string, bio: string, isPlural: boolean, showTotalSquadMembers: boolean, about: string } | null> {
+  async fetchCreatorById(userId: string): Promise<{ userId: string, pageName: string, bio: string, isPlural: boolean, showTotalSquadMembers: boolean, about: string, profilePicSrc: string } | null> {
     const db = await this.getDb();
     try {
       const result = await db.collection('creators').findOne({ _id: new ObjectId(userId) });
@@ -49,6 +49,7 @@ export default class CreatorsData extends BaseData implements ICreatorsData {
         isPlural: result.isPlural,
         showTotalSquadMembers: result.showTotalSquadMembers,
         about: result.about,
+        profilePicSrc: result.profilePicSrc,
       };
     } catch (err: any) {
       return this.handleDatabaseError(err, 'Could not fetch creator');

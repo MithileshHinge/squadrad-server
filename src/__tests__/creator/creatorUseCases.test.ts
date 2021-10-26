@@ -11,6 +11,7 @@ import { newUser } from '../__mocks__/user/users';
 import SetProfilePic from '../../profile-pic/SetProfilePic';
 import mockProfilePicsData from '../__mocks__/profile-pic/mockProfilePicsData';
 import profilePicValidator from '../../profile-pic/validator';
+import FindCreator from '../../creator/FindCreator';
 
 describe('Creator Use Cases', () => {
   beforeEach(() => {
@@ -235,6 +236,24 @@ describe('Creator Use Cases', () => {
       const about: any = 345542345;
       await expect(editCreator.edit({ userId, about })).rejects.toThrow(ValidationError);
       expect(mockCreatorsData.updateCreator).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('FindCreator use case', () => {
+    const findCreator = new FindCreator(mockCreatorsData);
+
+    it('Can get self creator page info', async () => {
+      const creator = newCreator();
+      mockCreatorsData.fetchCreatorById.mockResolvedValueOnce(creator);
+      await expect(findCreator.findCreatorPage(creator.userId, true)).resolves.toStrictEqual(expect.objectContaining({ userId: creator.userId }));
+    });
+
+    it('Can get another creator page info', async () => {
+      const creator = newCreator();
+      mockCreatorsData.fetchCreatorById.mockResolvedValueOnce(creator);
+      const pageInfo = await findCreator.findCreatorPage(creator.userId, false);
+      expect(pageInfo).toStrictEqual(expect.objectContaining({ userId: creator.userId }));
+      expect(pageInfo).not.toHaveProperty('showTotalSquadMembers');
     });
   });
 });

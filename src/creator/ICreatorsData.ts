@@ -38,6 +38,7 @@ export interface ICreatorsData {
     isPlural: boolean,
     showTotalSquadMembers: boolean,
     about: string,
+    profilePicSrc: string,
   } | null>
 
   /**
