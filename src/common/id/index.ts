@@ -14,6 +14,10 @@ export interface IId {
    */
   createId(): string,
 
+  /**
+   * Checks if id is of type string, and is a 12 byte hex string
+   * @returns true if id is valid, else returns false
+   */
   isValidId(id: string): boolean,
 }
 
@@ -38,7 +42,7 @@ const id: IId = {
   },
 
   isValidId(idToCheck: string) {
-    return (idToCheck.length === 24 && checkForHexRegExp.test(idToCheck));
+    return (typeof idToCheck === 'string' && idToCheck.length === 24 && checkForHexRegExp.test(idToCheck));
   },
 };
 
