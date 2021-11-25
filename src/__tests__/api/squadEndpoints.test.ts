@@ -78,7 +78,7 @@ describe('Squad Endpoints', () => {
     it('Creator can edit squad title', async () => {
       const { agent } = await getLoggedInCreator(app, userCollection);
       const { body: squad } = await agent.post('/squad').send({ ...squadParams });
-      await agent.patch('/squad').send({ squadId: squad.squadId, title: editSquadParams.title }).expect(HTTPResponseCode.OK);
+      await agent.patch(`/squad/${squad.squadId}`).send({ title: editSquadParams.title }).expect(HTTPResponseCode.OK);
       await expect(squadCollection.findOne({ _id: new ObjectId(squad.squadId) })).resolves.not.toStrictEqual(expect.objectContaining({
         title: squad.title,
       }));
@@ -87,7 +87,7 @@ describe('Squad Endpoints', () => {
     it('Creator can edit squad description', async () => {
       const { agent } = await getLoggedInCreator(app, userCollection);
       const { body: squad } = await agent.post('/squad').send({ ...squadParams });
-      await agent.patch('/squad').send({ squadId: squad.squadId, description: editSquadParams.description }).expect(HTTPResponseCode.OK);
+      await agent.patch(`/squad/${squad.squadId}`).send({ description: editSquadParams.description }).expect(HTTPResponseCode.OK);
       await expect(squadCollection.findOne({ _id: new ObjectId(squad.squadId) })).resolves.not.toStrictEqual(expect.objectContaining({
         description: squad.description,
       }));
@@ -96,7 +96,7 @@ describe('Squad Endpoints', () => {
     it('Creator can edit squad membersLimit', async () => {
       const { agent } = await getLoggedInCreator(app, userCollection);
       const { body: squad } = await agent.post('/squad').send({ ...squadParams });
-      await agent.patch('/squad').send({ squadId: squad.squadId, membersLimit: editSquadParams.membersLimit }).expect(HTTPResponseCode.OK);
+      await agent.patch(`/squad/${squad.squadId}`).send({ membersLimit: editSquadParams.membersLimit }).expect(HTTPResponseCode.OK);
       await expect(squadCollection.findOne({ _id: new ObjectId(squad.squadId) })).resolves.not.toStrictEqual(expect.objectContaining({
         membersLimit: squad.membersLimit,
       }));
@@ -105,7 +105,7 @@ describe('Squad Endpoints', () => {
     it('Creator cannot change squad amount', async () => {
       const { agent } = await getLoggedInCreator(app, userCollection);
       const { body: squad } = await agent.post('/squad').send({ ...squadParams, amount: 50 });
-      await agent.patch('/squad').send({ squadId: squad.squadId, amount: 120 }).expect(HTTPResponseCode.OK);
+      await agent.patch(`/squad/${squad.squadId}`).send({ amount: 120 }).expect(HTTPResponseCode.OK);
       await expect(squadCollection.findOne({ _id: new ObjectId(squad.squadId) })).resolves.toStrictEqual(expect.objectContaining({
         amount: 50,
       }));
@@ -116,7 +116,7 @@ describe('Squad Endpoints', () => {
       await agent1.post('/squad').send({ ...squadParams });
       const squad = await squadCollection.findOne({ userId });
       const { agent: agent2 } = await getLoggedInCreator(app, userCollection);
-      await agent2.patch('/squad').send({ squadId: squad!._id.toString(), ...editSquadParams }).expect(HTTPResponseCode.OK);
+      await agent2.patch(`/squad/${squad!._id.toString()}`).send({ ...editSquadParams }).expect(HTTPResponseCode.OK);
       await expect(squadCollection.findOne({ _id: squad!._id })).resolves.toStrictEqual(expect.objectContaining(squad));
     });
   });

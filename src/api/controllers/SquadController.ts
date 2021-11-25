@@ -31,8 +31,9 @@ const postSquad: IBaseController = async (httpRequest) => {
 const patchSquad: IBaseController = async (httpRequest) => {
   try {
     const userId = httpRequest.userId!;
+    const { squadId } = httpRequest.params;
     const {
-      squadId, title, description, membersLimit,
+      title, description, membersLimit,
     } = httpRequest.body;
     const updatedSquad = await editSquad.edit({
       userId, squadId, title, description, membersLimit,
