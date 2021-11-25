@@ -1,6 +1,7 @@
 import ValidationError from '../../common/errors/ValidationError';
 import AddSquad from '../../squad/AddSquad';
 import EditSquad from '../../squad/EditSquad';
+import FindSquad from '../../squad/FindSquad';
 import squadValidator from '../../squad/validator';
 import newCreator from '../__mocks__/creator/creators';
 import faker from '../__mocks__/faker';
@@ -117,6 +118,25 @@ describe('Squad Use Cases', () => {
             expect(mockSquadsData.insertNewSquad).not.toHaveBeenCalled();
           });
         });
+      });
+    });
+  });
+
+  describe('FindSquad use case', () => {
+    const findSquad = new FindSquad(mockSquadsData);
+
+    describe('Find all squads by userId', () => {
+      it('Can find all squads by userId', async () => {
+        const creator = newCreator();
+        mockSquadsData.fetchAllSquadsByUserId.mockResolvedValueOnce([newSquad(), newSquad()]);
+        await expect(findSquad.findAllSquadsByUserId(creator.userId)).resolves.not.toThrowError();
+        expect(mockSquadsData.fetchAllSquadsByUserId).toHaveBeenCalled();
+      });
+
+      it('Should throw error if userId is invalid', async () => {
+        const userId:any = 48343940;
+        await expect(findSquad.findAllSquadsByUserId(userId)).rejects.toThrow(ValidationError);
+        expect(mockSquadsData.fetchAllSquadsByUserId).not.toHaveBeenCalled();
       });
     });
   });
