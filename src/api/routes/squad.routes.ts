@@ -6,5 +6,6 @@ export default [
   {
     path: '/squad',
     post: [authorizationMiddleware, creatorAuthorizationMiddleware, SquadController.postSquad],
+    patch: [authorizationMiddleware, creatorAuthorizationMiddleware, SquadController.patchSquad],
   },
 ];

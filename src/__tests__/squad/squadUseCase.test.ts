@@ -127,6 +127,7 @@ describe('Squad Use Cases', () => {
 
     it('Can edit title', async () => {
       await expect(editSquad.edit({
+        userId: existingSquad.userId,
         squadId: existingSquad.squadId,
         title: sampleSquadParams.title,
       })).resolves.not.toThrow();
@@ -135,6 +136,7 @@ describe('Squad Use Cases', () => {
 
     it('Should throw error if title is invalid', async () => {
       await expect(editSquad.edit({
+        userId: existingSquad.userId,
         squadId: existingSquad.squadId,
         title: 'hi',
       })).rejects.toThrow(ValidationError);
@@ -143,6 +145,7 @@ describe('Squad Use Cases', () => {
 
     it('Can edit description', async () => {
       await expect(editSquad.edit({
+        userId: existingSquad.userId,
         squadId: existingSquad.squadId,
         description: sampleSquadParams.description,
       }));
@@ -151,6 +154,7 @@ describe('Squad Use Cases', () => {
 
     it('Should throw error if description is invalid', async () => {
       await expect(editSquad.edit({
+        userId: existingSquad.userId,
         squadId: existingSquad.squadId,
         description: faker.datatype.string(2001),
       })).rejects.toThrow(ValidationError);
@@ -159,6 +163,7 @@ describe('Squad Use Cases', () => {
 
     it('Can edit membersLimit', async () => {
       await expect(editSquad.edit({
+        userId: existingSquad.userId,
         squadId: existingSquad.squadId,
         membersLimit: sampleSquadParams.membersLimit,
       })).resolves.not.toThrowError();
@@ -167,6 +172,7 @@ describe('Squad Use Cases', () => {
 
     it('Should throw error if membersLimit is invalid', async () => {
       await expect(editSquad.edit({
+        userId: existingSquad.userId,
         squadId: existingSquad.squadId,
         membersLimit: -100,
       })).rejects.toThrow(ValidationError);
@@ -175,6 +181,7 @@ describe('Squad Use Cases', () => {
 
     it('Cannot edit amount', async () => {
       const params: any = {
+        userId: existingSquad.userId,
         squadId: existingSquad.squadId,
         amount: 500,
       };

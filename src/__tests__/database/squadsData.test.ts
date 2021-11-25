@@ -46,14 +46,15 @@ describe('Squads data access gateway', () => {
 
       updateParamsArr.forEach((param) => {
         it(`Can update ${param}`, async () => {
-          const { squadId, ...squadInfo } = newSquad();
+          const { userId, squadId, ...squadInfo } = newSquad();
           await squadsCollection.insertOne({
             _id: new ObjectId(squadId),
+            userId,
             ...squadInfo,
           });
           const { title, description, membersLimit } = newSquad();
           const updateParams: any = { title, description, membersLimit };
-          await expect(squadsData.updateSquad({ squadId, [param]: updateParams[param] })).resolves.toBeTruthy();
+          await expect(squadsData.updateSquad({ userId, squadId, [param]: updateParams[param] })).resolves.toBeTruthy();
           await expect(squadsCollection.findOne({ _id: new ObjectId(squadId) })).resolves.toStrictEqual(expect.objectContaining({ [param]: updateParams[param] }));
         });
       });

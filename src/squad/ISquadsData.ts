@@ -47,16 +47,19 @@ export interface ISquadsData {
   } | null>;
 
   updateSquad({
+    userId,
     squadId,
     title,
     description,
     membersLimit,
   }: {
+    userId: string,
     squadId: string,
     title?: string,
     description?: string,
     membersLimit?: number,
   }): Promise<{
+    userId: string,
     squadId: string,
     title?: string,
     description?: string,

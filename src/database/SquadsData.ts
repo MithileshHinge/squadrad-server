@@ -72,12 +72,14 @@ export default class SquadsData extends BaseData implements ISquadsData {
     }
   }
 
-  async updateSquad({ squadId, ...updateData }: {
+  async updateSquad({ userId, squadId, ...updateData }: {
+    userId: string,
     squadId: string,
     title?: string,
     description?: string,
     membersLimit?: number,
   }): Promise<{
+      userId: string,
       squadId: string,
       title?: string,
       description?: string,
@@ -85,8 +87,9 @@ export default class SquadsData extends BaseData implements ISquadsData {
     }> {
     const db = await this.getDb();
     try {
-      await db.collection('squads').updateOne({ _id: new ObjectId(squadId) }, { $set: updateData });
+      await db.collection('squads').updateOne({ _id: new ObjectId(squadId), userId }, { $set: updateData });
       return {
+        userId,
         squadId,
         ...updateData,
       };

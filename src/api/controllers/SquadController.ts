@@ -1,4 +1,4 @@
-import { addSquad } from '../../squad';
+import { addSquad, editSquad } from '../../squad';
 import { HTTPResponseCode } from '../HttpResponse';
 import handleControllerError from './ControllerErrorHandler';
 import { IBaseController } from './IBaseController';
@@ -28,6 +28,27 @@ const postSquad: IBaseController = async (httpRequest) => {
   }
 };
 
+const patchSquad: IBaseController = async (httpRequest) => {
+  try {
+    const userId = httpRequest.userId!;
+    const {
+      squadId, title, description, membersLimit,
+    } = httpRequest.body;
+    const updatedSquad = await editSquad.edit({
+      userId, squadId, title, description, membersLimit,
+    });
+    return {
+      statusCode: HTTPResponseCode.OK,
+      body: {
+        ...updatedSquad,
+      },
+    };
+  } catch (err: any) {
+    return handleControllerError(err);
+  }
+};
+
 export default {
   postSquad,
+  patchSquad,
 };

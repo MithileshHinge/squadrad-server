@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import request from 'supertest';
 import { Collection, Document, ObjectId } from 'mongodb';
 import { HTTPResponseCode } from '../../api/HttpResponse';
@@ -7,6 +8,7 @@ import { getLoggedInCreator } from '../__mocks__/creator/creators';
 import mockDb, { closeConnection } from '../__mocks__/database/mockDb';
 import squadParams from '../__mocks__/squad/squadParams';
 import { getLoggedInUser } from '../__mocks__/user/users';
+import faker from '../__mocks__/faker';
 
 describe('Squad Endpoints', () => {
   let userCollection: Collection<Document>;
@@ -63,6 +65,59 @@ describe('Squad Endpoints', () => {
         title: 'a', amount: -10, description: 1234, membersLimit: -1,
       }).expect(HTTPResponseCode.BAD_REQUEST);
       await expect(squadCollection.findOne({ userId })).resolves.toBeFalsy();
+    });
+  });
+
+  describe('PATCH /squad', () => {
+    const editSquadParams = {
+      title: faker.lorem.words(3),
+      description: faker.lorem.paragraph(5).substr(0, 2000),
+      membersLimit: faker.datatype.number({ min: 1, precision: 1 }),
+    };
+
+    it('Creator can edit squad title', async () => {
+      const { agent } = await getLoggedInCreator(app, userCollection);
+      const { body: squad } = await agent.post('/squad').send({ ...squadParams });
+      await agent.patch('/squad').send({ squadId: squad.squadId, title: editSquadParams.title }).expect(HTTPResponseCode.OK);
+      await expect(squadCollection.findOne({ _id: new ObjectId(squad.squadId) })).resolves.not.toStrictEqual(expect.objectContaining({
+        title: squad.title,
+      }));
+    });
+
+    it('Creator can edit squad description', async () => {
+      const { agent } = await getLoggedInCreator(app, userCollection);
+      const { body: squad } = await agent.post('/squad').send({ ...squadParams });
+      await agent.patch('/squad').send({ squadId: squad.squadId, description: editSquadParams.description }).expect(HTTPResponseCode.OK);
+      await expect(squadCollection.findOne({ _id: new ObjectId(squad.squadId) })).resolves.not.toStrictEqual(expect.objectContaining({
+        description: squad.description,
+      }));
+    });
+
+    it('Creator can edit squad membersLimit', async () => {
+      const { agent } = await getLoggedInCreator(app, userCollection);
+      const { body: squad } = await agent.post('/squad').send({ ...squadParams });
+      await agent.patch('/squad').send({ squadId: squad.squadId, membersLimit: editSquadParams.membersLimit }).expect(HTTPResponseCode.OK);
+      await expect(squadCollection.findOne({ _id: new ObjectId(squad.squadId) })).resolves.not.toStrictEqual(expect.objectContaining({
+        membersLimit: squad.membersLimit,
+      }));
+    });
+
+    it('Creator cannot change squad amount', async () => {
+      const { agent } = await getLoggedInCreator(app, userCollection);
+      const { body: squad } = await agent.post('/squad').send({ ...squadParams, amount: 50 });
+      await agent.patch('/squad').send({ squadId: squad.squadId, amount: 120 }).expect(HTTPResponseCode.OK);
+      await expect(squadCollection.findOne({ _id: new ObjectId(squad.squadId) })).resolves.toStrictEqual(expect.objectContaining({
+        amount: 50,
+      }));
+    });
+
+    it('Creator cannot edit another creator\'s squad', async () => {
+      const { agent: agent1, userId } = await getLoggedInCreator(app, userCollection);
+      await agent1.post('/squad').send({ ...squadParams });
+      const squad = await squadCollection.findOne({ userId });
+      const { agent: agent2 } = await getLoggedInCreator(app, userCollection);
+      await agent2.patch('/squad').send({ squadId: squad!._id.toString(), ...editSquadParams }).expect(HTTPResponseCode.OK);
+      await expect(squadCollection.findOne({ _id: squad!._id })).resolves.toStrictEqual(expect.objectContaining(squad));
     });
   });
 });
