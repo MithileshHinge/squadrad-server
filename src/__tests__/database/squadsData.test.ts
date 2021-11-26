@@ -1,6 +1,7 @@
 import { Collection, Document, ObjectId } from 'mongodb';
 import handleDatabaseError from '../../database/DatabaseErrorHandler';
 import SquadsData from '../../database/SquadsData';
+import newCreator from '../__mocks__/creator/creators';
 import mockDb, { closeConnection } from '../__mocks__/database/mockDb';
 import newSquad from '../__mocks__/squad/squads';
 
@@ -37,6 +38,29 @@ describe('Squads data access gateway', () => {
       });
       await expect(squadsData.fetchSquadByAmount({ userId: squadInfo.userId, amount: squadInfo.amount }))
         .resolves.toStrictEqual(expect.objectContaining({ squadId }));
+    });
+  });
+
+  describe('fetchAllSquadsByUserId', () => {
+    it('Can fetch all squads by userId', async () => {
+      const creator = newCreator();
+      const squads = [
+        { ...newSquad(), userId: creator.userId },
+        { ...newSquad(), userId: creator.userId },
+        { ...newSquad(), userId: creator.userId },
+      ];
+      const sampleSquads = squads.map(({ squadId, ...squadInfo }) => ({
+        _id: new ObjectId(squadId),
+        ...squadInfo,
+      }));
+      squadsCollection.insertMany(sampleSquads);
+
+      await expect(squadsData.fetchAllSquadsByUserId(creator.userId)).resolves.toStrictEqual(squads);
+    });
+
+    it('Returns empty array if there are no squads for given userId', async () => {
+      const creator = newCreator();
+      await expect(squadsData.fetchAllSquadsByUserId(creator.userId)).resolves.toStrictEqual([]);
     });
   });
 

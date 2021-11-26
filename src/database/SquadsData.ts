@@ -72,6 +72,31 @@ export default class SquadsData extends BaseData implements ISquadsData {
     }
   }
 
+  async fetchAllSquadsByUserId(userId: string): Promise<{
+    userId: string,
+    squadId: string,
+    title: string,
+    amount: number,
+    description?: string | undefined,
+    membersLimit?: number | undefined,
+  }[]> {
+    const db = await this.getDb();
+    try {
+      const resultCur = db.collection('squads').find({ userId });
+      const squads = await resultCur.toArray();
+      return squads.map((squad) => ({
+        squadId: squad._id.toString(),
+        userId: squad.userId,
+        title: squad.title,
+        amount: squad.amount,
+        description: squad.description,
+        membersLimit: squad.membersLimit,
+      }));
+    } catch (err: any) {
+      return this.handleDatabaseError(err, 'Could not fetch squads');
+    }
+  }
+
   async updateSquad({ userId, squadId, ...updateData }: {
     userId: string,
     squadId: string,

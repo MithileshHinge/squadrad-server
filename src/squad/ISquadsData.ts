@@ -51,14 +51,14 @@ export interface ISquadsData {
    * @returns Array of squad info, returns empty array if no squads of given userId found
    * @throws DatabaseError if operation fails
    */
-  fetchAllSquadsByUserId(userId: string): Promise<[{
+  fetchAllSquadsByUserId(userId: string): Promise<{
     userId: string,
     squadId: string,
     title: string,
     amount: number,
     description?: string,
     membersLimit?: number,
-  }]>
+  }[]>
 
   /**
    * Update squad info in the database
