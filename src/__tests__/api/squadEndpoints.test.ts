@@ -9,6 +9,8 @@ import mockDb, { closeConnection } from '../__mocks__/database/mockDb';
 import squadParams from '../__mocks__/squad/squadParams';
 import { getLoggedInUser } from '../__mocks__/user/users';
 import faker from '../__mocks__/faker';
+import newSquad from '../__mocks__/squad/squads';
+import id from '../../common/id';
 
 describe('Squad Endpoints', () => {
   let userCollection: Collection<Document>;
@@ -65,6 +67,37 @@ describe('Squad Endpoints', () => {
         title: 'a', amount: -10, description: 1234, membersLimit: -1,
       }).expect(HTTPResponseCode.BAD_REQUEST);
       await expect(squadCollection.findOne({ userId })).resolves.toBeFalsy();
+    });
+  });
+
+  describe('GET /creator/:userId/squads', () => {
+    it('Can get all squads of a creator', async () => {
+      // insert sample squads into database
+      const sampleSquads1 = [newSquad(), newSquad(), newSquad()];
+      const userId1 = id.createId();
+      await squadCollection.insertMany(sampleSquads1.map((squad) => ({
+        ...squad,
+        userId: userId1,
+      })));
+
+      const sampleSquads2 = [newSquad(), newSquad()];
+      const userId2 = id.createId();
+      await squadCollection.insertMany(sampleSquads2.map((squad) => ({
+        ...squad,
+        userId: userId2,
+      })));
+
+      const { body: squads1 } = await request(app).get(`/creator/${userId1}/squads`).expect(HTTPResponseCode.OK);
+      expect(squads1.length).toBe(3);
+
+      const { body: squads2 } = await request(app).get(`/creator/${userId2}/squads`).expect(HTTPResponseCode.OK);
+      expect(squads2.length).toBe(2);
+    });
+
+    it('Return empty array if no squads exist', async () => {
+      const userId = id.createId();
+      const { body: squads } = await request(app).get(`/creator/${userId}/squads`).expect(HTTPResponseCode.OK);
+      expect(squads).toStrictEqual([]);
     });
   });
 

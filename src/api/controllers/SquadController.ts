@@ -1,4 +1,4 @@
-import { addSquad, editSquad } from '../../squad';
+import { addSquad, editSquad, findSquad } from '../../squad';
 import { HTTPResponseCode } from '../HttpResponse';
 import handleControllerError from './ControllerErrorHandler';
 import { IBaseController } from './IBaseController';
@@ -22,6 +22,19 @@ const postSquad: IBaseController = async (httpRequest) => {
         description: squad.description,
         membersLimit: squad.membersLimit,
       },
+    };
+  } catch (err: any) {
+    return handleControllerError(err);
+  }
+};
+
+const getAllSquadsByUserId: IBaseController = async (httpRequest) => {
+  try {
+    const { userId } = httpRequest.params;
+    const squads = await findSquad.findAllSquadsByUserId(userId);
+    return {
+      statusCode: HTTPResponseCode.OK,
+      body: squads,
     };
   } catch (err: any) {
     return handleControllerError(err);
@@ -52,4 +65,5 @@ const patchSquad: IBaseController = async (httpRequest) => {
 export default {
   postSquad,
   patchSquad,
+  getAllSquadsByUserId,
 };

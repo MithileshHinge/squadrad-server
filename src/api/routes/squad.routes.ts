@@ -11,4 +11,8 @@ export default [
     path: '/squad/:squadId',
     patch: [authorizationMiddleware, creatorAuthorizationMiddleware, SquadController.patchSquad],
   },
+  {
+    path: '/creator/:userId/squads',
+    get: [SquadController.getAllSquadsByUserId],
+  },
 ];
