@@ -64,8 +64,8 @@ export default class SquadsData extends BaseData implements ISquadsData {
         userId: result.userId,
         title: result.title,
         amount: result.amount,
-        description: result.description,
-        membersLimit: result.membersLimit,
+        description: result.description === null ? undefined : result.description,
+        membersLimit: result.membersLimit === null ? undefined : result.description,
       };
     } catch (err: any) {
       return this.handleDatabaseError(err, 'Could not fetch squad');
@@ -89,8 +89,8 @@ export default class SquadsData extends BaseData implements ISquadsData {
         userId: squad.userId,
         title: squad.title,
         amount: squad.amount,
-        description: squad.description,
-        membersLimit: squad.membersLimit,
+        description: squad.description === null ? undefined : squad.description,
+        membersLimit: squad.membersLimit === null ? undefined : squad.membersLimit,
       }));
     } catch (err: any) {
       return this.handleDatabaseError(err, 'Could not fetch squads');
