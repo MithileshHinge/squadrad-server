@@ -5,6 +5,7 @@ module.exports = {
   ...tsPreset,
   ...shelfPreset,
   testEnvironment: 'node',
-  modulePathIgnorePatterns: ['__tests__/__mocks__'],
+  modulePathIgnorePatterns: ['__tests__/__mocks__', '__tests__/setupAfterEnv.ts'],
   setupFiles: ['./src/__tests__/__mocks__/setupGlobalMocks.ts'],
+  setupFilesAfterEnv: ['./src/__tests__/setupAfterEnv.ts'],
 };

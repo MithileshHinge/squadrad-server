@@ -1,5 +1,6 @@
 import ValidationError from '../../common/errors/ValidationError';
 import AddGoal from '../../goal/AddGoal';
+import EditGoal from '../../goal/EditGoal';
 import goalValidator from '../../goal/validator';
 import newCreator from '../__mocks__/creator/creators';
 import faker from '../__mocks__/faker';
@@ -103,6 +104,77 @@ describe('Goal use cases', () => {
         await expect(addGoal.add({ userId: existingCreator.userId, ...sampleGoalParams, description })).rejects.toThrow(ValidationError);
         expect(mockGoalsData.insertNewGoal).not.toHaveBeenCalled();
       });
+    });
+  });
+
+  describe('EditGoal use case', () => {
+    const editGoal = new EditGoal(mockGoalsData, goalValidator);
+    const existingGoal = newGoal();
+
+    it('Can edit title', async () => {
+      await expect(editGoal.edit({
+        userId: existingGoal.userId,
+        goalId: existingGoal.goalId,
+        title: sampleGoalParams.title,
+      })).resolves.not.toThrowError();
+      expect(mockGoalsData.updateGoal).toHaveBeenCalledWith({
+        userId: expect.any(String),
+        goalId: expect.any(String),
+        title: expect.any(String),
+      });
+    });
+
+    it('Should throw error if title in invalid', async () => {
+      await expect(editGoal.edit({
+        userId: existingGoal.userId,
+        goalId: existingGoal.goalId,
+        title: 'hi',
+      })).rejects.toThrow(ValidationError);
+      expect(mockGoalsData.updateGoal).not.toHaveBeenCalled();
+    });
+
+    it('Can edit description', async () => {
+      await expect(editGoal.edit({
+        userId: existingGoal.userId,
+        goalId: existingGoal.goalId,
+        description: sampleGoalParams.description,
+      }));
+      expect(mockGoalsData.updateGoal).toHaveBeenCalledWith({
+        userId: expect.any(String),
+        goalId: expect.any(String),
+        description: expect.toEqualAnyOf([null, expect.any(String)]),
+      });
+    });
+
+    it('Should throw error if description is invalid', async () => {
+      await expect(editGoal.edit({
+        userId: existingGoal.userId,
+        goalId: existingGoal.goalId,
+        description: faker.datatype.string(2001),
+      })).rejects.toThrow(ValidationError);
+      expect(mockGoalsData.updateGoal).not.toHaveBeenCalled();
+    });
+
+    it('Can edit goalNumber', async () => {
+      await expect(editGoal.edit({
+        userId: existingGoal.userId,
+        goalId: existingGoal.goalId,
+        goalNumber: sampleGoalParams.goalNumber,
+      })).resolves.not.toThrowError();
+      expect(mockGoalsData.updateGoal).toHaveBeenCalledWith({
+        userId: expect.any(String),
+        goalId: expect.any(String),
+        goalNumber: expect.any(Number),
+      });
+    });
+
+    it('Should throw error if goalNumber is invalid', async () => {
+      await expect(editGoal.edit({
+        userId: existingGoal.userId,
+        goalId: existingGoal.goalId,
+        goalNumber: -100,
+      })).rejects.toThrow(ValidationError);
+      expect(mockGoalsData.updateGoal).not.toHaveBeenCalled();
     });
   });
 });

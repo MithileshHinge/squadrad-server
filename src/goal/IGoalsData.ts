@@ -41,4 +41,28 @@ export default interface IGoalsData {
     description: string | null,
     goalNumber: number,
   }>;
+
+  /**
+   * Update goal info
+   * @throws DatabaseError
+   */
+  updateGoal({
+    userId,
+    goalId,
+    title,
+    description,
+    goalNumber,
+  }: {
+    userId: string,
+    goalId: string,
+    title?: string,
+    description?: string | null,
+    goalNumber?: number,
+  }): Promise<{
+    userId: string,
+    goalId: string,
+    title?: string,
+    description?: string | null,
+    goalNumber?: number,
+  }>;
 }

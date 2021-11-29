@@ -1,8 +1,15 @@
 import ValidationError from '../../common/errors/ValidationError';
+import id from '../../common/id';
 import stringValidator from '../../common/validators/stringValidator';
 import IGoalValidator from './IGoalValidator';
 
 const goalValidator: IGoalValidator = {
+  validateGoalId(goalId: string): string {
+    if (typeof goalId !== 'string') throw new ValidationError('GoalId must be a string');
+    const goalIdTrimmed = goalId.trim();
+    if (!id.isValidId(goalIdTrimmed)) throw new ValidationError(`Goal id ${goalIdTrimmed} is not a valid id`);
+    return goalIdTrimmed;
+  },
   validateTitle(title: string): string {
     if (typeof title !== 'string') throw new ValidationError('Goal title must be a string');
     const titleTrimmed = title.trim();
@@ -20,6 +27,7 @@ const goalValidator: IGoalValidator = {
   validateGoalNumber(goalNumber: number): number {
     if (typeof goalNumber !== 'number') throw new ValidationError('Goal number must be a number');
     const goalNumberRounded = Math.round(goalNumber);
+    if (goalNumberRounded <= 0 || !Number.isSafeInteger(goalNumberRounded)) throw new ValidationError(`Goal number ${goalNumberRounded} must be a positive integer`);
     return goalNumberRounded;
   },
 };
