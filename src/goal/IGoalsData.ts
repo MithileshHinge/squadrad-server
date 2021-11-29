@@ -13,13 +13,13 @@ export default interface IGoalsData {
     goalId: string,
     userId: string,
     title: string,
-    description?: string,
+    description: string | null,
     goalNumber: number,
   }): Promise<{
     goalId: string,
     userId: string,
     title: string,
-    description?: string,
+    description: string | null,
     goalNumber: number,
   }>;
 
@@ -38,7 +38,7 @@ export default interface IGoalsData {
     goalId: string,
     userId: string,
     title: string,
-    description?: string,
+    description: string | null,
     goalNumber: number,
   }>;
 }
