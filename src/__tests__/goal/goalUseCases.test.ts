@@ -1,6 +1,7 @@
 import ValidationError from '../../common/errors/ValidationError';
 import AddGoal from '../../goal/AddGoal';
 import EditGoal from '../../goal/EditGoal';
+import FindGoal from '../../goal/FindGoal';
 import goalValidator from '../../goal/validator';
 import newCreator from '../__mocks__/creator/creators';
 import faker from '../__mocks__/faker';
@@ -103,6 +104,19 @@ describe('Goal use cases', () => {
         const description = faker.datatype.string(2001);
         await expect(addGoal.add({ userId: existingCreator.userId, ...sampleGoalParams, description })).rejects.toThrow(ValidationError);
         expect(mockGoalsData.insertNewGoal).not.toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe('FindGoal use case', () => {
+    const findGoal = new FindGoal(mockGoalsData);
+
+    describe('Find all goals by userId', () => {
+      it('Can find all goals by userId', async () => {
+        const creator = newCreator();
+        mockGoalsData.fetchAllGoalsByUserId.mockResolvedValueOnce([newGoal(), newGoal()]);
+        await expect(findGoal.findAllGoalsByUserId(creator.userId)).resolves.not.toThrowError();
+        expect(mockGoalsData.fetchAllGoalsByUserId).toHaveBeenCalled();
       });
     });
   });

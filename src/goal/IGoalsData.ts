@@ -13,13 +13,13 @@ export default interface IGoalsData {
     goalId: string,
     userId: string,
     title: string,
-    description: string | null,
+    description?: string,
     goalNumber: number,
   }): Promise<{
     goalId: string,
     userId: string,
     title: string,
-    description: string | null,
+    description: string,
     goalNumber: number,
   }>;
 
@@ -38,9 +38,22 @@ export default interface IGoalsData {
     goalId: string,
     userId: string,
     title: string,
-    description: string | null,
+    description: string,
     goalNumber: number,
   }>;
+
+  /**
+   * Fetch all goals by userId
+   * @returns Array of goals
+   * @throws DatabaseError
+   */
+  fetchAllGoalsByUserId(userId: string): Promise<{
+    goalId: string,
+    userId: string,
+    title: string,
+    description: string,
+    goalNumber: number,
+  }[]>;
 
   /**
    * Update goal info
@@ -56,13 +69,13 @@ export default interface IGoalsData {
     userId: string,
     goalId: string,
     title?: string,
-    description?: string | null,
+    description?: string,
     goalNumber?: number,
   }): Promise<{
     userId: string,
     goalId: string,
     title?: string,
-    description?: string | null,
+    description?: string,
     goalNumber?: number,
   }>;
 }
