@@ -1,3 +1,5 @@
+import ValidationError from '../common/errors/ValidationError';
+import { removeUndefinedKeys } from '../common/helpers';
 import { validateUserId } from '../userId';
 import { ICreatorsData } from './ICreatorsData';
 import { ICreatorValidator } from './validator/ICreatorValidator';
@@ -39,6 +41,9 @@ export default class EditCreator {
       showTotalSquadMembers: showTotalSquadMembersValidated,
       about: aboutValidated,
     };
+
+    removeUndefinedKeys(creatorToUpdate);
+    if (Object.keys(creatorToUpdate).length <= 1) throw new ValidationError('Nothing to update');
     const creatorEdited = await this.creatorsData.updateCreator(creatorToUpdate);
 
     return {

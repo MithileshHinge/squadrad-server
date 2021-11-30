@@ -168,7 +168,10 @@ describe('Creator Use Cases', () => {
     it('Can change page name', async () => {
       const { userId, pageName } = newCreator();
       await expect(editCreator.edit({ userId, pageName })).resolves.not.toThrow();
-      expect(mockCreatorsData.updateCreator).toHaveBeenCalledWith(expect.objectContaining({ userId }));
+      expect(mockCreatorsData.updateCreator.mock.calls[0][0]).toStrictEqual({
+        userId,
+        pageName: expect.any(String),
+      });
     });
 
     it('Should throw error if page name is invalid', async () => {
@@ -183,7 +186,10 @@ describe('Creator Use Cases', () => {
     it('Can change bio', async () => {
       const { userId, bio } = newCreator();
       await expect(editCreator.edit({ userId, bio })).resolves.not.toThrow();
-      expect(mockCreatorsData.updateCreator).toHaveBeenCalledWith(expect.objectContaining({ userId }));
+      expect(mockCreatorsData.updateCreator.mock.calls[0][0]).toStrictEqual({
+        userId,
+        bio: expect.any(String),
+      });
     });
 
     it('Should throw error if bio is invalid', async () => {
@@ -198,7 +204,10 @@ describe('Creator Use Cases', () => {
     it('Can change isPlural', async () => {
       const userId = id.createId();
       await expect(editCreator.edit({ userId, isPlural: false })).resolves.not.toThrow();
-      expect(mockCreatorsData.updateCreator).toHaveBeenCalledWith(expect.objectContaining({ userId }));
+      expect(mockCreatorsData.updateCreator.mock.calls[0][0]).toStrictEqual({
+        userId,
+        isPlural: expect.any(Boolean),
+      });
     });
 
     it('Should throw error if isPlural is invalid', async () => {
@@ -213,7 +222,10 @@ describe('Creator Use Cases', () => {
     it('Can change showTotalSquadMembers', async () => {
       const userId = id.createId();
       await expect(editCreator.edit({ userId, showTotalSquadMembers: true })).resolves.not.toThrow();
-      expect(mockCreatorsData.updateCreator).toHaveBeenCalledWith(expect.objectContaining({ userId }));
+      expect(mockCreatorsData.updateCreator.mock.calls[0][0]).toStrictEqual({
+        userId,
+        showTotalSquadMembers: expect.any(Boolean),
+      });
     });
 
     it('Should throw error if showTotalSquadMembers is invalid', async () => {
@@ -228,7 +240,10 @@ describe('Creator Use Cases', () => {
     it('Can change about', async () => {
       const { userId, about } = newCreator();
       await expect(editCreator.edit({ userId, about })).resolves.not.toThrow();
-      expect(mockCreatorsData.updateCreator).toHaveBeenCalledWith(expect.objectContaining({ userId }));
+      expect(mockCreatorsData.updateCreator.mock.calls[0][0]).toStrictEqual({
+        userId,
+        about: expect.any(String),
+      });
     });
 
     it('Should throw error if about is invalid', async () => {
@@ -236,6 +251,27 @@ describe('Creator Use Cases', () => {
       const about: any = 345542345;
       await expect(editCreator.edit({ userId, about })).rejects.toThrow(ValidationError);
       expect(mockCreatorsData.updateCreator).not.toHaveBeenCalled();
+    });
+
+    it('Should ignore undefined fields', async () => {
+      const { userId, pageName } = newCreator();
+      const creatorToUpdate = {
+        userId,
+        pageName: undefined,
+        bio: undefined,
+        isPlural: undefined,
+        showTotalSquadMembers: undefined,
+        about: undefined,
+      };
+
+      await expect(editCreator.edit(creatorToUpdate)).rejects.toThrow(ValidationError);
+      expect(mockCreatorsData.updateCreator).not.toHaveBeenCalled();
+
+      await expect(editCreator.edit({ ...creatorToUpdate, pageName })).resolves.not.toThrowError();
+      expect(mockCreatorsData.updateCreator.mock.calls[0][0]).toStrictEqual({
+        userId,
+        pageName: expect.any(String),
+      });
     });
   });
 

@@ -61,7 +61,7 @@ describe('User usecases', () => {
 
     describe('Full name validation', () => {
       describe('Full name must be string', () => {
-        [true, false, 345415334, { fullName: 'fvsdf' }].forEach((fullName: any) => {
+        [null, undefined, true, false, 345415334, { fullName: 'fvsdf' }].forEach((fullName: any) => {
           it(`should throw error for "${fullName}"`, async () => {
             await expect(addUser.add({
               ...sampleUserParams,
@@ -122,7 +122,7 @@ describe('User usecases', () => {
 
     describe('Email Id validation', () => {
       describe('Email must be a string', () => {
-        [false, true, 43759128341, { email: 'fsvsfvca@gmail.com' }].forEach((email: any) => {
+        [null, undefined, false, true, 43759128341, { email: 'fsvsfvca@gmail.com' }].forEach((email: any) => {
           it(`Should throw error for "${email}"`, async () => {
             await expect(addUser.add({
               ...sampleUserParams,
@@ -165,7 +165,7 @@ describe('User usecases', () => {
 
     describe('Password validation', () => {
       describe('Password must be a string', () => {
-        [false, true, 4391230491, { password: 'fvsdfvs' }].forEach((password: any) => {
+        [null, undefined, false, true, 4391230491, { password: 'fvsdfvs' }].forEach((password: any) => {
           it(`Should throw error for ${password}`, async () => {
             await expect(addUser.add({
               ...sampleUserParams,
@@ -265,14 +265,15 @@ describe('User usecases', () => {
       const user = sampleUsers[0];
       const newName = faker.name.findName();
       await editUser.edit({ userId: user.userId, fullName: newName });
-      expect(mockUsersData.updateUser).toHaveBeenCalledWith(expect.objectContaining({
+      expect(mockUsersData.updateUser).toHaveBeenCalledWith({
         userId: user.userId,
-      }));
+        fullName: expect.any(String),
+      });
     });
 
     describe('Full name validation', () => {
       describe('Full name must be string', () => {
-        [true, false, 345415334, { fullName: 'fvsdf' }].forEach((fullName: any) => {
+        [null, true, false, 345415334, { fullName: 'fvsdf' }].forEach((fullName: any) => {
           it(`should throw error for "${fullName}"`, async () => {
             await expect(editUser.edit({
               userId: sampleUsers[0].userId,
@@ -338,6 +339,14 @@ describe('User usecases', () => {
           });
         });
       });
+    });
+
+    it('Should ignore undefined keys', async () => {
+      const user = sampleUsers[0];
+      await expect(editUser.edit({
+        userId: user.userId,
+        fullName: undefined,
+      })).rejects.toThrow(ValidationError);
     });
   });
 

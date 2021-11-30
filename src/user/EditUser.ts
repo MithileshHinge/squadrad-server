@@ -1,3 +1,5 @@
+import ValidationError from '../common/errors/ValidationError';
+import { removeUndefinedKeys } from '../common/helpers';
 import { validateUserId } from '../userId';
 import { IUsersData } from './IUsersData';
 import { IUserValidator } from './validator/IUserValidator';
@@ -29,6 +31,10 @@ export default class EditUser {
       userId: userIdValidated,
       fullName: fullNameValidated,
     };
+
+    removeUndefinedKeys(userToUpdate);
+
+    if (Object.keys(userToUpdate).length <= 1) throw new ValidationError('Nothing to update');
     const userEdited = await this.usersData.updateUser(userToUpdate);
     return {
       userId: userEdited.userId,
