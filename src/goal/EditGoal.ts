@@ -1,3 +1,4 @@
+import ValidationError from '../common/errors/ValidationError';
 import { removeUndefinedKeys } from '../common/helpers';
 import { validateUserId } from '../userId';
 import IGoalsData from './IGoalsData';
@@ -24,15 +25,14 @@ export default class EditGoal {
     userId: string,
     goalId: string,
     title?: string,
-    description?: string | null,
+    description?: string,
     goalNumber?: number,
   }) {
     const userIdValidated = validateUserId.validate(userId);
     const goalIdValidated = this.goalValidator.validateGoalId(goalId);
     const titleValidated = title === undefined ? undefined : this.goalValidator.validateTitle(title);
+    const descriptionValidated = description === undefined ? undefined : this.goalValidator.validateDescription(description);
     const goalNumberValidated = goalNumber === undefined ? undefined : this.goalValidator.validateGoalNumber(goalNumber);
-    let descriptionValidated: string | null | undefined;
-    if (description !== undefined) descriptionValidated = description === null ? null : this.goalValidator.validateDescription(description);
 
     const goalToUpdate = {
       goalId: goalIdValidated,
@@ -43,6 +43,7 @@ export default class EditGoal {
     };
     removeUndefinedKeys(goalToUpdate);
 
+    if (Object.keys(goalToUpdate).length <= 2) throw new ValidationError('Nothing to update');
     const goalUpdated = await this.goalsData.updateGoal(goalToUpdate);
 
     return {

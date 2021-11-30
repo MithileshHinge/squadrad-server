@@ -117,14 +117,14 @@ describe('Goal use cases', () => {
         goalId: existingGoal.goalId,
         title: sampleGoalParams.title,
       })).resolves.not.toThrowError();
-      expect(mockGoalsData.updateGoal).toHaveBeenCalledWith({
-        userId: expect.any(String),
-        goalId: expect.any(String),
+      expect(mockGoalsData.updateGoal.mock.calls[0][0]).toStrictEqual({
+        userId: existingGoal.userId,
+        goalId: existingGoal.goalId,
         title: expect.any(String),
       });
     });
 
-    it('Should throw error if title in invalid', async () => {
+    it('Should throw error if title is invalid', async () => {
       await expect(editGoal.edit({
         userId: existingGoal.userId,
         goalId: existingGoal.goalId,
@@ -137,12 +137,12 @@ describe('Goal use cases', () => {
       await expect(editGoal.edit({
         userId: existingGoal.userId,
         goalId: existingGoal.goalId,
-        description: sampleGoalParams.description,
+        description: sampleGoalParams.description === undefined ? '' : sampleGoalParams.description,
       }));
-      expect(mockGoalsData.updateGoal).toHaveBeenCalledWith({
+      expect(mockGoalsData.updateGoal.mock.calls[0][0]).toStrictEqual({
         userId: expect.any(String),
         goalId: expect.any(String),
-        description: expect.toEqualAnyOf([null, expect.any(String)]),
+        description: expect.any(String),
       });
     });
 
@@ -161,7 +161,7 @@ describe('Goal use cases', () => {
         goalId: existingGoal.goalId,
         goalNumber: sampleGoalParams.goalNumber,
       })).resolves.not.toThrowError();
-      expect(mockGoalsData.updateGoal).toHaveBeenCalledWith({
+      expect(mockGoalsData.updateGoal.mock.calls[0][0]).toStrictEqual({
         userId: expect.any(String),
         goalId: expect.any(String),
         goalNumber: expect.any(Number),
@@ -175,6 +175,26 @@ describe('Goal use cases', () => {
         goalNumber: -100,
       })).rejects.toThrow(ValidationError);
       expect(mockGoalsData.updateGoal).not.toHaveBeenCalled();
+    });
+
+    it('Should ignore undefined properties', async () => {
+      const goalToUpdate = {
+        userId: existingGoal.userId,
+        goalId: existingGoal.goalId,
+        title: undefined,
+        description: undefined,
+        goalNumber: undefined,
+      };
+
+      await expect(editGoal.edit(goalToUpdate)).rejects.toThrow(ValidationError);
+      expect(mockGoalsData.updateGoal).not.toHaveBeenCalled();
+
+      await expect(editGoal.edit({ ...goalToUpdate, title: sampleGoalParams.title })).resolves.not.toThrowError();
+      expect(mockGoalsData.updateGoal.mock.calls[0][0]).toStrictEqual({
+        userId: existingGoal.userId,
+        goalId: existingGoal.goalId,
+        title: expect.any(String),
+      });
     });
   });
 });

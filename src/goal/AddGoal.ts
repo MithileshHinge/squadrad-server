@@ -24,12 +24,12 @@ export default class AddGoal {
   }: {
     userId: string,
     title: string,
-    description: string | null,
+    description?: string,
     goalNumber: number,
   }) {
     const userIdValidated = validateUserId.validate(userId);
     const titleValidated = this.goalValidator.validateTitle(title);
-    const descriptionValidated = !description ? null : this.goalValidator.validateDescription(description);
+    const descriptionValidated = description === undefined ? '' : this.goalValidator.validateDescription(description);
     const goalNumberValidated = this.goalValidator.validateGoalNumber(goalNumber);
 
     if (await this.goalsData.fetchGoalByGoalNumber({ userId: userIdValidated, goalNumber: goalNumberValidated })) {
