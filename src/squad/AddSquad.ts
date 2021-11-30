@@ -35,8 +35,8 @@ export default class AddSquad {
     const userIdValidated = validateUserId.validate(userId);
     const titleValidated = this.squadValidator.validateTitle(title);
     const amountValidated = this.squadValidator.validateAmount(amount);
-    const descriptionValidated = description === undefined ? undefined : this.squadValidator.validateDescription(description);
-    const membersLimitValidated = membersLimit === undefined ? undefined : this.squadValidator.validateLimit(membersLimit);
+    const descriptionValidated = description === undefined ? '' : this.squadValidator.validateDescription(description);
+    const membersLimitValidated = membersLimit === undefined ? 0 : this.squadValidator.validateLimit(membersLimit);
 
     const existingSquad = await this.squadsData.fetchSquadByAmount({ userId: userIdValidated, amount: amountValidated });
     if (existingSquad) throw new ValidationError('Another Squad with the same amount already exists');

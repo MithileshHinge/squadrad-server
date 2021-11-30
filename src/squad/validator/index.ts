@@ -32,7 +32,8 @@ const squadValidator: ISquadValidator = {
   },
   validateLimit(memberLimit: number): number {
     if (typeof memberLimit !== 'number') throw new ValidationError('Squad member limit must be a number');
-    if (memberLimit <= 0 || !Number.isSafeInteger(memberLimit)) throw new ValidationError(`Squad member limit ${memberLimit} must be a positive integer`);
+    // memberLimit = 0 is default value, means unset
+    if (memberLimit < 0 || !Number.isSafeInteger(memberLimit)) throw new ValidationError(`Squad member limit ${memberLimit} must be a positive integer`);
     return memberLimit;
   },
 };

@@ -13,7 +13,7 @@ export default function newCreator() {
     isPlural: faker.datatype.boolean(),
     profilePicSrc: 'default.jpg',
     showTotalSquadMembers: faker.datatype.boolean(),
-    about: faker.lorem.paragraph(),
+    about: [faker.lorem.paragraph(), ''][faker.datatype.number(1)],
   };
 }
 

@@ -138,7 +138,7 @@ describe('Squad Endpoints', () => {
     it('Creator cannot change squad amount', async () => {
       const { agent } = await getLoggedInCreator(app, userCollection);
       const { body: squad } = await agent.post('/squad').send({ ...squadParams, amount: 50 });
-      await agent.patch(`/squad/${squad.squadId}`).send({ amount: 120 }).expect(HTTPResponseCode.OK);
+      await agent.patch(`/squad/${squad.squadId}`).send({ amount: 120 }).expect(HTTPResponseCode.BAD_REQUEST);
       await expect(squadCollection.findOne({ _id: new ObjectId(squad.squadId) })).resolves.toStrictEqual(expect.objectContaining({
         amount: 50,
       }));

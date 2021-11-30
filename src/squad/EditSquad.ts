@@ -1,3 +1,5 @@
+import ValidationError from '../common/errors/ValidationError';
+import { removeUndefinedKeys } from '../common/helpers';
 import { validateUserId } from '../userId';
 import { ISquadsData } from './ISquadsData';
 import { ISquadValidator } from './validator/ISquadValidator';
@@ -43,6 +45,9 @@ export default class EditSquad {
       description: descriptionValidated,
       membersLimit: membersLimitValidated,
     };
+
+    removeUndefinedKeys(squadToUpdate);
+    if (Object.keys(squadToUpdate).length <= 2) throw new ValidationError('Nothing to update');
 
     const squadEdited = await this.squadsData.updateSquad(squadToUpdate);
 

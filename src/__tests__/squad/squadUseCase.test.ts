@@ -111,8 +111,8 @@ describe('Squad Use Cases', () => {
         expect(mockSquadsData.insertNewSquad).not.toHaveBeenCalled();
       });
 
-      describe('Squad member limit must be a positive integer', () => {
-        [-100, -0.5, 0, 0.5, 100.5, NaN, Infinity].forEach((membersLimit) => {
+      describe('Squad member limit must be a non negative integer', () => {
+        [-100, -0.5, 0.5, 100.5, NaN, Infinity].forEach((membersLimit) => {
           it(`Should throw error for ${membersLimit}`, async () => {
             await expect(addSquad.add({ userId: existingCreator.userId, ...sampleSquadParams, membersLimit })).rejects.toThrow(ValidationError);
             expect(mockSquadsData.insertNewSquad).not.toHaveBeenCalled();
@@ -151,7 +151,11 @@ describe('Squad Use Cases', () => {
         squadId: existingSquad.squadId,
         title: sampleSquadParams.title,
       })).resolves.not.toThrow();
-      expect(mockSquadsData.updateSquad).toHaveBeenCalled();
+      expect(mockSquadsData.updateSquad.mock.calls[0][0]).toStrictEqual({
+        userId: existingSquad.userId,
+        squadId: existingSquad.squadId,
+        title: expect.any(String),
+      });
     });
 
     it('Should throw error if title is invalid', async () => {
@@ -167,9 +171,13 @@ describe('Squad Use Cases', () => {
       await expect(editSquad.edit({
         userId: existingSquad.userId,
         squadId: existingSquad.squadId,
-        description: sampleSquadParams.description,
-      }));
-      expect(mockSquadsData.updateSquad).toHaveBeenCalled();
+        description: sampleSquadParams.description === undefined ? '' : sampleSquadParams.description,
+      })).resolves.not.toThrowError();
+      expect(mockSquadsData.updateSquad.mock.calls[0][0]).toStrictEqual({
+        userId: existingSquad.userId,
+        squadId: existingSquad.squadId,
+        description: expect.any(String),
+      });
     });
 
     it('Should throw error if description is invalid', async () => {
@@ -185,9 +193,13 @@ describe('Squad Use Cases', () => {
       await expect(editSquad.edit({
         userId: existingSquad.userId,
         squadId: existingSquad.squadId,
-        membersLimit: sampleSquadParams.membersLimit,
+        membersLimit: sampleSquadParams.membersLimit === undefined ? 0 : sampleSquadParams.membersLimit,
       })).resolves.not.toThrowError();
-      expect(mockSquadsData.updateSquad).toHaveBeenCalled();
+      expect(mockSquadsData.updateSquad.mock.calls[0][0]).toStrictEqual({
+        userId: existingSquad.userId,
+        squadId: existingSquad.squadId,
+        membersLimit: expect.any(Number),
+      });
     });
 
     it('Should throw error if membersLimit is invalid', async () => {
@@ -205,8 +217,27 @@ describe('Squad Use Cases', () => {
         squadId: existingSquad.squadId,
         amount: 500,
       };
-      await expect(editSquad.edit(params)).resolves.not.toThrow();
-      expect(mockSquadsData.updateSquad).not.toHaveBeenCalledWith(expect.objectContaining({ amount: expect.anything() }));
+      await expect(editSquad.edit(params)).rejects.toThrow(ValidationError);
+      expect(mockSquadsData.updateSquad).not.toHaveBeenCalled();
+    });
+
+    it('Should ignore undefined fields', async () => {
+      const squadToUpdate = {
+        userId: existingSquad.userId,
+        squadId: existingSquad.squadId,
+        title: undefined,
+        description: undefined,
+        membersLimit: undefined,
+      };
+      await expect(editSquad.edit(squadToUpdate)).rejects.toThrow(ValidationError);
+      expect(mockSquadsData.updateSquad).not.toHaveBeenCalled();
+
+      await expect(editSquad.edit({ ...squadToUpdate, title: sampleSquadParams.title })).resolves.not.toThrowError();
+      expect(mockSquadsData.updateSquad.mock.calls[0][0]).toStrictEqual({
+        userId: existingSquad.userId,
+        squadId: existingSquad.squadId,
+        title: expect.any(String),
+      });
     });
   });
 });
