@@ -39,7 +39,7 @@ describe('Squad Endpoints', () => {
       const { agent, userId } = await getLoggedInCreator(app, userCollection);
       const res = await agent.post('/squad').send({ ...squadParams }).expect(HTTPResponseCode.OK);
       expect(res.body).toStrictEqual(expect.objectContaining({ squadId: expect.any(String) }));
-      await expect(squadCollection.findOne({ _id: new ObjectId(res.body.squadId), userId }));
+      await expect(squadCollection.findOne({ _id: new ObjectId(res.body.squadId), userId })).resolves.toBeTruthy();
     });
 
     it('Respond with error code 403 (Forbidden) if user is not a creator', async () => {
