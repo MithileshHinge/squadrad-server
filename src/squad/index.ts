@@ -6,4 +6,4 @@ import squadValidator from './validator';
 
 export const addSquad = new AddSquad(squadsData, squadValidator);
 export const editSquad = new EditSquad(squadsData, squadValidator);
-export const findSquad = new FindSquad(squadsData);
+export const findSquad = new FindSquad(squadsData, squadValidator);

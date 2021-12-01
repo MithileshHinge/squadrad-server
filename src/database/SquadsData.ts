@@ -11,15 +11,15 @@ export default class SquadsData extends BaseData implements ISquadsData {
     userId: string,
     title: string,
     amount: number,
-    description?: string,
-    membersLimit?: number,
+    description: string,
+    membersLimit: number,
   }): Promise<{
       squadId: string,
       userId: string,
       title: string,
       amount: number,
-      description?: string,
-      membersLimit?: number,
+      description: string,
+      membersLimit: number,
     }> {
     const db = await this.getDb();
     try {
@@ -44,6 +44,31 @@ export default class SquadsData extends BaseData implements ISquadsData {
     }
   }
 
+  async fetchSquadBySquadId(squadId: string): Promise<{
+    userId: string,
+    squadId: string,
+    title: string,
+    amount: number,
+    description: string,
+    membersLimit: number,
+  } | null> {
+    const db = await this.getDb();
+    try {
+      const result = await db.collection('squads').findOne({ _id: new ObjectId(squadId) });
+      if (!result) return null;
+      return {
+        squadId: result._id.toString(),
+        userId: result.userId,
+        title: result.title,
+        amount: result.amount,
+        description: result.description,
+        membersLimit: result.description,
+      };
+    } catch (err: any) {
+      return this.handleDatabaseError(err, 'Could not fetch squad by Id');
+    }
+  }
+
   async fetchSquadByAmount({ userId, amount }: {
     userId: string,
     amount: number,
@@ -52,8 +77,8 @@ export default class SquadsData extends BaseData implements ISquadsData {
       squadId: string,
       title: string,
       amount: number,
-      description?: string,
-      membersLimit?: number,
+      description: string,
+      membersLimit: number,
     } | null> {
     const db = await this.getDb();
     try {
@@ -64,8 +89,8 @@ export default class SquadsData extends BaseData implements ISquadsData {
         userId: result.userId,
         title: result.title,
         amount: result.amount,
-        description: result.description === null ? undefined : result.description,
-        membersLimit: result.membersLimit === null ? undefined : result.description,
+        description: result.description,
+        membersLimit: result.description,
       };
     } catch (err: any) {
       return this.handleDatabaseError(err, 'Could not fetch squad');
@@ -77,8 +102,8 @@ export default class SquadsData extends BaseData implements ISquadsData {
     squadId: string,
     title: string,
     amount: number,
-    description?: string | undefined,
-    membersLimit?: number | undefined,
+    description: string,
+    membersLimit: number,
   }[]> {
     const db = await this.getDb();
     try {
@@ -89,8 +114,8 @@ export default class SquadsData extends BaseData implements ISquadsData {
         userId: squad.userId,
         title: squad.title,
         amount: squad.amount,
-        description: squad.description === null ? undefined : squad.description,
-        membersLimit: squad.membersLimit === null ? undefined : squad.membersLimit,
+        description: squad.description,
+        membersLimit: squad.membersLimit,
       }));
     } catch (err: any) {
       return this.handleDatabaseError(err, 'Could not fetch squads');

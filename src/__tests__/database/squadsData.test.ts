@@ -29,6 +29,22 @@ describe('Squads data access gateway', () => {
     });
   });
 
+  describe('fetchSquadBySquadId', () => {
+    it('Can fetch squad by squadId', async () => {
+      const { squadId, ...squadInfo } = newSquad();
+      await squadsCollection.insertOne({
+        _id: new ObjectId(squadId),
+        ...squadInfo,
+      });
+      await expect(squadsData.fetchSquadBySquadId(squadId)).resolves.toStrictEqual(expect.objectContaining({ squadId }));
+    });
+
+    it('Return null if squad not found', async () => {
+      const { squadId } = newSquad();
+      await expect(squadsData.fetchSquadBySquadId(squadId)).resolves.toBeNull();
+    });
+  });
+
   describe('fetchSquadByAmount', () => {
     it('Can fetch squad by amount', async () => {
       const { squadId, ...squadInfo } = newSquad();

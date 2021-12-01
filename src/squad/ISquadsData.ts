@@ -15,16 +15,30 @@ export interface ISquadsData {
     userId: string,
     title: string,
     amount: number,
-    description?: string,
-    membersLimit?: number,
+    description: string,
+    membersLimit: number,
   }): Promise<{
     squadId: string,
     userId: string,
     title: string,
     amount: number,
-    description?: string,
-    membersLimit?: number,
+    description: string,
+    membersLimit: number,
   }>;
+
+  /**
+   * Fetch squad info by squadId
+   * @returns Squad info if squad exists, otherwise returns null
+   * @throws DatabaseError if operation fails
+   */
+  fetchSquadBySquadId(squadId: string): Promise<{
+    userId: string,
+    squadId: string,
+    title: string,
+    amount: number,
+    description: string,
+    membersLimit: number,
+  } | null>;
 
   /**
    * Fetch squad info by userId and amount
@@ -42,8 +56,8 @@ export interface ISquadsData {
     squadId: string,
     title: string,
     amount: number,
-    description?: string,
-    membersLimit?: number,
+    description: string,
+    membersLimit: number,
   } | null>;
 
   /**
@@ -56,8 +70,8 @@ export interface ISquadsData {
     squadId: string,
     title: string,
     amount: number,
-    description?: string,
-    membersLimit?: number,
+    description: string,
+    membersLimit: number,
   }[]>
 
   /**

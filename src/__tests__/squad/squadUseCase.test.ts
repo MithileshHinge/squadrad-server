@@ -1,4 +1,5 @@
 import ValidationError from '../../common/errors/ValidationError';
+import id from '../../common/id';
 import AddSquad from '../../squad/AddSquad';
 import EditSquad from '../../squad/EditSquad';
 import FindSquad from '../../squad/FindSquad';
@@ -123,7 +124,7 @@ describe('Squad Use Cases', () => {
   });
 
   describe('FindSquad use case', () => {
-    const findSquad = new FindSquad(mockSquadsData);
+    const findSquad = new FindSquad(mockSquadsData, squadValidator);
 
     describe('Find all squads by userId', () => {
       it('Can find all squads by userId', async () => {
@@ -137,6 +138,28 @@ describe('Squad Use Cases', () => {
         const userId:any = 48343940;
         await expect(findSquad.findAllSquadsByUserId(userId)).rejects.toThrow(ValidationError);
         expect(mockSquadsData.fetchAllSquadsByUserId).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('Find squad by squadId', () => {
+      it('Can find squad by squadId', async () => {
+        const squad = newSquad();
+        mockSquadsData.fetchSquadBySquadId.mockResolvedValueOnce(squad);
+        await expect(findSquad.findSquadById(squad.squadId)).resolves.not.toThrowError();
+        expect(mockSquadsData.fetchSquadBySquadId).toHaveBeenCalled();
+      });
+
+      it('Should return null if no squad exists', async () => {
+        const squadId = id.createId();
+        mockSquadsData.fetchSquadBySquadId.mockResolvedValueOnce(null);
+        await expect(findSquad.findSquadById(squadId)).resolves.toStrictEqual(null);
+        expect(mockSquadsData.fetchSquadBySquadId).toHaveBeenCalled();
+      });
+
+      it('Should throw error if squadId is invalid', async () => {
+        const squadId: any = 123456;
+        await expect(findSquad.findSquadById(squadId)).rejects.toThrow(ValidationError);
+        expect(mockSquadsData.fetchSquadBySquadId).not.toHaveBeenCalled();
       });
     });
   });
