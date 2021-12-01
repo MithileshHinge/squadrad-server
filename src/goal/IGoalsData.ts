@@ -13,7 +13,7 @@ export default interface IGoalsData {
     goalId: string,
     userId: string,
     title: string,
-    description?: string,
+    description: string,
     goalNumber: number,
   }): Promise<{
     goalId: string,
@@ -40,7 +40,7 @@ export default interface IGoalsData {
     title: string,
     description: string,
     goalNumber: number,
-  }>;
+  } | null>;
 
   /**
    * Fetch all goals by userId
