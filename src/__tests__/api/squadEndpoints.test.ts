@@ -101,7 +101,7 @@ describe('Squad Endpoints', () => {
     });
   });
 
-  describe('PATCH /squad', () => {
+  describe('PATCH /squad/:squadId', () => {
     const editSquadParams = {
       title: faker.lorem.words(3),
       description: faker.lorem.paragraph(5).substr(0, 2000),
