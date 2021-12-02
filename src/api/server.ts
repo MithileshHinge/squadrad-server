@@ -6,6 +6,7 @@ import { COOKIE_SECRET } from '../common/secretKeys';
 import handleExpressRequest from './handleExpressRequest';
 import routes from './routes';
 import initializePassport from './services/passport.service';
+import razorpayService from './services/razorpay.service';
 import getStore from './services/store.service';
 
 const app = express();
@@ -31,9 +32,11 @@ app.use(helmet());
 
 initializePassport(app);
 
+razorpayService.createInstance();
+
 routes.forEach((route) => {
   const { path, ...controllers } = route;
-  Object.entries(controllers).forEach(([method, middlewares]: [string, Array<any>]) => {
+  Object.entries<any>(controllers).forEach(([method, middlewares]: [string, Array<any>]) => {
     if (hasKey(app, method)) {
       const [controller] = middlewares.splice(middlewares.length - 1, 1);
       app[method](path, middlewares, async (req: Request, res: Response) => {
