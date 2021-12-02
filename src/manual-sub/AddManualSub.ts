@@ -47,6 +47,7 @@ export default class AddManualSub {
     });
 
     return {
+      manualSubId,
       userId: userIdValidated,
       creatorUserId: creatorUserIdValidated,
       squadId: squad.squadId,
