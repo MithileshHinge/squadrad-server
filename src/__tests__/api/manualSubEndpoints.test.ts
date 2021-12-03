@@ -1,6 +1,7 @@
 import { Collection, Document } from 'mongodb';
 import { HTTPResponseCode } from '../../api/HttpResponse';
 import app from '../../api/server';
+import id from '../../common/id';
 import { closeMockStoreConnection } from '../__mocks__/api/mockStore';
 import { getLoggedInCreator } from '../__mocks__/creator/creators';
 import mockDb, { closeConnection } from '../__mocks__/database/mockDb';
@@ -34,11 +35,28 @@ describe('Manual Sub Endpoints', () => {
 
   describe('POST /manualSub', () => {
     it('User can subscribe to a squad', async () => {
-      const { agent: agentUser } = await getLoggedInUser(app, usersCollection);
+      const { agent: agentUser, userId: userUserId } = await getLoggedInUser(app, usersCollection);
       const { agent: agentCreator, userId: creatorUserId } = await getLoggedInCreator(app, usersCollection);
       const { body: squad } = await agentCreator.post('/squad').send(squadParams).expect(HTTPResponseCode.OK);
       const res = await agentUser.post('/manualSub').send({ creatorUserId, squadId: squad.squadId }).expect(HTTPResponseCode.OK);
       expect(res.body).toStrictEqual(expect.objectContaining({ rzpOrder: expect.anything() }));
+      expect(manualSubsCollection.findOne({ userId: userUserId, creatorUserId, squadId: squad.squadId })).resolves.toBeTruthy();
+    });
+
+    it('Respond with error code 400 (Bad Request) if squad is not of creator', async () => {
+      const { agent: agentCreator } = await getLoggedInCreator(app, usersCollection);
+      const { body: squad } = await agentCreator.post('/squad').send(squadParams).expect(HTTPResponseCode.OK);
+
+      const { agent: agentUser } = await getLoggedInUser(app, usersCollection);
+      const creatorUserId = id.createId();
+      await agentUser.post('/manualSub').send({ creatorUserId, squadId: squad.squadId }).expect(HTTPResponseCode.BAD_REQUEST);
+    });
+
+    it('Respond with error code 400 (Bad Request) if squad is not found', async () => {
+      const squadId = id.createId();
+      const creatorUserId = id.createId();
+      const { agent: agentUser } = await getLoggedInUser(app, usersCollection);
+      await agentUser.post('/manualSub').send({ creatorUserId, squadId }).expect(HTTPResponseCode.BAD_REQUEST);
     });
   });
 });

@@ -15,7 +15,7 @@ const postManualSub: IBaseController = async (httpRequest) => {
       squadId,
     });
 
-    const rzpOrder = razorpayService.createOrder({
+    const rzpOrder = await razorpayService.createOrder({
       amount: manualSub.amount * 100, // In paise
       currency: 'INR',
       notes: {
