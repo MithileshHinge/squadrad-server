@@ -23,19 +23,17 @@ describe('Manual Sub use cases', () => {
 
     it('User can create new manual sub', async () => {
       const userId = id.createId();
-      const creatorUserId = id.createId();
-      const squad = { ...newSquad(), userId: creatorUserId };
+      const squad = { ...newSquad() };
       mockSquadsData.fetchSquadBySquadId.mockResolvedValueOnce(squad);
-      await expect(addManualSub.add({ userId, creatorUserId, squadId: squad.squadId })).resolves.not.toThrowError();
+      await expect(addManualSub.add({ userId, squadId: squad.squadId })).resolves.not.toThrowError();
       expect(mockManualSubsData.insertNewManualSub).toHaveBeenCalled();
     });
 
-    it('Should throw error if squad is not of the creator', async () => {
+    it('Should throw error if squad does not exist', async () => {
       const userId = id.createId();
-      const creatorUserId = id.createId();
-      const squad = newSquad();
-      mockSquadsData.fetchSquadBySquadId.mockResolvedValueOnce(squad);
-      await expect(addManualSub.add({ userId, creatorUserId, squadId: squad.squadId })).rejects.toThrow(ValidationError);
+      const squadId = id.createId();
+      mockSquadsData.fetchSquadBySquadId.mockResolvedValueOnce(null);
+      await expect(addManualSub.add({ userId, squadId })).rejects.toThrow(ValidationError);
       expect(mockManualSubsData.insertNewManualSub).not.toHaveBeenCalled();
     });
   });

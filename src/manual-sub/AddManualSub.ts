@@ -21,25 +21,22 @@ export default class AddManualSub {
    * @throws DatabaseError if operation fails
    */
   async add({
-    userId, creatorUserId, squadId,
+    userId, squadId,
   }: {
     userId: string,
-    creatorUserId: string,
     squadId: string,
   }) {
     const userIdValidated = validateUserId.validate(userId);
-    const creatorUserIdValidated = validateUserId.validate(creatorUserId);
-
     const squad = await this.findSquad.findSquadById(squadId);
 
-    if (!squad || squad.userId !== creatorUserId) throw new ValidationError('Squad does not exist');
+    if (!squad) throw new ValidationError('Squad does not exist');
 
     const manualSubId = id.createId();
 
     this.manualSubsData.insertNewManualSub({
       manualSubId,
       userId: userIdValidated,
-      creatorUserId: creatorUserIdValidated,
+      creatorUserId: squad.userId,
       squadId: squad.squadId,
       amount: squad.amount,
       contactNumber: '',
@@ -49,7 +46,6 @@ export default class AddManualSub {
     return {
       manualSubId,
       userId: userIdValidated,
-      creatorUserId: creatorUserIdValidated,
       squadId: squad.squadId,
       amount: squad.amount,
     };
