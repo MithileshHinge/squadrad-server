@@ -1,4 +1,5 @@
 import { Collection, Document, ObjectId } from 'mongodb';
+import id from '../../common/id';
 import handleDatabaseError from '../../database/DatabaseErrorHandler';
 import ManualSubsData from '../../database/ManualSubsData';
 import mockDb, { closeConnection } from '../__mocks__/database/mockDb';
@@ -25,6 +26,23 @@ describe('ManualSubs data access gateway', () => {
       const manualSub = newManualSub();
       await expect(manualSubsData.insertNewManualSub(manualSub)).resolves.not.toThrowError();
       await expect(manualSubsCollection.findOne({ _id: new ObjectId(manualSub.manualSubId) })).resolves.toBeTruthy();
+    });
+  });
+
+  describe('fetchManualSubById', () => {
+    it('Can fetch manualSub by Id', async () => {
+      const { manualSubId, ...manualSubInfo } = newManualSub();
+      await manualSubsCollection.insertOne({
+        _id: new ObjectId(manualSubId),
+        ...manualSubInfo,
+      });
+
+      await expect(manualSubsData.fetchManualSubById(manualSubId)).resolves.toStrictEqual({ manualSubId, ...manualSubInfo });
+    });
+
+    it('Return null if manualSub not found', async () => {
+      const manualSubId = id.createId();
+      await expect(manualSubsData.fetchManualSubById(manualSubId)).resolves.toStrictEqual(null);
     });
   });
 });

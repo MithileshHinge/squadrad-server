@@ -22,4 +22,19 @@ export interface IManualSubsData {
     contactNumber: string,
     subscriptionStatus: number,
   }>;
+
+  /**
+   * Fetch manualSub by manualSubId
+   * @returns manualSub if found, otherwise returns null
+   * @throws DatabaseError if operation fails
+   */
+  fetchManualSubById(manualSubId: string): Promise<{
+    manualSubId: string,
+    userId: string,
+    creatorUserId: string,
+    squadId: string,
+    amount: number,
+    contactNumber: string,
+    subscriptionStatus: number,
+  } | null>;
 }
