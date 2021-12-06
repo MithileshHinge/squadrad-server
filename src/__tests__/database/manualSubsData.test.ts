@@ -45,4 +45,22 @@ describe('ManualSubs data access gateway', () => {
       await expect(manualSubsData.fetchManualSubById(manualSubId)).resolves.toStrictEqual(null);
     });
   });
+
+  describe('fetchManualSubByUserIds', () => {
+    it('Can fetch manualSub by userIds', async () => {
+      const { manualSubId, ...manualSubInfo } = newManualSub();
+      await manualSubsCollection.insertOne({
+        _id: new ObjectId(manualSubId),
+        ...manualSubInfo,
+      });
+
+      await expect(manualSubsData.fetchManualSubByUserIds(manualSubInfo.userId, manualSubInfo.creatorUserId)).resolves.toStrictEqual({ manualSubId, ...manualSubInfo });
+    });
+
+    it('Return null if manualSub not found', async () => {
+      const userId = id.createId();
+      const creatorUserId = id.createId();
+      await expect(manualSubsData.fetchManualSubByUserIds(userId, creatorUserId)).resolves.toStrictEqual(null);
+    });
+  });
 });

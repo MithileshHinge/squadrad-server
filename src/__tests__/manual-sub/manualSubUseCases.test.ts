@@ -82,5 +82,14 @@ describe('Manual Sub use cases', () => {
       await expect(findManualSub.findManualSubById(manualSubId)).rejects.toThrow(ValidationError);
       expect(mockManualSubsData.fetchManualSubById).not.toHaveBeenCalled();
     });
+
+    it('Can find manualSub by userId and creatorUserId', async () => {
+      const userId = id.createId();
+      const creatorUserId = id.createId();
+      const manualSub = newManualSub();
+      mockManualSubsData.fetchManualSubByUserIds.mockResolvedValueOnce(manualSub);
+      await expect(findManualSub.findManualSubByUserIds(userId, creatorUserId)).resolves.toStrictEqual(expect.objectContaining({ manualSubId: manualSub.manualSubId }));
+      expect(mockManualSubsData.fetchManualSubByUserIds).toHaveBeenCalled();
+    });
   });
 });
