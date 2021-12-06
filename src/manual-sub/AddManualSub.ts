@@ -1,53 +1,62 @@
-import ValidationError from '../common/errors/ValidationError';
 import id from '../common/id';
-import FindSquad from '../squad/FindSquad';
+import { ISquadValidator } from '../squad/validator/ISquadValidator';
 import { validateUserId } from '../userId';
 import { IManualSubsData } from './IManualSubsData';
 import ManualSubStatuses from './ManualSubStatuses';
+import { IManualSubValidator } from './validator/IManualSubValidator';
 
 export default class AddManualSub {
   private manualSubsData: IManualSubsData;
 
-  private findSquad: FindSquad;
+  private manualSubValidator: IManualSubValidator;
 
-  constructor(manualSubsData: IManualSubsData, findSquad: FindSquad) {
+  private squadValidator: ISquadValidator;
+
+  constructor(manualSubsData: IManualSubsData, manualSubValidator: IManualSubValidator, squadValidator: ISquadValidator) {
     this.manualSubsData = manualSubsData;
-    this.findSquad = findSquad;
+    this.manualSubValidator = manualSubValidator;
+    this.squadValidator = squadValidator;
   }
 
   /**
-   * Creates a new manual subscription between a user and a creator
-   * @throws ValidationError if squad does not exist or params are invalid
+   * Adds a new manual subscription record, does NOT check if squad/creator exists
+   * @throws ValidationError if params are invalid
    * @throws DatabaseError if operation fails
    */
   async add({
-    userId, squadId,
+    userId, creatorUserId, squadId, amount, contactNumber = '', subscriptionStatus = ManualSubStatuses.CREATED,
   }: {
     userId: string,
+    creatorUserId: string,
     squadId: string,
+    amount: number,
+    contactNumber: string,
+    subscriptionStatus: number,
   }) {
     const userIdValidated = validateUserId.validate(userId);
-    const squad = await this.findSquad.findSquadById(squadId);
-
-    if (!squad) throw new ValidationError('Squad does not exist');
+    const creatorUserIdValidated = validateUserId.validate(creatorUserId);
+    const squadIdValidated = this.squadValidator.validateSquadId(squadId);
+    const amountValidated = this.squadValidator.validateAmount(amount);
+    const contactNumberValidated = this.manualSubValidator.validateContactNumber(contactNumber);
+    const subscriptionStatusValidated = this.manualSubValidator.validateSubscriptionStatus(subscriptionStatus);
 
     const manualSubId = id.createId();
 
     this.manualSubsData.insertNewManualSub({
       manualSubId,
       userId: userIdValidated,
-      creatorUserId: squad.userId,
-      squadId: squad.squadId,
-      amount: squad.amount,
-      contactNumber: '',
-      subscriptionStatus: ManualSubStatuses.CREATED,
+      creatorUserId: creatorUserIdValidated,
+      squadId: squadIdValidated,
+      amount: amountValidated,
+      contactNumber: contactNumberValidated,
+      subscriptionStatus: subscriptionStatusValidated,
     });
 
     return {
       manualSubId,
       userId: userIdValidated,
-      squadId: squad.squadId,
-      amount: squad.amount,
+      squadId: squadIdValidated,
+      amount: amountValidated,
     };
   }
 }
