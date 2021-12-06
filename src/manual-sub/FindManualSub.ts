@@ -1,3 +1,4 @@
+import { validateUserId } from '../userId';
 import { IManualSubsData } from './IManualSubsData';
 import { IManualSubValidator } from './validator/IManualSubValidator';
 
@@ -21,6 +22,27 @@ export default class FindManualSub {
     const manualSubIdValidated = this.manualSubValidator.validateManualSubId(manualSubId);
 
     const manualSub = await this.manualSubsData.fetchManualSubById(manualSubIdValidated);
+    if (!manualSub) return null;
+
+    return {
+      manualSubId: manualSub.manualSubId,
+      userId: manualSub.userId,
+      creatorUserId: manualSub.creatorUserId,
+      squadId: manualSub.squadId,
+      amount: manualSub.amount,
+      subscriptionStatus: manualSub.subscriptionStatus,
+    };
+  }
+
+  /**
+   * Find manualSub by userId and creatorUserId
+   * @returns manualSub info if found, otherwise returns null,
+   */
+  async findManualSubByUserIds(userId: string, creatorUserId: string) {
+    const userIdValidated = validateUserId.validate(userId);
+    const creatorUserIdValidated = validateUserId.validate(creatorUserId);
+
+    const manualSub = await this.manualSubsData.fetchManualSubByUserIds(userIdValidated, creatorUserIdValidated);
     if (!manualSub) return null;
 
     return {
