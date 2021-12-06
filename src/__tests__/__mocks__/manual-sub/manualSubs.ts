@@ -1,5 +1,4 @@
 import id from '../../../common/id';
-import ManualSubStatuses from '../../../manual-sub/ManualSubStatuses';
 import faker from '../faker';
 
 export default function newManualSub() {
@@ -9,7 +8,7 @@ export default function newManualSub() {
     creatorUserId: id.createId(),
     squadId: id.createId(),
     amount: faker.datatype.number(1000),
-    contactNumber: faker.phone.phoneNumber('+91##########'),
-    subscriptionStatus: faker.datatype.number(Object.values(ManualSubStatuses).length - 1),
+    contactNumber: ['+917507504857', '8328438934', '9923292390'][faker.datatype.number(2)],
+    subscriptionStatus: faker.datatype.number(2),
   };
 }

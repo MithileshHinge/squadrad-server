@@ -16,4 +16,8 @@ export default {
   isEmail(str: string): boolean {
     return validator.isEmail(str);
   },
+
+  isMobilePhone(str: string, checkCountryCode: boolean): boolean {
+    return validator.isMobilePhone(str, 'en-IN', { strictMode: checkCountryCode });
+  },
 };
