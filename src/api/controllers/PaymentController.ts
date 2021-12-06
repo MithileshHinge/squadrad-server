@@ -61,7 +61,6 @@ const postPaymentSuccess: IBaseController = async (httpRequest) => {
       body: manualSub,
     };
   } catch (err: any) {
-    console.log(err);
     return handleControllerError(err);
   }
 };

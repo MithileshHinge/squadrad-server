@@ -20,6 +20,10 @@ describe('Payment Endpoints', () => {
     creatorsCollection = await (await mockDb()).createCollection('creators');
     squadsCollection = await (await mockDb()).createCollection('squads');
     manualSubsCollection = await (await mockDb()).createCollection('manualSubs');
+
+    Object.values(mockRazorpayService).forEach((mockMethod) => {
+      mockMethod.mockClear();
+    });
   });
 
   afterEach(async () => {
@@ -56,10 +60,19 @@ describe('Payment Endpoints', () => {
       const { agent: agentUser, userId } = await getLoggedInUser(app, usersCollection);
       const { agent: agentCreator, userId: creatorUserId } = await getLoggedInCreator(app, usersCollection);
       const { body: squad } = await agentCreator.post('/squad').send(squadParams).expect(HTTPResponseCode.OK);
-      mockRazorpayService.getOrderById.mockResolvedValueOnce({ rzpOrderId: 'fnvdjnadcadc', amount: squad.amount, notes: { userId, creatorUserId, squadId: squad.squadId } });
+      mockRazorpayService.getOrderById.mockResolvedValueOnce({ rzpOrderId: 'fnvdjnadcadc', amount: squad.amount * 100, notes: { userId, creatorUserId, squadId: squad.squadId } });
       mockRazorpayService.getPaymentById.mockResolvedValueOnce({ contact: '+918908766547' });
       const { body: manualSub } = await agentUser.post('/payment/success').send({ rzpTransactionId: 'nsjdfnsdjcasasd', rzpOrderId: 'fnvdjnadcadc', rzpSignature: 'asdfasdnfiadifan' }).expect(HTTPResponseCode.OK);
-      expect(manualSub).toStrictEqual(expect.objectContaining({ manualSubId: expect.any(String) }));
+      expect(manualSub).toStrictEqual(expect.objectContaining({ manualSubId: expect.any(String), amount: squad.amount }));
+    });
+
+    it('Respond with error code 400 (Bad Request) if signature could not be verified', async () => {
+      const { agent: agentUser, userId } = await getLoggedInUser(app, usersCollection);
+      mockRazorpayService.verifySignature.mockReturnValueOnce(false);
+      await agentUser.post('/payment/success').send({ rzpTransactionId: 'nsjdfnsdjcasasd', rzpOrderId: 'fnvdjnadcadc', rzpSignature: 'asdfasdnfiadifan' }).expect(HTTPResponseCode.BAD_REQUEST);
+      expect(mockRazorpayService.getOrderById).not.toHaveBeenCalled();
+      expect(mockRazorpayService.getPaymentById).not.toHaveBeenCalled();
+      await expect(manualSubsCollection.findOne({ userId })).resolves.toBeFalsy();
     });
   });
 });
