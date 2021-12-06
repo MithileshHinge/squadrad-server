@@ -1,12 +1,12 @@
-const createInstance = () => {};
+const createInstance = jest.fn(() => {});
 
-const createOrder = () => ({ order_id: 'blahblah' });
+const createOrder = jest.fn(() => ({ order_id: 'blahblah' }));
 
-const getOrderById = (orderId: string) => ({ order_id: orderId });
+const getOrderById = jest.fn();
 
-const getPaymentById = (transactionId: string) => ({ transactionId });
+const getPaymentById = jest.fn();
 
-const verifySignature = () => true;
+const verifySignature = jest.fn(() => true);
 
 export default {
   createInstance,
