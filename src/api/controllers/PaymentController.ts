@@ -1,5 +1,5 @@
 import ValidationError from '../../common/errors/ValidationError';
-import { addManualSub } from '../../manual-sub';
+import { addManualSub, findManualSub } from '../../manual-sub';
 import ManualSubStatuses from '../../manual-sub/ManualSubStatuses';
 import { findSquad } from '../../squad';
 import { HTTPResponseCode } from '../HttpResponse';
@@ -13,6 +13,10 @@ const getRzpOrder: IBaseController = async (httpRequest) => {
     const squad = await findSquad.findSquadById(httpRequest.params.squadId);
 
     if (!squad) throw new ValidationError('Squad not found');
+    if (squad.userId === userId) throw new ValidationError('Cannot join your own squad');
+
+    const manualSub = await findManualSub.findManualSubByUserIds(userId, squad.userId);
+    if (manualSub && manualSub.squadId === squad.squadId) throw new ValidationError('User has already subscribed to this squad');
 
     const { amount, userId: creatorUserId, squadId } = squad;
     const rzpOrder = await razorpayService.createOrder({
