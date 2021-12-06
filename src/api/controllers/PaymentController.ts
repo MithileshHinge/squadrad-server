@@ -1,5 +1,6 @@
 import ValidationError from '../../common/errors/ValidationError';
 import { addManualSub } from '../../manual-sub';
+import ManualSubStatuses from '../../manual-sub/ManualSubStatuses';
 import { findSquad } from '../../squad';
 import { HTTPResponseCode } from '../HttpResponse';
 import razorpayService from '../services/razorpay.service';
@@ -43,8 +44,17 @@ const postPaymentSuccess: IBaseController = async (httpRequest) => {
     if (!razorpayService.verifySignature(rzpOrderId, rzpTransactionId, rzpSignature)) throw new ValidationError('Could not verify payment signature');
     const rzpOrder = await razorpayService.getOrderById(rzpOrderId);
     if (!rzpOrder) throw new ValidationError(`Could not find order. Invalid orderId ${rzpOrderId}`);
+    const rzpPayment = await razorpayService.getPaymentById(rzpTransactionId);
+    if (!rzpPayment) throw new ValidationError(`Could not fetch payment. Invalid transactionId ${rzpTransactionId}`);
 
-    const manualSub = await addManualSub.add({ userId, squadId: rzpOrder.notes.squadId });
+    const manualSub = await addManualSub.add({
+      userId,
+      creatorUserId: rzpOrder.notes.creatorUserId,
+      squadId: rzpOrder.notes.squadId,
+      amount: Number.parseInt(rzpOrder.amount, 10) / 100, // In rupees
+      contactNumber: rzpPayment.contact,
+      subscriptionStatus: ManualSubStatuses.ACTIVE,
+    });
 
     return {
       statusCode: HTTPResponseCode.OK,

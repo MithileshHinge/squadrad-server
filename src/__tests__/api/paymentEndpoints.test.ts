@@ -53,10 +53,11 @@ describe('Payment Endpoints', () => {
 
   describe('POST /payment/success', () => {
     it('Can create new manualSub upon successful payment', async () => {
-      const { agent: agentUser } = await getLoggedInUser(app, usersCollection);
-      const { agent: agentCreator } = await getLoggedInCreator(app, usersCollection);
+      const { agent: agentUser, userId } = await getLoggedInUser(app, usersCollection);
+      const { agent: agentCreator, userId: creatorUserId } = await getLoggedInCreator(app, usersCollection);
       const { body: squad } = await agentCreator.post('/squad').send(squadParams).expect(HTTPResponseCode.OK);
-      mockRazorpayService.getOrderById.mockResolvedValueOnce({ rzpOrderId: 'fnvdjnadcadc', amount: squad.amount, notes: { squadId: squad.squadId } });
+      mockRazorpayService.getOrderById.mockResolvedValueOnce({ rzpOrderId: 'fnvdjnadcadc', amount: squad.amount, notes: { userId, creatorUserId, squadId: squad.squadId } });
+      mockRazorpayService.getPaymentById.mockResolvedValueOnce({ contact: '+918908766547' });
       const { body: manualSub } = await agentUser.post('/payment/success').send({ rzpTransactionId: 'nsjdfnsdjcasasd', rzpOrderId: 'fnvdjnadcadc', rzpSignature: 'asdfasdnfiadifan' }).expect(HTTPResponseCode.OK);
       expect(manualSub).toStrictEqual(expect.objectContaining({ manualSubId: expect.any(String) }));
     });
