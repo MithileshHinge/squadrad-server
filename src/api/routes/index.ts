@@ -3,6 +3,7 @@ import userRoutes from './user.routes';
 import squadRoutes from './squad.routes';
 import goalRoutes from './goal.routes';
 import paymentRoutes from './payment.routes';
+import postRoutes from './post.routes';
 
 export default [
   ...userRoutes,
@@ -10,4 +11,5 @@ export default [
   ...squadRoutes,
   ...goalRoutes,
   ...paymentRoutes,
+  ...postRoutes,
 ];
