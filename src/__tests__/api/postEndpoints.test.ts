@@ -51,7 +51,7 @@ describe('Post endpoints', () => {
     it('Respond with error code 400 (Bad Request) if params are invalid', async () => {
       const { agent, userId } = await getLoggedInCreator(app, userCollection);
       await agent.post('/post').send({
-        title: 123, description: 1234,
+        description: 1234,
       }).expect(HTTPResponseCode.BAD_REQUEST);
       await expect(postCollection.findOne({ userId })).resolves.toBeFalsy();
     });

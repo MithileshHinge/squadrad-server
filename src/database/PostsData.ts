@@ -4,16 +4,16 @@ import BaseData from './BaseData';
 
 export default class PostsData extends BaseData implements IPostsData {
   async insertNewPost({
-    postId, userId, title, description,
+    postId, userId, description,
   }: {
     postId: string,
     userId: string,
-    title: string,
+    // title: string,
     description: string,
   }): Promise<{
       postId: string,
       userId: string,
-      title: string,
+      // title: string,
       description: string,
     }> {
     const db = await this.getDb();
@@ -21,13 +21,13 @@ export default class PostsData extends BaseData implements IPostsData {
       const result = await db.collection('posts').insertOne({
         _id: new ObjectId(postId),
         userId,
-        title,
+        // title,
         description,
       });
       return {
         postId: result.insertedId.toString(),
         userId,
-        title,
+        // title,
         description,
       };
     } catch (err: any) {

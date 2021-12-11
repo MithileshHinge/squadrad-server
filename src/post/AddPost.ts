@@ -19,14 +19,14 @@ export default class AddPost {
    * @throws DatabaseError if operation fails
    */
   async add({
-    userId, title, description,
+    userId, description,
   }: {
     userId: string,
-    title: string,
+    // title: string,
     description?: string,
   }) {
     const userIdValidated = validateUserId.validate(userId);
-    const titleValidated = this.postValidator.validateTitle(title);
+    // const titleValidated = this.postValidator.validateTitle(title);
     const descriptionValidated = description === undefined ? '' : this.postValidator.validateDescription(description);
 
     const postId = id.createId();
@@ -34,14 +34,14 @@ export default class AddPost {
     const postAdded = await this.postsData.insertNewPost({
       postId,
       userId: userIdValidated,
-      title: titleValidated,
+      // title: titleValidated,
       description: descriptionValidated,
     });
 
     return {
       postId: postAdded.postId,
       userId: postAdded.userId,
-      title: postAdded.title,
+      // title: postAdded.title,
       description: postAdded.description,
     };
   }

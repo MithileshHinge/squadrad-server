@@ -30,31 +30,31 @@ describe('Post use cases', () => {
       });
     });
 
-    describe('title validation', () => {
-      it('Should throw error if title is not a string', async () => {
-        const title: any = 749238232;
-        await expect(addPost.add({ userId: existingCreator.userId, ...samplePostParams, title })).rejects.toThrow(ValidationError);
-        expect(mockPostsData.insertNewPost).not.toHaveBeenCalled();
-      });
+    // describe('title validation', () => {
+    //   it('Should throw error if title is not a string', async () => {
+    //     const title: any = 749238232;
+    //     await expect(addPost.add({ userId: existingCreator.userId, ...samplePostParams, title })).rejects.toThrow(ValidationError);
+    //     expect(mockPostsData.insertNewPost).not.toHaveBeenCalled();
+    //   });
 
-      describe('Post title must be >= 3 letters', () => {
-        ['', 'a', 'ab', 'a ', 'a    ', '     a'].forEach((title) => {
-          it(`should throw error for "${title}"`, async () => {
-            await expect(addPost.add({ userId: existingCreator.userId, ...samplePostParams, title })).rejects.toThrow(ValidationError);
-            expect(mockPostsData.insertNewPost).not.toHaveBeenCalled();
-          });
-        });
-      });
+    //   describe('Post title must be >= 3 letters', () => {
+    //     ['', 'a', 'ab', 'a ', 'a    ', '     a'].forEach((title) => {
+    //       it(`should throw error for "${title}"`, async () => {
+    //         await expect(addPost.add({ userId: existingCreator.userId, ...samplePostParams, title })).rejects.toThrow(ValidationError);
+    //         expect(mockPostsData.insertNewPost).not.toHaveBeenCalled();
+    //       });
+    //     });
+    //   });
 
-      describe('Post title must be <= 50 characters', () => {
-        ['asdfghjklqwertyuioplkjhgfdsazxcvbnmlkjhgfdsaqwertyq', 'asdfghjklq wertyuioplkjhgfdsa zxcvbnmlkjhg fdsaqwertyq'].forEach((title) => {
-          it(`should throw error for ${title}`, async () => {
-            await expect(addPost.add({ userId: existingCreator.userId, ...samplePostParams, title })).rejects.toThrow(ValidationError);
-            expect(mockPostsData.insertNewPost).not.toHaveBeenCalled();
-          });
-        });
-      });
-    });
+    //   describe('Post title must be <= 50 characters', () => {
+    //     ['asdfghjklqwertyuioplkjhgfdsazxcvbnmlkjhgfdsaqwertyq', 'asdfghjklq wertyuioplkjhgfdsa zxcvbnmlkjhg fdsaqwertyq'].forEach((title) => {
+    //       it(`should throw error for ${title}`, async () => {
+    //         await expect(addPost.add({ userId: existingCreator.userId, ...samplePostParams, title })).rejects.toThrow(ValidationError);
+    //         expect(mockPostsData.insertNewPost).not.toHaveBeenCalled();
+    //       });
+    //     });
+    //   });
+    // });
 
     describe('Goal description validation', () => {
       it('Should throw error if description is not a string', async () => {

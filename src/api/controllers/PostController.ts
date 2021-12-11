@@ -6,9 +6,9 @@ import { IBaseController } from './IBaseController';
 const postPost: IBaseController = async (httpRequest) => {
   try {
     const userId = httpRequest.userId!;
-    const { title, description } = httpRequest.body;
+    const { description } = httpRequest.body;
 
-    const postAdded = await addPost.add({ userId, title, description });
+    const postAdded = await addPost.add({ userId, description });
     return {
       statusCode: HTTPResponseCode.OK,
       body: postAdded,

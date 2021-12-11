@@ -1,15 +1,15 @@
 export interface IPostsData {
   insertNewPost({
-    postId, userId, title, description,
+    postId, userId, description,
   }: {
     postId: string,
     userId: string,
-    title: string,
+    // title: string,
     description: string,
   }): Promise<{
     postId: string,
     userId: string,
-    title: string,
+    // title: string,
     description: string,
   }>;
 }
