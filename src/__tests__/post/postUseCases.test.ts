@@ -1,10 +1,13 @@
 import ValidationError from '../../common/errors/ValidationError';
 import AddPost from '../../post/AddPost';
 import postValidator from '../../post/validator';
+import FindSquad from '../../squad/FindSquad';
+import squadValidator from '../../squad/validator';
 import newCreator from '../__mocks__/creator/creators';
 import faker from '../__mocks__/faker';
 import mockPostsData from '../__mocks__/post/mockPostsData';
 import samplePostParams from '../__mocks__/post/postParams';
+import mockSquadsData from '../__mocks__/squad/mockSquadsData';
 
 describe('Post use cases', () => {
   beforeEach(() => {
@@ -14,7 +17,8 @@ describe('Post use cases', () => {
   });
 
   describe('AddPost use case', () => {
-    const addPost = new AddPost(mockPostsData, postValidator);
+    const findSquad = new FindSquad(mockSquadsData, squadValidator);
+    const addPost = new AddPost(findSquad, mockPostsData, postValidator);
     const existingCreator = newCreator();
 
     it('Can create a new post', async () => {
@@ -67,6 +71,23 @@ describe('Post use cases', () => {
         const description = faker.datatype.string(2001);
         await expect(addPost.add({ userId: existingCreator.userId, ...samplePostParams, description })).rejects.toThrow(ValidationError);
         expect(mockPostsData.insertNewPost).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('SquadId validation', () => {
+      describe('Should throw error if squadId is not string or undefined', () => {
+        [1234, null, true].forEach((squadId: any) => {
+          it(`Should throw error for ${squadId}`, async () => {
+            await expect(addPost.add({ userId: existingCreator.userId, ...samplePostParams, squadId })).rejects.toThrow(ValidationError);
+            expect(mockPostsData.insertNewPost).not.toHaveBeenCalled();
+          });
+        });
+      });
+
+      it('Should not throw error for undefined and empty string', async () => {
+        await expect(addPost.add({ userId: existingCreator.userId, ...samplePostParams, squadId: '' })).resolves.not.toThrowError();
+        await expect(addPost.add({ userId: existingCreator.userId, ...samplePostParams, squadId: undefined })).resolves.not.toThrowError();
+        expect(mockPostsData.insertNewPost).toHaveBeenCalledTimes(2);
       });
     });
   });

@@ -52,6 +52,7 @@ describe('Post endpoints', () => {
       const { agent, userId } = await getLoggedInCreator(app, userCollection);
       await agent.post('/post').send({
         description: 1234,
+        squadId: 1234,
       }).expect(HTTPResponseCode.BAD_REQUEST);
       await expect(postCollection.findOne({ userId })).resolves.toBeFalsy();
     });
