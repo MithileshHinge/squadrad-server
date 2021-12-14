@@ -7,21 +7,26 @@ import { getLoggedInCreator } from '../__mocks__/creator/creators';
 import mockDb, { closeConnection } from '../__mocks__/database/mockDb';
 import postParams from '../__mocks__/post/postParams';
 import { getLoggedInUser } from '../__mocks__/user/users';
+import { getCreatorWithSquads } from '../__mocks__/squad/squads';
 
 describe('Post endpoints', () => {
   let userCollection: Collection<Document>;
   let creatorCollection: Collection<Document>;
+  let squadCollection: Collection<Document>;
   let postCollection: Collection<Document>;
 
   beforeEach(async () => {
-    userCollection = await (await mockDb()).createCollection('users');
-    creatorCollection = await (await mockDb()).createCollection('creators');
-    postCollection = await (await mockDb()).createCollection('posts');
+    const db = await mockDb();
+    userCollection = await db.createCollection('users');
+    creatorCollection = await db.createCollection('creators');
+    squadCollection = await db.createCollection('squads');
+    postCollection = await db.createCollection('posts');
   });
 
   afterEach(async () => {
     await userCollection.drop();
     await creatorCollection.drop();
+    await squadCollection.drop();
     await postCollection.drop();
   });
 
@@ -32,8 +37,8 @@ describe('Post endpoints', () => {
 
   describe('POST /post', () => {
     it('Creator can create post', async () => {
-      const { agent, userId } = await getLoggedInCreator(app, userCollection);
-      const res = await agent.post('/post').send(postParams).expect(HTTPResponseCode.OK);
+      const { agent, userId, squads } = await getCreatorWithSquads(app, userCollection, squadCollection, 1);
+      const res = await agent.post('/post').send({ ...postParams, squadId: squads[0].squadId }).expect(HTTPResponseCode.OK);
       expect(res.body).toStrictEqual(expect.objectContaining({ postId: expect.any(String) }));
       await expect(postCollection.findOne({ _id: new ObjectId(res.body.postId), userId })).resolves.toBeTruthy();
     });

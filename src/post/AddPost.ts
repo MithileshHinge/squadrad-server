@@ -1,3 +1,4 @@
+import ValidationError from '../common/errors/ValidationError';
 import id from '../common/id';
 import FindSquad from '../squad/FindSquad';
 import { validateUserId } from '../userId';
@@ -19,7 +20,7 @@ export default class AddPost {
 
   /**
    * AddPost use case: Create a new post
-   * @throws ValidationError
+   * @throws ValidationError if squad does not exist, or params are invalid
    * @throws DatabaseError if operation fails
    */
   async add({
@@ -38,6 +39,7 @@ export default class AddPost {
     if (squadId !== undefined && squadId !== '') {
       const squad = await this.findSquad.findSquadById(squadId);
       if (squad && squad.userId === userIdValidated) squadIdValidated = squad.squadId;
+      else throw new ValidationError('Squad does not exist');
     }
 
     const postId = id.createId();
