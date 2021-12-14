@@ -7,4 +7,8 @@ export default [
     path: '/post',
     post: [authorizationMiddleware, creatorAuthorizationMiddleware, PostController.postPost],
   },
+  {
+    path: '/posts/:creatorUserId',
+    get: [authorizationMiddleware, PostController.getPostsByCreatorUserId],
+  },
 ];

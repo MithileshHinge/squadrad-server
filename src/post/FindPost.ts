@@ -20,7 +20,7 @@ export default class FindPost {
   /**
    * Find posts by creator's user Id, handles access as well
    * @returns Array of creator's posts
-   * @throws ValidationError if params
+   * @throws ValidationError if params are invalid
    * @throws DatabaseError if operation failed
    */
   async findPostsByUserId({ userId, creatorUserId }: {

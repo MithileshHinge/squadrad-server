@@ -8,12 +8,15 @@ import mockDb, { closeConnection } from '../__mocks__/database/mockDb';
 import postParams from '../__mocks__/post/postParams';
 import { getLoggedInUser } from '../__mocks__/user/users';
 import { getCreatorWithSquads } from '../__mocks__/squad/squads';
+import newPost from '../__mocks__/post/posts';
+import newManualSub from '../__mocks__/manual-sub/manualSubs';
 
 describe('Post endpoints', () => {
   let userCollection: Collection<Document>;
   let creatorCollection: Collection<Document>;
   let squadCollection: Collection<Document>;
   let postCollection: Collection<Document>;
+  let manualSubCollection: Collection<Document>;
 
   beforeEach(async () => {
     const db = await mockDb();
@@ -21,6 +24,7 @@ describe('Post endpoints', () => {
     creatorCollection = await db.createCollection('creators');
     squadCollection = await db.createCollection('squads');
     postCollection = await db.createCollection('posts');
+    manualSubCollection = await db.createCollection('manualSubs');
   });
 
   afterEach(async () => {
@@ -28,6 +32,7 @@ describe('Post endpoints', () => {
     await creatorCollection.drop();
     await squadCollection.drop();
     await postCollection.drop();
+    await manualSubCollection.drop();
   });
 
   afterAll(async () => {
@@ -60,6 +65,77 @@ describe('Post endpoints', () => {
         squadId: 1234,
       }).expect(HTTPResponseCode.BAD_REQUEST);
       await expect(postCollection.findOne({ userId })).resolves.toBeFalsy();
+    });
+  });
+
+  describe('GET /posts/:creatorUserId', () => {
+    it('Creator can get all his posts', async () => {
+      const { agent, userId, squads } = await getCreatorWithSquads(app, userCollection, squadCollection, 2);
+      const samplePosts = [
+        { ...newPost(), userId, squadId: '' },
+        { ...newPost(), userId, squadId: squads[0].squadId },
+        { ...newPost(), userId, squadId: squads[1].squadId },
+      ];
+      postCollection.insertMany(samplePosts.map(({ postId, ...postInfo }) => ({
+        _id: new ObjectId(postId),
+        ...postInfo,
+      })));
+
+      const { body: posts } = await agent.get(`/posts/${userId}`).expect(HTTPResponseCode.OK);
+      expect(posts.length).toBe(3);
+    });
+
+    it('User can get all free posts of a creator', async () => {
+      const { userId: creatorUserId, squads } = await getCreatorWithSquads(app, userCollection, squadCollection, 2);
+
+      const samplePosts = [
+        { ...newPost(), userId: creatorUserId, squadId: '' },
+        { ...newPost(), userId: creatorUserId, squadId: '' },
+        { ...newPost(), userId: creatorUserId, squadId: squads[0].squadId },
+        { ...newPost(), userId: creatorUserId, squadId: squads[1].squadId },
+      ];
+      postCollection.insertMany(samplePosts.map(({ postId, ...postInfo }) => ({
+        _id: new ObjectId(postId),
+        ...postInfo,
+      })));
+
+      const { agent } = await getLoggedInUser(app, userCollection);
+      const { body: posts } = await agent.get(`/posts/${creatorUserId}`).expect(HTTPResponseCode.OK);
+      expect(posts.length).toBe(2);
+    });
+
+    it('User can get all posts from squads with amount less than subscribed amount', async () => {
+      const { userId: creatorUserId, squads } = await getCreatorWithSquads(app, userCollection, squadCollection, 3);
+      squads.sort((squad1, squad2) => squad1.amount - squad2.amount);
+
+      const samplePosts = [
+        { ...newPost(), userId: creatorUserId, squadId: '' },
+        { ...newPost(), userId: creatorUserId, squadId: squads[0].squadId },
+        { ...newPost(), userId: creatorUserId, squadId: squads[0].squadId },
+        { ...newPost(), userId: creatorUserId, squadId: squads[1].squadId },
+        { ...newPost(), userId: creatorUserId, squadId: squads[1].squadId },
+        { ...newPost(), userId: creatorUserId, squadId: squads[1].squadId },
+        { ...newPost(), userId: creatorUserId, squadId: squads[2].squadId },
+        { ...newPost(), userId: creatorUserId, squadId: squads[2].squadId },
+        { ...newPost(), userId: creatorUserId, squadId: squads[2].squadId },
+        { ...newPost(), userId: creatorUserId, squadId: squads[2].squadId },
+      ];
+      postCollection.insertMany(samplePosts.map(({ postId, ...postInfo }) => ({
+        _id: new ObjectId(postId),
+        ...postInfo,
+      })));
+
+      const { agent, userId } = await getLoggedInUser(app, userCollection);
+      const { manualSubId, ...manualSubInfo } = {
+        ...newManualSub(),
+        userId,
+        creatorUserId,
+        squadId: squads[1].squadId,
+        amount: squads[1].amount,
+      };
+      await manualSubCollection.insertOne({ _id: new ObjectId(manualSubId), ...manualSubInfo });
+      const { body: posts } = await agent.get(`/posts/${creatorUserId}`).expect(HTTPResponseCode.OK);
+      expect(posts.length).toBe(6);
     });
   });
 });
