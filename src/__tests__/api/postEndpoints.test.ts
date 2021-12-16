@@ -10,6 +10,7 @@ import { getLoggedInUser } from '../__mocks__/user/users';
 import { getCreatorWithSquads } from '../__mocks__/squad/squads';
 import newPost from '../__mocks__/post/posts';
 import newManualSub from '../__mocks__/manual-sub/manualSubs';
+import ManualSubStatuses from '../../manual-sub/ManualSubStatuses';
 
 describe('Post endpoints', () => {
   let userCollection: Collection<Document>;
@@ -132,6 +133,7 @@ describe('Post endpoints', () => {
         creatorUserId,
         squadId: squads[1].squadId,
         amount: squads[1].amount,
+        subscriptionStatus: ManualSubStatuses.ACTIVE,
       };
       await manualSubCollection.insertOne({ _id: new ObjectId(manualSubId), ...manualSubInfo });
       const { body: posts } = await agent.get(`/posts/${creatorUserId}`).expect(HTTPResponseCode.OK);
