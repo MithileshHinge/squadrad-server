@@ -18,6 +18,8 @@ import emailVerification from '../../user/email-verification';
 import JWTError from '../../common/errors/JWTError';
 import LoginUser from '../../user/LoginUser';
 import AuthenticationError from '../../common/errors/AuthenticationError';
+import SetProfilePic from '../../profile-pic/SetProfilePic';
+import profilePicValidator from '../../profile-pic/validator';
 
 describe('User usecases', () => {
   beforeEach(() => {
@@ -26,11 +28,12 @@ describe('User usecases', () => {
     });
   });
   describe('Add a new user', () => {
+    const setProfilePic = new SetProfilePic(mockProfilePicsData, profilePicValidator);
     const addUser = new AddUser(
+      setProfilePic,
       mockUsersData,
       userValidator,
       passwordEncryption,
-      mockProfilePicsData,
       mockEmailVerification,
     );
 

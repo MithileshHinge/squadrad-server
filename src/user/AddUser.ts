@@ -3,15 +3,13 @@ import { IUsersData } from './IUsersData';
 import { IUserValidator } from './validator/IUserValidator';
 import { IPasswordEncryption } from './password/IPasswordEncryption';
 import SetProfilePic from '../profile-pic/SetProfilePic';
-import profilePicValidator from '../profile-pic/validator';
-import { IProfilePicsData } from '../profile-pic/IProfilePicsData';
 import { IEmailVerification } from './email-verification/IEmailVerification';
 import { createUserId } from '../userId';
 
 export default class AddUser {
-  private usersData: IUsersData;
+  private setProfilePic: SetProfilePic;
 
-  private profilePicsData: IProfilePicsData;
+  private usersData: IUsersData;
 
   private userValidator: IUserValidator;
 
@@ -20,16 +18,16 @@ export default class AddUser {
   private emailVerification: IEmailVerification;
 
   constructor(
+    setProfilePic: SetProfilePic,
     usersData: IUsersData,
     userValidator: IUserValidator,
     passwordEncryption: IPasswordEncryption,
-    profilePicsData: IProfilePicsData,
     emailVerification: IEmailVerification,
   ) {
+    this.setProfilePic = setProfilePic;
     this.usersData = usersData;
     this.userValidator = userValidator;
     this.passwordEncryption = passwordEncryption;
-    this.profilePicsData = profilePicsData;
     this.emailVerification = emailVerification;
   }
 
@@ -66,8 +64,7 @@ export default class AddUser {
     const userAdded = await this.usersData.insertNewUser(userInfo);
 
     // Set a default profile picture
-    const setProfilePic = new SetProfilePic(this.profilePicsData, profilePicValidator);
-    const profilePicSrc = await setProfilePic.setDefault(userId, false);
+    const profilePicSrc = await this.setProfilePic.setDefault(userId, false);
 
     await this.emailVerification.sendVerificationMail(email);
 

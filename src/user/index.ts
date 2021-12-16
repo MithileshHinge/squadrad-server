@@ -1,4 +1,5 @@
-import { profilePicsData, usersData } from '../database';
+import { usersData } from '../database';
+import { setProfilePic } from '../profile-pic';
 import AddUser from './AddUser';
 import ChangePassword from './ChangePassword';
 import EditUser from './EditUser';
@@ -10,10 +11,10 @@ import userValidator from './validator';
 import VerifyEmail from './VerifyEmail';
 
 export const addUser = new AddUser(
+  setProfilePic,
   usersData,
   userValidator,
   passwordEncryption,
-  profilePicsData,
   emailVerification,
 );
 
