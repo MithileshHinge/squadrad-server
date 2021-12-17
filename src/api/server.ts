@@ -28,9 +28,10 @@ app.use(session({
   resave: true,
   saveUninitialized: true,
 }));
-app.use(helmet());
 
 initializePassport(app);
+
+app.use(express.static('public'));
 
 razorpayService.createInstance();
 
@@ -45,5 +46,7 @@ routes.forEach((route) => {
     }
   });
 });
+
+app.use(helmet());
 
 export default app;
