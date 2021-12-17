@@ -30,7 +30,6 @@ export interface IUsersData {
     userId: string,
     fullName: string,
     email: string,
-    profilePicSrc: string,
     verified: boolean,
   } | null>;
 
@@ -43,7 +42,6 @@ export interface IUsersData {
     userId: string,
     fullName: string,
     email: string,
-    profilePicSrc: string,
     verified: boolean,
   } | null>;
 

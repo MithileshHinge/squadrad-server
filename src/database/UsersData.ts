@@ -38,7 +38,6 @@ export default class UsersData extends BaseData implements IUsersData {
     userId: string,
     fullName: string,
     email: string,
-    profilePicSrc: string,
   }[]> {
     const db = await this.getDb();
     try {
@@ -46,7 +45,6 @@ export default class UsersData extends BaseData implements IUsersData {
         userId: string,
         fullName: string,
         email: string,
-        profilePicSrc: string,
       }>({ password: false })
         .toArray();
       return result;
@@ -60,7 +58,6 @@ export default class UsersData extends BaseData implements IUsersData {
     userId: string,
     fullName: string,
     email: string,
-    profilePicSrc: string,
     verified: boolean,
   } | null> {
     const db = await this.getDb();
@@ -71,7 +68,6 @@ export default class UsersData extends BaseData implements IUsersData {
         userId: result._id.toString(),
         fullName: result.fullName,
         email: result.email,
-        profilePicSrc: result.profilePicSrc,
         verified: result.verified,
       };
     } catch (err: any) {
@@ -83,7 +79,6 @@ export default class UsersData extends BaseData implements IUsersData {
     userId: string,
     fullName: string,
     email: string,
-    profilePicSrc: string,
     verified: boolean,
   } | null> {
     const db = await this.getDb();
@@ -94,7 +89,6 @@ export default class UsersData extends BaseData implements IUsersData {
         userId: result._id.toString(),
         fullName: result.fullName,
         email: result.email,
-        profilePicSrc: result.profilePicSrc,
         verified: result.verified,
       };
     } catch (err: any) {

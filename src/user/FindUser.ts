@@ -1,13 +1,17 @@
+import GetProfilePic from '../profile-pic/GetProfilePic';
 import { validateUserId } from '../userId';
 import { IUsersData } from './IUsersData';
 import { IUserValidator } from './validator/IUserValidator';
 
 export default class FindUser {
+  private getProfilePic: GetProfilePic;
+
   private usersData: IUsersData;
 
   private userValidator: IUserValidator;
 
-  constructor(usersData: IUsersData, userValidator: IUserValidator) {
+  constructor(getProfilePic: GetProfilePic, usersData: IUsersData, userValidator: IUserValidator) {
+    this.getProfilePic = getProfilePic;
     this.usersData = usersData;
     this.userValidator = userValidator;
   }
@@ -20,13 +24,11 @@ export default class FindUser {
   async findAllUsers(): Promise<{
     userId: string,
     fullName: string,
-    profilePicSrc: string,
   }[]> {
     const users = await this.usersData.fetchAllUsers();
     const usersInfoToReturn = users.map((user) => ({
       userId: user.userId,
       fullName: user.fullName,
-      profilePicSrc: user.profilePicSrc,
     }));
 
     return usersInfoToReturn;
@@ -46,11 +48,13 @@ export default class FindUser {
   } | null> {
     const userIdValidated = validateUserId.validate(userId);
     const user = await this.usersData.fetchUserById(userIdValidated);
+    const profilePicSrc = await this.getProfilePic.get(userIdValidated, false);
+
     if (user) {
       return {
         userId: user.userId,
         fullName: user.fullName,
-        profilePicSrc: user.profilePicSrc,
+        profilePicSrc,
         email: self ? user.email : undefined,
       };
     }
@@ -70,10 +74,11 @@ export default class FindUser {
     const emailValidated = this.userValidator.validateEmail(email);
     const user = await this.usersData.fetchUserByEmail(emailValidated);
     if (user) {
+      const profilePicSrc = await this.getProfilePic.get(user.userId, false);
       return {
         userId: user.userId,
         fullName: user.fullName,
-        profilePicSrc: user.profilePicSrc,
+        profilePicSrc,
       };
     }
     return null;

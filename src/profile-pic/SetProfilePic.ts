@@ -10,7 +10,7 @@ export default class SetProfilePic {
   private defaultSrcs = (() => {
     const defaultSrcsArray = [];
     for (let i = 1; i <= 7; i += 1) {
-      const defaultSrc = `default/default_profile_pic${i}.jpg`;
+      const defaultSrc = `defaults/default_profile_pic${i}.jpg`;
       defaultSrcsArray.push(defaultSrc);
     }
     return defaultSrcsArray;

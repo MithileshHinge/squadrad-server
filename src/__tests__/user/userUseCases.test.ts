@@ -20,6 +20,7 @@ import LoginUser from '../../user/LoginUser';
 import AuthenticationError from '../../common/errors/AuthenticationError';
 import SetProfilePic from '../../profile-pic/SetProfilePic';
 import profilePicValidator from '../../profile-pic/validator';
+import GetProfilePic from '../../profile-pic/GetProfilePic';
 
 describe('User usecases', () => {
   beforeEach(() => {
@@ -203,7 +204,8 @@ describe('User usecases', () => {
   });
 
   describe('Get users', () => {
-    const findUser = new FindUser(mockUsersData, userValidator);
+    const getProfilePic = new GetProfilePic(mockProfilePicsData);
+    const findUser = new FindUser(getProfilePic, mockUsersData, userValidator);
 
     /*
     it('Can get all users', async () => {
@@ -455,7 +457,8 @@ describe('User usecases', () => {
   });
 
   describe('Login user', () => {
-    const loginUser = new LoginUser(mockUsersData, passwordEncryption);
+    const getProfilePic = new GetProfilePic(mockProfilePicsData);
+    const loginUser = new LoginUser(getProfilePic, mockUsersData, passwordEncryption);
 
     const {
       userId,

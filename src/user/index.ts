@@ -1,5 +1,5 @@
 import { usersData } from '../database';
-import { setProfilePic } from '../profile-pic';
+import { getProfilePic, setProfilePic } from '../profile-pic';
 import AddUser from './AddUser';
 import ChangePassword from './ChangePassword';
 import EditUser from './EditUser';
@@ -19,6 +19,7 @@ export const addUser = new AddUser(
 );
 
 export const findUser = new FindUser(
+  getProfilePic,
   usersData,
   userValidator,
 );
@@ -41,6 +42,7 @@ export const verifyEmail = new VerifyEmail(
 );
 
 export const loginUser = new LoginUser(
+  getProfilePic,
   usersData,
   passwordEncryption,
 );

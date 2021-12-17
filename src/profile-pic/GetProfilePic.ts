@@ -18,6 +18,6 @@ export default class GetProfilePic {
     const userIdValidated = validateUserId.validate(userId);
     const src = await this.profilePicsData.fetchProfilePic(userIdValidated, forCreator);
     if (!src) throw new ValidationError(`User with userId="${userIdValidated}" does not exist.`);
-    return src;
+    return `http://localhost:8080/images/profilePics/${src}`;
   }
 }

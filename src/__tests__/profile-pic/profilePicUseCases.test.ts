@@ -55,14 +55,14 @@ describe('Profile Pic Use Cases', () => {
 
       it('Get profile picture if user exists', async () => {
         const user = sampleUsers[0];
-        mockProfilePicsData.fetchProfilePic.mockReturnValueOnce('src/__tests__/__mocks__/profile-pic/sample-profile-pic.jpg');
+        mockProfilePicsData.fetchProfilePic.mockResolvedValueOnce('src/__tests__/__mocks__/profile-pic/sample-profile-pic.jpg');
         await getProfilePic.get(user.userId, false);
         expect(mockProfilePicsData.fetchProfilePic).toHaveBeenCalledWith(user.userId, false);
       });
 
       it('Throw error if user does not exist', async () => {
         const userId = id.createId();
-        mockProfilePicsData.fetchProfilePic.mockReturnValueOnce(null);
+        mockProfilePicsData.fetchProfilePic.mockResolvedValueOnce(null);
         await expect(getProfilePic.get(userId, false)).rejects.toThrow(ValidationError);
       });
     });
@@ -115,14 +115,14 @@ describe('Profile Pic Use Cases', () => {
 
       it('Get profile picture if user exists', async () => {
         const user = sampleUsers[0];
-        mockProfilePicsData.fetchProfilePic.mockReturnValueOnce('src/__tests__/__mocks__/profile-pic/sample-profile-pic.jpg');
+        mockProfilePicsData.fetchProfilePic.mockResolvedValueOnce('src/__tests__/__mocks__/profile-pic/sample-profile-pic.jpg');
         await getProfilePic.get(user.userId, true);
         expect(mockProfilePicsData.fetchProfilePic).toHaveBeenCalledWith(user.userId, true);
       });
 
       it('Throw error if user does not exist', async () => {
         const userId = id.createId();
-        mockProfilePicsData.fetchProfilePic.mockReturnValueOnce(null);
+        mockProfilePicsData.fetchProfilePic.mockResolvedValueOnce(null);
         await expect(getProfilePic.get(userId, true)).rejects.toThrow(ValidationError);
       });
     });
