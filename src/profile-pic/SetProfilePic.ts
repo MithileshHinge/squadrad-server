@@ -1,3 +1,4 @@
+import { moveFile } from '../common/helpers';
 import { validateUserId } from '../userId';
 import { IProfilePicsData } from './IProfilePicsData';
 import { IProfilePicValidator } from './validator/IProfilePicValidator';
@@ -32,8 +33,11 @@ export default class SetProfilePic {
   async setNew(userId: string, src: string, forCreator: boolean): Promise<string> {
     const userIdValidated = validateUserId.validate(userId);
     const srcValidated = this.profilePicValidator.validateProfilePic(src);
-    await this.profilePicsData.updateProfilePic(userIdValidated, srcValidated, forCreator);
-    return srcValidated;
+    const dest = process.env.NODE_ENV === 'test' ? `test/${userIdValidated}` : `${userIdValidated}`;
+    const finalDest = `public/images/profilePics/${dest}`;
+    await moveFile(srcValidated, finalDest);
+    await this.profilePicsData.updateProfilePic(userIdValidated, dest, forCreator);
+    return dest;
   }
 
   async revertToDefault(userId: string, forCreator: boolean): Promise<string> {

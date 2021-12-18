@@ -1,3 +1,4 @@
+import fs from 'fs-extra';
 import ValidationError from '../../common/errors/ValidationError';
 import GetProfilePic from '../../profile-pic/GetProfilePic';
 import SetProfilePic from '../../profile-pic/SetProfilePic';
@@ -5,15 +6,25 @@ import profilePicValidator from '../../profile-pic/validator';
 import id from '../../common/id';
 import mockProfilePicsData from '../__mocks__/profile-pic/mockProfilePicsData';
 import sampleUsers from '../__mocks__/user/users';
+import { copyFile } from '../../common/helpers';
 
 describe('Profile Pic Use Cases', () => {
+  const newSrc = 'tmp/sample-profile-pic.jpg';
+  beforeEach(async () => {
+    const sampleSrc = 'src/__tests__/__mocks__/profile-pic/sample-profile-pic.jpg';
+    await copyFile(sampleSrc, newSrc);
+  });
+
+  afterEach(async () => {
+    await fs.emptyDir('public/images/profilePics/test');
+  });
+
   describe('For user', () => {
     describe('Set profile pic', () => {
       const setProfilePic = new SetProfilePic(mockProfilePicsData, profilePicValidator);
 
       it('Set a new profile pic', async () => {
         const user = sampleUsers[0];
-        const newSrc = 'src/__tests__/__mocks__/profile-pic/sample-profile-pic.jpg';
         await setProfilePic.setNew(user.userId, newSrc, false);
         expect(mockProfilePicsData.updateProfilePic).toHaveBeenCalledWith(
           user.userId,
@@ -24,13 +35,12 @@ describe('Profile Pic Use Cases', () => {
 
       it('Throw error if file does not exist', async () => {
         const user = sampleUsers[0];
-        const newSrc = 'src/__tests__/__mocks__/profile-pic/non-existing-sample-profile-pic.jpg';
-        await expect(setProfilePic.setNew(user.userId, newSrc, false)).rejects.toThrow(ValidationError);
+        const newSrcNonExisting = 'tmp/non-existing-sample-profile-pic.jpg';
+        await expect(setProfilePic.setNew(user.userId, newSrcNonExisting, false)).rejects.toThrow(ValidationError);
       });
 
       it('Set profilepic: Do nothing if user does not exist', async () => {
         const userId = id.createId();
-        const newSrc = 'src/__tests__/__mocks__/profile-pic/sample-profile-pic.jpg';
         await setProfilePic.setNew(userId, newSrc, false);
       });
 
@@ -55,7 +65,7 @@ describe('Profile Pic Use Cases', () => {
 
       it('Get profile picture if user exists', async () => {
         const user = sampleUsers[0];
-        mockProfilePicsData.fetchProfilePic.mockResolvedValueOnce('src/__tests__/__mocks__/profile-pic/sample-profile-pic.jpg');
+        mockProfilePicsData.fetchProfilePic.mockResolvedValueOnce(`public/images/profilePics/test/${user.userId}`);
         await getProfilePic.get(user.userId, false);
         expect(mockProfilePicsData.fetchProfilePic).toHaveBeenCalledWith(user.userId, false);
       });
@@ -73,7 +83,6 @@ describe('Profile Pic Use Cases', () => {
 
       it('Set a new profile pic', async () => {
         const user = sampleUsers[0];
-        const newSrc = 'src/__tests__/__mocks__/profile-pic/sample-profile-pic.jpg';
         await setProfilePic.setNew(user.userId, newSrc, true);
         expect(mockProfilePicsData.updateProfilePic).toHaveBeenCalledWith(
           user.userId,
@@ -84,13 +93,12 @@ describe('Profile Pic Use Cases', () => {
 
       it('Throw error if file does not exist', async () => {
         const user = sampleUsers[0];
-        const newSrc = 'src/__tests__/__mocks__/profile-pic/non-existing-sample-profile-pic.jpg';
-        await expect(setProfilePic.setNew(user.userId, newSrc, true)).rejects.toThrow(ValidationError);
+        const newSrcNonExisting = 'tmp/non-existing-sample-profile-pic.jpg';
+        await expect(setProfilePic.setNew(user.userId, newSrcNonExisting, true)).rejects.toThrow(ValidationError);
       });
 
       it('Set profilepic: Do nothing if user does not exist or not a creator', async () => {
         const userId = id.createId();
-        const newSrc = 'src/__tests__/__mocks__/profile-pic/sample-profile-pic.jpg';
         await setProfilePic.setNew(userId, newSrc, true);
       });
 
@@ -115,7 +123,7 @@ describe('Profile Pic Use Cases', () => {
 
       it('Get profile picture if user exists', async () => {
         const user = sampleUsers[0];
-        mockProfilePicsData.fetchProfilePic.mockResolvedValueOnce('src/__tests__/__mocks__/profile-pic/sample-profile-pic.jpg');
+        mockProfilePicsData.fetchProfilePic.mockResolvedValueOnce(`public/images/profilePics/test/${user.userId}`);
         await getProfilePic.get(user.userId, true);
         expect(mockProfilePicsData.fetchProfilePic).toHaveBeenCalledWith(user.userId, true);
       });

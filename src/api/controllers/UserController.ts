@@ -1,3 +1,4 @@
+import { setProfilePic } from '../../profile-pic';
 import {
   addUser, changePassword, editUser, findUser, verifyEmail,
 } from '../../user';
@@ -79,10 +80,30 @@ const patchUserPassword: IBaseController = async (httpRequest) => {
   }
 };
 
+const putProfilePic: IBaseController = async (httpRequest) => {
+  try {
+    const userId = httpRequest.userId!;
+    if (!httpRequest.files) return { statusCode: HTTPResponseCode.BAD_REQUEST, body: {} };
+    const profilePicSrc = httpRequest.files[0];
+
+    const profilePicSrcAdded = await setProfilePic.setNew(userId, profilePicSrc, false);
+
+    return {
+      statusCode: HTTPResponseCode.OK,
+      body: {
+        profilePicSrc: profilePicSrcAdded,
+      },
+    };
+  } catch (err: any) {
+    return handleControllerError(err);
+  }
+};
+
 export default {
   postUser,
   patchUserVerify,
   getUserSelf,
   patchUser,
   patchUserPassword,
+  putProfilePic,
 };

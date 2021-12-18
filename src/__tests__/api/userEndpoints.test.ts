@@ -4,6 +4,7 @@ import request from 'supertest';
 import { HTTPResponseCode } from '../../api/HttpResponse';
 import app from '../../api/server';
 import { issueJWT } from '../../common/jwt';
+import fileValidator from '../../common/validators/fileValidator';
 import passwordEncryption from '../../user/password';
 import { closeMockStoreConnection } from '../__mocks__/api/mockStore';
 import mockDb, { closeConnection } from '../__mocks__/database/mockDb';
@@ -237,6 +238,15 @@ describe('User Endpoints', () => {
 
     it('Respond with error code 401 (Unauthorized) if user is not logged in', async () => {
       await request(app).patch('/user/password').send({}).expect(HTTPResponseCode.UNAUTHORIZED);
+    });
+  });
+
+  describe('PUT /user/profile-pic', () => {
+    it('Can change profile pic', async () => {
+      const { agent, userId } = await getLoggedInUser(app, userCollection);
+      await agent.put('/user/profile-pic').attach('profilePic', 'src/__tests__/__mocks__/profile-pic/sample-profile-pic.jpg').expect(HTTPResponseCode.OK);
+      expect(fileValidator.fileExists(`public/images/profilePics/test/${userId}`)).toBeTruthy();
+      await expect(userCollection.findOne({ _id: new ObjectId(userId) })).resolves.toStrictEqual(expect.objectContaining({ profilePicSrc: `test/${userId}` }));
     });
   });
 

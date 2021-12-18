@@ -5,6 +5,7 @@ export type HTTPRequest = {
   method: HTTPRequestMethod,
   path: string,
   userId?: string,
+  files: string[] | undefined,
 };
 
 export enum HTTPRequestMethod {

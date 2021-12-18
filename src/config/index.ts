@@ -20,9 +20,12 @@ const DATABASE = {
   sessionCollection: SESSIONS_COLLECTION_NAME,
 };
 
+const TMP_DIR = '../tmp/';
+
 const config = {
   server: SERVER,
   database: DATABASE,
+  tmpDir: TMP_DIR,
 };
 
 export default config;

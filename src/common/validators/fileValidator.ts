@@ -9,4 +9,7 @@ export default {
       return false;
     }
   },
+  fileIsJPEGImage(fileBuffer: Buffer) {
+    return (fileBuffer.readInt8(0) === 0xFF && fileBuffer.readInt8(1) === 0xD8 && fileBuffer.readInt8(2) === 0xFF);
+  },
 };
