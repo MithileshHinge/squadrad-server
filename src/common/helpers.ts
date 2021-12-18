@@ -15,8 +15,8 @@ export function removeUndefinedKeys(obj: { [key: string]: any }): void {
 /**
  * Moves a file at srcPath to destPath, all paths relative to project root, does not handle error
  */
-export async function moveFile(srcPath: string, destPath: string) {
-  await fs.move(srcPath, destPath);
+export async function moveFile(srcPath: string, destPath: string, overwriteIfExists: boolean = true) {
+  await fs.move(srcPath, destPath, { overwrite: overwriteIfExists });
 }
 
 export async function copyFile(srcPath: string, destPath: string) {

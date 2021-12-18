@@ -243,8 +243,17 @@ describe('User Endpoints', () => {
   });
 
   describe('PUT /user/profile-pic', () => {
+    it('Can add new profile pic', async () => {
+      const { agent, userId } = await getLoggedInUser(app, userCollection);
+      await agent.put('/user/profile-pic').attach('profilePic', 'src/__tests__/__mocks__/profile-pic/sample-profile-pic.jpg').expect(HTTPResponseCode.OK);
+      expect(fileValidator.fileExists(`public/images/profilePics/test/${userId}`)).toBeTruthy();
+      await expect(userCollection.findOne({ _id: new ObjectId(userId) })).resolves.toStrictEqual(expect.objectContaining({ profilePicSrc: `test/${userId}` }));
+    });
+
     it('Can change profile pic', async () => {
       const { agent, userId } = await getLoggedInUser(app, userCollection);
+      await agent.put('/user/profile-pic').attach('profilePic', 'src/__tests__/__mocks__/profile-pic/sample-profile-pic.jpg').expect(HTTPResponseCode.OK);
+      expect(fileValidator.fileExists(`public/images/profilePics/test/${userId}`)).toBeTruthy();
       await agent.put('/user/profile-pic').attach('profilePic', 'src/__tests__/__mocks__/profile-pic/sample-profile-pic.jpg').expect(HTTPResponseCode.OK);
       expect(fileValidator.fileExists(`public/images/profilePics/test/${userId}`)).toBeTruthy();
       await expect(userCollection.findOne({ _id: new ObjectId(userId) })).resolves.toStrictEqual(expect.objectContaining({ profilePicSrc: `test/${userId}` }));
