@@ -15,10 +15,10 @@ function getFilesIfExist(req: Request) {
     return (files.constructor.name === 'Array');
   }
 
-  if (req.file) return [req.file.destination];
+  if (req.file) return [req.file.path];
   if (req.files) {
-    if (isFileArray(req.files)) return req.files.map((file) => file.destination);
-    return Object.values(req.files).flat().map((file) => file.destination);
+    if (isFileArray(req.files)) return req.files.map((file) => file.path);
+    return Object.values(req.files).flat().map((file) => file.path);
   }
   return undefined;
 }

@@ -1,4 +1,5 @@
 /* eslint-disable no-underscore-dangle */
+import { emptyDir } from 'fs-extra';
 import { Collection, Document, ObjectId } from 'mongodb';
 import request from 'supertest';
 import { HTTPResponseCode } from '../../api/HttpResponse';
@@ -248,6 +249,30 @@ describe('User Endpoints', () => {
       expect(fileValidator.fileExists(`public/images/profilePics/test/${userId}`)).toBeTruthy();
       await expect(userCollection.findOne({ _id: new ObjectId(userId) })).resolves.toStrictEqual(expect.objectContaining({ profilePicSrc: `test/${userId}` }));
     });
+
+    it('Respond with error code 400 (Bad Request) if no file is provided', async () => {
+      const { agent, userId } = await getLoggedInUser(app, userCollection);
+      await agent.put('/user/profile-pic').attach('profilePic', '').expect(HTTPResponseCode.BAD_REQUEST);
+      expect(fileValidator.fileExists(`public/images/profilePics/test/${userId}`)).toBeFalsy();
+      await expect(userCollection.findOne({ _id: new ObjectId(userId) })).resolves.not.toStrictEqual(expect.objectContaining({ profilePicSrc: `test/${userId}` }));
+      await agent.put('/user/profile-pic').expect(HTTPResponseCode.BAD_REQUEST);
+      expect(fileValidator.fileExists(`public/images/profilePics/test/${userId}`)).toBeFalsy();
+      await expect(userCollection.findOne({ _id: new ObjectId(userId) })).resolves.not.toStrictEqual(expect.objectContaining({ profilePicSrc: `test/${userId}` }));
+    });
+
+    it('Respond with error code 400 (Bad Request) if image is not JPG', async () => {
+      const { agent, userId } = await getLoggedInUser(app, userCollection);
+      await agent.put('/user/profile-pic').attach('profilePic', 'src/__tests__/__mocks__/profile-pic/sample-invalid-pic.png').expect(HTTPResponseCode.BAD_REQUEST);
+      expect(fileValidator.fileExists(`public/images/profilePics/test/${userId}`)).toBeFalsy();
+      await expect(userCollection.findOne({ _id: new ObjectId(userId) })).resolves.not.toStrictEqual(expect.objectContaining({ profilePicSrc: `test/${userId}` }));
+    });
+
+    it('Respond with error code 400 (Bad Request) if image is false JPG', async () => {
+      const { agent, userId } = await getLoggedInUser(app, userCollection);
+      await agent.put('/user/profile-pic').attach('profilePic', 'src/__tests__/__mocks__/profile-pic/sample-invalid-pic.jpg').expect(HTTPResponseCode.BAD_REQUEST);
+      expect(fileValidator.fileExists(`public/images/profilePics/test/${userId}`)).toBeFalsy();
+      await expect(userCollection.findOne({ _id: new ObjectId(userId) })).resolves.not.toStrictEqual(expect.objectContaining({ profilePicSrc: `test/${userId}` }));
+    });
   });
 
   describe('POST /user/logout', () => {
@@ -261,6 +286,7 @@ describe('User Endpoints', () => {
 
   afterEach(async () => {
     await (await mockDb()).dropCollection('users');
+    emptyDir('public/images/profilePics/test');
   });
 
   afterAll(async () => {

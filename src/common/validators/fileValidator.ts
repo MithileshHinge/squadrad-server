@@ -1,15 +1,22 @@
-import { accessSync, constants } from 'fs';
+import fs from 'fs';
 
 export default {
   fileExists(path: string): boolean {
     try {
-      accessSync(path, constants.F_OK);
+      fs.accessSync(path, fs.constants.F_OK);
       return true;
     } catch (err) {
       return false;
     }
   },
-  fileIsJPEGImage(fileBuffer: Buffer) {
-    return (fileBuffer.readInt8(0) === 0xFF && fileBuffer.readInt8(1) === 0xD8 && fileBuffer.readInt8(2) === 0xFF);
+  fileIsJPEGImage(path: string) {
+    try {
+      const fd = fs.openSync(path, fs.constants.O_RDONLY);
+      const fileBuffer = Buffer.alloc(3);
+      fs.readSync(fd, fileBuffer, 0, 3, 0);
+      return (fileBuffer[0] === 0xFF && fileBuffer[1] === 0xD8 && fileBuffer[2] === 0xFF);
+    } catch (err) {
+      return false;
+    }
   },
 };
