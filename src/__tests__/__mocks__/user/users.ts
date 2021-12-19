@@ -20,7 +20,7 @@ export function newUser() {
 export default Array.from({ length: 10 }, newUser);
 
 export async function getRegisteredUser(userCollection: Collection<Document>, { verified }: { verified: boolean }): Promise<{
-  userId: string, email: string, password: string,
+  userId: string, email: string, password: string, fullName: string, profilePicSrc: string,
 }> {
   // insert new verified user for testing
   const {
@@ -41,17 +41,19 @@ export async function getRegisteredUser(userCollection: Collection<Document>, { 
 
   return {
     userId,
-    email: tempUser.email,
     password,
+    ...tempUser,
   };
 }
 
 export async function getLoggedInUser(app: Express, userCollection: Collection<Document>): Promise<{
-  agent: SuperAgentTest, userId: string, email: string, password: string,
+  agent: SuperAgentTest, userId: string, email: string, password: string, fullName: string, profilePicSrc: string,
 }> {
   const agent = request.agent(app);
 
-  const { userId, email, password } = await getRegisteredUser(userCollection, { verified: true });
+  const {
+    userId, email, password, fullName, profilePicSrc,
+  } = await getRegisteredUser(userCollection, { verified: true });
 
   // log in user
   await agent.post('/user/login').send({ email, password }).expect(HTTPResponseCode.OK);
@@ -61,5 +63,7 @@ export async function getLoggedInUser(app: Express, userCollection: Collection<D
     userId,
     email,
     password,
+    fullName,
+    profilePicSrc,
   };
 }

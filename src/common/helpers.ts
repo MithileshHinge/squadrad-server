@@ -22,3 +22,7 @@ export async function moveFile(srcPath: string, destPath: string, overwriteIfExi
 export async function copyFile(srcPath: string, destPath: string) {
   await fs.copy(srcPath, destPath);
 }
+
+export async function emptyDir(dirPath: string) {
+  await fs.emptyDir(dirPath);
+}

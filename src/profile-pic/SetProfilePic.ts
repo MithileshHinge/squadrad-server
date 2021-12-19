@@ -1,4 +1,5 @@
-import { moveFile } from '../common/helpers';
+import crypto from 'crypto';
+import { emptyDir, moveFile } from '../common/helpers';
 import { validateUserId } from '../userId';
 import { IProfilePicsData } from './IProfilePicsData';
 import { IProfilePicValidator } from './validator/IProfilePicValidator';
@@ -33,9 +34,12 @@ export default class SetProfilePic {
   async setNew(userId: string, src: string, forCreator: boolean): Promise<string> {
     const userIdValidated = validateUserId.validate(userId);
     const srcValidated = this.profilePicValidator.validateProfilePic(src);
-    const dest = process.env.NODE_ENV === 'test' ? `test/${userIdValidated}` : `${userIdValidated}`;
-    const finalDest = `public/images/profilePics/${dest}`;
-    await moveFile(srcValidated, finalDest);
+    const randomFilename = crypto.pseudoRandomBytes(10).toString('hex');
+    const profilePicsDir = 'public/images/profilePics/';
+    let dest = `${process.env.NODE_ENV === 'test' ? 'test/' : ''}${userIdValidated}`;
+    await emptyDir(profilePicsDir + dest); // Remove old profile pic if exists, or create empty dir
+    dest += `/${randomFilename}`;
+    await moveFile(srcValidated, profilePicsDir + dest);
     await this.profilePicsData.updateProfilePic(userIdValidated, dest, forCreator);
     return dest;
   }
