@@ -35,8 +35,8 @@ export default class SetProfilePic {
     const userIdValidated = validateUserId.validate(userId);
     const srcValidated = this.profilePicValidator.validateProfilePic(src);
     const randomFilename = crypto.pseudoRandomBytes(10).toString('hex');
-    const profilePicsDir = 'public/images/profilePics/';
-    let dest = `${process.env.NODE_ENV === 'test' ? 'test/' : ''}${userIdValidated}`;
+    const profilePicsDir = `public/images/profilePics/${forCreator ? 'creators' : 'users'}/`;
+    let dest = `${process.env.NODE_ENV === 'test' ? 'test/' : ''}${userIdValidated}/`;
     await emptyDir(profilePicsDir + dest); // Remove old profile pic if exists, or create empty dir
     dest += `/${randomFilename}`;
     await moveFile(srcValidated, profilePicsDir + dest);

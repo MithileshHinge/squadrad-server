@@ -1,4 +1,5 @@
 import { becomeCreator, editCreator, findCreator } from '../../creator';
+import { setProfilePic } from '../../profile-pic';
 import { HTTPResponseCode } from '../HttpResponse';
 import handleControllerError from './ControllerErrorHandler';
 import { IBaseController } from './IBaseController';
@@ -45,6 +46,25 @@ const patchCreator: IBaseController = async (httpRequest) => {
       about,
     });
     return { statusCode: HTTPResponseCode.OK, body: {} };
+  } catch (err: any) {
+    return handleControllerError(err);
+  }
+};
+
+const putProfilePic: IBaseController = async (httpRequest) => {
+  try {
+    const userId = httpRequest.userId!;
+    if (!httpRequest.files) return { statusCode: HTTPResponseCode.BAD_REQUEST, body: {} };
+    const profilePicSrc = httpRequest.files[0];
+
+    const profilePicSrcAdded = await setProfilePic.setNew(userId, profilePicSrc, true);
+
+    return {
+      statusCode: HTTPResponseCode.OK,
+      body: {
+        profilePicSrc: profilePicSrcAdded,
+      },
+    };
   } catch (err: any) {
     return handleControllerError(err);
   }
@@ -98,6 +118,7 @@ const getCreatorUserId: IBaseController = async (httpRequest) => {
 export default {
   postCreator,
   patchCreator,
+  putProfilePic,
   getCreator,
   getCreatorUserId,
 };

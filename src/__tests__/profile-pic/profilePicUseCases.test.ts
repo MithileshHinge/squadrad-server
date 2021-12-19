@@ -16,7 +16,9 @@ describe('Profile Pic Use Cases', () => {
   });
 
   afterEach(async () => {
-    await fs.emptyDir('public/images/profilePics/test');
+    await fs.emptyDir('public/images/profilePics/users/test');
+    await fs.emptyDir('public/images/profilePics/creators/test');
+    await fs.emptyDir('tmp');
   });
 
   describe('For user', () => {
