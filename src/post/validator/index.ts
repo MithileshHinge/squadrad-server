@@ -30,6 +30,7 @@ const postValidator: IPostValidator = {
     return attachments.map((attachment: any) => {
       if (!(isPostAttachment(attachment))) throw new ValidationError('Post attachment is invalid');
       if ((attachment.type === PostAttachmentType.IMAGE || attachment.type === PostAttachmentType.VIDEO) && !fileValidator.fileExists(attachment.src)) throw new ValidationError('Post attachment file does not exist');
+      if ((attachment.type === PostAttachmentType.LINK) && !stringValidator.isUrl(attachment.src)) throw new ValidationError('Post attachment link is not a valid url');
       return attachment;
     });
   },

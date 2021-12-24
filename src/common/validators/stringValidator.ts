@@ -20,4 +20,8 @@ export default {
   isMobilePhone(str: string, checkCountryCode: boolean): boolean {
     return validator.isMobilePhone(str, 'en-IN', { strictMode: checkCountryCode });
   },
+
+  isUrl(str: string): boolean {
+    return validator.isURL(str);
+  },
 };

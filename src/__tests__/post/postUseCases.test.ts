@@ -140,6 +140,64 @@ describe('Post use cases', () => {
         expect(mockPostsData.insertNewPost).not.toHaveBeenCalled();
       });
     });
+
+    describe('Attachment validation', () => {
+      describe('Should throw error for invalid attachments', () => {
+        [{
+          type: 'blah',
+          src: 'blahblah',
+        }, {
+          type: PostAttachmentType.LINK,
+        }, {
+          type: PostAttachmentType.IMAGE,
+        }, {
+          src: 'src/__tests__/__mocks__/post/brownpaperbag-comic.png',
+        }, {
+          type: PostAttachmentType.IMAGE,
+          src: 'src/__tests__/__mocks__/post/brownpaperbag-comic.png',
+          unexpectedProperty: 'blah',
+        }, {
+        }, {
+          type: '',
+          src: 'src/__tests__/__mocks__/post/brownpaperbag-comic.png',
+        }].forEach((attachment: any) => {
+          it(`Should throw error for ${attachment.toString()}`, async () => {
+            if (samplePostParams.squadId !== undefined && samplePostParams.squadId !== '') {
+              const squad = { ...newSquad(), userId: existingCreator.userId };
+              mockSquadsData.fetchSquadBySquadId.mockResolvedValueOnce(squad);
+            }
+            await expect(addPost.add({ userId: existingCreator.userId, ...samplePostParams, attachments: [attachment] })).rejects.toThrow(ValidationError);
+            expect(mockPostsData.insertNewPost).not.toHaveBeenCalled();
+          });
+        });
+      });
+
+      describe('Should throw error for invalid url', () => {
+        ['', undefined, null, 'abc', 'https://', 'www', 'www.', '.com'].forEach((url: any) => {
+          it(`Should throw error for ${url}`, async () => {
+            if (samplePostParams.squadId !== undefined && samplePostParams.squadId !== '') {
+              const squad = { ...newSquad(), userId: existingCreator.userId };
+              mockSquadsData.fetchSquadBySquadId.mockResolvedValueOnce(squad);
+            }
+            await expect(addPost.add({ userId: existingCreator.userId, ...samplePostParams, attachments: [{ type: PostAttachmentType.LINK, src: url }] })).rejects.toThrow(ValidationError);
+            expect(mockPostsData.insertNewPost).not.toHaveBeenCalled();
+          });
+        });
+      });
+
+      describe('Should throw error for invalid images', () => {
+        ['', null, undefined, 'tmp/non-existent.jpg'].forEach((src: any) => {
+          it(`Should throw error for ${src}`, async () => {
+            if (samplePostParams.squadId !== undefined && samplePostParams.squadId !== '') {
+              const squad = { ...newSquad(), userId: existingCreator.userId };
+              mockSquadsData.fetchSquadBySquadId.mockResolvedValueOnce(squad);
+            }
+            await expect(addPost.add({ userId: existingCreator.userId, ...samplePostParams, attachments: [{ type: PostAttachmentType.IMAGE, src }] })).rejects.toThrow(ValidationError);
+            expect(mockPostsData.insertNewPost).not.toHaveBeenCalled();
+          });
+        });
+      });
+    });
   });
 
   describe('FindPost use case', () => {
