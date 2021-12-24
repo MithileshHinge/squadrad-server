@@ -1,3 +1,5 @@
+import { IPostAttachment } from './IPostAttachment';
+
 export interface IPostsData {
   /**
    * Insert new post into database
@@ -11,12 +13,14 @@ export interface IPostsData {
     // title: string,
     description: string,
     squadId: string,
+    attachments: IPostAttachment[],
   }): Promise<{
     postId: string,
     userId: string,
     // title: string,
     description: string,
     squadId: string,
+    attachments: IPostAttachment[],
   }>;
 
   /**

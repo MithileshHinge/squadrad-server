@@ -1,5 +1,6 @@
 import fs from 'fs';
 
+// TODO use normal fs functions instead of sync ones, they block the entire application
 export default {
   fileExists(path: string): boolean {
     try {

@@ -1,23 +1,26 @@
 /* eslint-disable no-underscore-dangle */
 import { ObjectId } from 'mongodb';
 import { IPostsData } from '../post/IPostsData';
+import { IPostAttachment } from '../post/IPostAttachment';
 import BaseData from './BaseData';
 
 export default class PostsData extends BaseData implements IPostsData {
   async insertNewPost({
-    postId, userId, description, squadId,
+    postId, userId, description, squadId, attachments,
   }: {
     postId: string,
     userId: string,
     // title: string,
     description: string,
     squadId: string,
+    attachments: IPostAttachment[],
   }): Promise<{
       postId: string,
       userId: string,
       // title: string,
       description: string,
       squadId: string,
+      attachments: IPostAttachment[],
     }> {
     const db = await this.getDb();
     try {
@@ -27,6 +30,7 @@ export default class PostsData extends BaseData implements IPostsData {
         // title,
         description,
         squadId,
+        attachments,
       });
       return {
         postId: result.insertedId.toString(),
@@ -34,6 +38,7 @@ export default class PostsData extends BaseData implements IPostsData {
         // title,
         description,
         squadId,
+        attachments,
       };
     } catch (err: any) {
       return this.handleDatabaseError(err, 'Could not insert new post');

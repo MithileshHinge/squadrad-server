@@ -1,10 +1,13 @@
 import ValidationError from '../../common/errors/ValidationError';
+import { emptyDir } from '../../common/helpers';
 import id from '../../common/id';
+import fileValidator from '../../common/validators/fileValidator';
 import FindManualSub from '../../manual-sub/FindManualSub';
 import ManualSubStatuses from '../../manual-sub/ManualSubStatuses';
 import manualSubValidator from '../../manual-sub/validator';
 import AddPost from '../../post/AddPost';
 import FindPost from '../../post/FindPost';
+import { PostAttachmentType } from '../../post/IPostAttachment';
 import postValidator from '../../post/validator';
 import FindSquad from '../../squad/FindSquad';
 import squadValidator from '../../squad/validator';
@@ -13,7 +16,7 @@ import faker from '../__mocks__/faker';
 import newManualSub from '../__mocks__/manual-sub/manualSubs';
 import mockManualSubsData from '../__mocks__/manual-sub/mockManualSubsData';
 import mockPostsData from '../__mocks__/post/mockPostsData';
-import samplePostParams from '../__mocks__/post/postParams';
+import samplePostParams, { newPostAttachmentParam } from '../__mocks__/post/postParams';
 import newPost from '../__mocks__/post/posts';
 import mockSquadsData from '../__mocks__/squad/mockSquadsData';
 import newSquad from '../__mocks__/squad/squads';
@@ -23,6 +26,11 @@ describe('Post use cases', () => {
     Object.values({ ...mockPostsData, ...mockSquadsData }).forEach((mockMethod) => {
       mockMethod.mockClear();
     });
+  });
+
+  afterEach(async () => {
+    await emptyDir('posts/test');
+    await emptyDir('tmp');
   });
 
   describe('AddPost use case', () => {
@@ -37,6 +45,26 @@ describe('Post use cases', () => {
       }
       await expect(addPost.add({ userId: existingCreator.userId, ...samplePostParams })).resolves.not.toThrowError();
       expect(mockPostsData.insertNewPost).toHaveBeenCalled();
+    });
+
+    it('Can create a new post with link', async () => {
+      if (samplePostParams.squadId !== undefined && samplePostParams.squadId !== '') {
+        const squad = { ...newSquad(), userId: existingCreator.userId };
+        mockSquadsData.fetchSquadBySquadId.mockResolvedValueOnce(squad);
+      }
+      await expect(addPost.add({ userId: existingCreator.userId, ...samplePostParams, attachments: [(await newPostAttachmentParam(PostAttachmentType.LINK))] })).resolves.not.toThrowError();
+      expect(mockPostsData.insertNewPost).toHaveBeenCalledWith(expect.objectContaining({ attachments: [{ type: PostAttachmentType.LINK, src: expect.any(String) }] }));
+    });
+
+    it('Can create a new post with image', async () => {
+      if (samplePostParams.squadId !== undefined && samplePostParams.squadId !== '') {
+        const squad = { ...newSquad(), userId: existingCreator.userId };
+        mockSquadsData.fetchSquadBySquadId.mockResolvedValueOnce(squad);
+      }
+      const post = await addPost.add({ userId: existingCreator.userId, ...samplePostParams, attachments: [(await newPostAttachmentParam(PostAttachmentType.IMAGE))] });
+      expect(post.attachments).toBeTruthy();
+      expect(mockPostsData.insertNewPost).toHaveBeenCalledWith(expect.objectContaining({ attachments: [{ type: PostAttachmentType.IMAGE, src: expect.any(String) }] }));
+      expect(fileValidator.fileExists(`posts/test/${post.attachments[0].src}`)).toBeTruthy();
     });
 
     describe('userId validation', () => {

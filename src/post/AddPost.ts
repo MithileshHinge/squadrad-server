@@ -1,9 +1,12 @@
+import crypto from 'crypto';
 import ValidationError from '../common/errors/ValidationError';
 import id from '../common/id';
 import FindSquad from '../squad/FindSquad';
 import { validateUserId } from '../userId';
 import { IPostsData } from './IPostsData';
+import { IPostAttachment, PostAttachmentType } from './IPostAttachment';
 import { IPostValidator } from './validator/IPostValidator';
+import { emptyDir, forEachAsync, moveFile } from '../common/helpers';
 
 export default class AddPost {
   private findSquad: FindSquad;
@@ -24,12 +27,14 @@ export default class AddPost {
    * @throws DatabaseError if operation fails
    */
   async add({
-    userId, description, squadId,
+    // TODO: give all default params default values, remove default values assignment from validation lines
+    userId, description, squadId, attachments = [],
   }: {
     userId: string,
     // title: string,
     description?: string,
     squadId?: string,
+    attachments?: IPostAttachment[],
   }) {
     const userIdValidated = validateUserId.validate(userId);
     // const titleValidated = this.postValidator.validateTitle(title);
@@ -42,7 +47,22 @@ export default class AddPost {
       else throw new ValidationError('Squad does not exist');
     }
 
+    const attachmentsValidated = this.postValidator.validateAttachments(attachments);
     const postId = id.createId();
+
+    if (attachmentsValidated.some((attachment) => attachment.type === PostAttachmentType.IMAGE)) {
+      const postsDir = `posts/${process.env.NODE_ENV === 'test' ? 'test/' : ''}`;
+      const dest = `${postId}/`;
+      await emptyDir(postsDir + dest);
+
+      await forEachAsync(attachmentsValidated, async (attachment) => {
+        if (attachment.type === PostAttachmentType.IMAGE) {
+          const randomFilename = crypto.pseudoRandomBytes(4).toString('hex');
+          await moveFile(attachmentsValidated[0].src, postsDir + dest + randomFilename);
+          attachmentsValidated[0].src = dest + randomFilename;
+        }
+      });
+    }
 
     const postAdded = await this.postsData.insertNewPost({
       postId,
@@ -50,6 +70,7 @@ export default class AddPost {
       // title: titleValidated,
       description: descriptionValidated,
       squadId: squadIdValidated,
+      attachments: attachmentsValidated,
     });
 
     return {
@@ -58,6 +79,7 @@ export default class AddPost {
       // title: postAdded.title,
       description: postAdded.description,
       squadId: postAdded.squadId,
+      attachments: postAdded.attachments,
     };
   }
 }

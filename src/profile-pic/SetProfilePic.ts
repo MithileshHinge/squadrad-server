@@ -38,7 +38,7 @@ export default class SetProfilePic {
     const profilePicsDir = `public/images/profilePics/${forCreator ? 'creators' : 'users'}/`;
     let dest = `${process.env.NODE_ENV === 'test' ? 'test/' : ''}${userIdValidated}/`;
     await emptyDir(profilePicsDir + dest); // Remove old profile pic if exists, or create empty dir
-    dest += `/${randomFilename}`;
+    dest += randomFilename;
     await moveFile(srcValidated, profilePicsDir + dest);
     await this.profilePicsData.updateProfilePic(userIdValidated, dest, forCreator);
     return dest;
