@@ -54,8 +54,7 @@ const patchCreator: IBaseController = async (httpRequest) => {
 const putProfilePic: IBaseController = async (httpRequest) => {
   try {
     const userId = httpRequest.userId!;
-    if (!httpRequest.files) return { statusCode: HTTPResponseCode.BAD_REQUEST, body: {} };
-    const profilePicSrc = httpRequest.files[0];
+    const profilePicSrc: any = httpRequest.files ? httpRequest.files[0] : undefined;
 
     const profilePicSrcAdded = await setProfilePic.setNew(userId, profilePicSrc, true);
 
