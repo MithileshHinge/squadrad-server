@@ -51,6 +51,7 @@ export default class PostsData extends BaseData implements IPostsData {
     // title: string,
     description: string,
     squadId: string,
+    attachments: IPostAttachment[],
   }[]> {
     const db = await this.getDb();
     try {
@@ -61,6 +62,7 @@ export default class PostsData extends BaseData implements IPostsData {
         userId: post.userId,
         description: post.description,
         squadId: post.squadId,
+        attachments: post.attachments,
       }));
     } catch (err: any) {
       return this.handleDatabaseError(err, 'Could not fetch posts by userId');

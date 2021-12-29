@@ -61,6 +61,7 @@ export default class FindPost {
       userId: post.userId,
       description: post.description,
       squadId: post.squadId,
+      attachments: post.attachments,
     }));
   }
 }

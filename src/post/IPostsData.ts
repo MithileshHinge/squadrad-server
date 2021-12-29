@@ -33,5 +33,6 @@ export interface IPostsData {
     userId: string,
     description: string,
     squadId: string,
+    attachments: IPostAttachment[],
   }[]>
 }
