@@ -58,8 +58,9 @@ export default class AddPost {
       await forEachAsync(attachmentsValidated, async (attachment) => {
         if (attachment.type === PostAttachmentType.IMAGE) {
           const randomFilename = crypto.pseudoRandomBytes(4).toString('hex');
-          await moveFile(attachmentsValidated[0].src, postsDir + dest + randomFilename);
-          attachmentsValidated[0].src = dest + randomFilename;
+          await moveFile(attachment.src, postsDir + dest + randomFilename);
+          // eslint-disable-next-line no-param-reassign
+          attachment.src = dest + randomFilename;
         }
       });
     }

@@ -4,3 +4,4 @@ globalConfig.json
 src/common/secretKeys.ts
 tmp
 public/images/profilePics/*
+posts

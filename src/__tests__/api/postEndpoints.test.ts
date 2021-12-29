@@ -1,5 +1,6 @@
 import request from 'supertest';
 import { Collection, Document, ObjectId } from 'mongodb';
+import fs from 'fs-extra';
 import { HTTPResponseCode } from '../../api/HttpResponse';
 import app from '../../api/server';
 import { closeMockStoreConnection } from '../__mocks__/api/mockStore';
@@ -11,6 +12,10 @@ import { getCreatorWithSquads } from '../__mocks__/squad/squads';
 import newPost from '../__mocks__/post/posts';
 import newManualSub from '../__mocks__/manual-sub/manualSubs';
 import ManualSubStatuses from '../../manual-sub/ManualSubStatuses';
+import { PostAttachmentType } from '../../post/IPostAttachment';
+import fileValidator from '../../common/validators/fileValidator';
+import { removeUndefinedKeys } from '../../common/helpers';
+import faker from '../__mocks__/faker';
 
 describe('Post endpoints', () => {
   let userCollection: Collection<Document>;
@@ -34,6 +39,7 @@ describe('Post endpoints', () => {
     await squadCollection.drop();
     await postCollection.drop();
     await manualSubCollection.drop();
+    fs.emptyDir('posts/test');
   });
 
   afterAll(async () => {
@@ -44,27 +50,55 @@ describe('Post endpoints', () => {
   describe('POST /post', () => {
     it('Creator can create post', async () => {
       const { agent, userId, squads } = await getCreatorWithSquads(app, userCollection, squadCollection, 1);
-      const res = await agent.post('/post').send({ ...postParams, squadId: squads[0].squadId }).expect(HTTPResponseCode.OK);
+      const sendData: any = { ...postParams, squadId: squads[0].squadId };
+      removeUndefinedKeys(sendData);
+      const res = await agent.post('/post').field(sendData).expect(HTTPResponseCode.OK);
       expect(res.body).toStrictEqual(expect.objectContaining({ postId: expect.any(String) }));
       await expect(postCollection.findOne({ _id: new ObjectId(res.body.postId), userId })).resolves.toBeTruthy();
     });
 
+    it('Creator can create a link post', async () => {
+      const { agent, userId, squads } = await getCreatorWithSquads(app, userCollection, squadCollection, 1);
+      const sendData: any = {
+        ...postParams, squadId: squads[0].squadId, type: PostAttachmentType.LINK, link: faker.internet.url(),
+      };
+      removeUndefinedKeys(sendData);
+      const res = await agent.post('/post').field(sendData).expect(HTTPResponseCode.OK);
+      expect(res.body).toStrictEqual(expect.objectContaining({ postId: expect.any(String) }));
+      await expect(postCollection.findOne({ _id: new ObjectId(res.body.postId), userId })).resolves.toBeTruthy();
+    });
+
+    it('Creator can create an image post', async () => {
+      const { agent, userId, squads } = await getCreatorWithSquads(app, userCollection, squadCollection, 1);
+      const sendData: any = { ...postParams, squadId: squads[0].squadId, type: PostAttachmentType.IMAGE };
+      removeUndefinedKeys(sendData);
+      const res = await agent.post('/post').attach('postImage', 'src/__tests__/__mocks__/post/brownpaperbag-comic.jpg').field(sendData).expect(HTTPResponseCode.OK);
+      expect(res.body).toStrictEqual(expect.objectContaining({ postId: expect.any(String) }));
+      await expect(postCollection.findOne({ _id: new ObjectId(res.body.postId), userId })).resolves.toBeTruthy();
+      expect(fileValidator.fileExists(`posts/test/${res.body.attachments[0].src}`)).toBeTruthy();
+    });
+
     it('Respond with error code 403 (Forbidden) if user is not a creator', async () => {
       const { agent, userId } = await getLoggedInUser(app, userCollection);
-      await agent.post('/post').send({ ...postParams }).expect(HTTPResponseCode.FORBIDDEN);
+      const sendData: any = { ...postParams };
+      removeUndefinedKeys(sendData);
+      await agent.post('/post').field(sendData).expect(HTTPResponseCode.FORBIDDEN);
       await expect(postCollection.findOne({ userId })).resolves.toBeFalsy();
     });
 
     it('Respond with error code 401 (Unauthorized) if user is not logged in', async () => {
-      await request(app).post('/post').send(postParams).expect(HTTPResponseCode.UNAUTHORIZED);
+      const sendData: any = { ...postParams };
+      removeUndefinedKeys(sendData);
+      await request(app).post('/post').field(sendData).expect(HTTPResponseCode.UNAUTHORIZED);
     });
 
     it('Respond with error code 400 (Bad Request) if params are invalid', async () => {
       const { agent, userId } = await getLoggedInCreator(app, userCollection);
-      await agent.post('/post').send({
+      const sendData: any = {
         description: 1234,
         squadId: 1234,
-      }).expect(HTTPResponseCode.BAD_REQUEST);
+      };
+      await agent.post('/post').field(sendData).expect(HTTPResponseCode.BAD_REQUEST);
       await expect(postCollection.findOne({ userId })).resolves.toBeFalsy();
     });
   });

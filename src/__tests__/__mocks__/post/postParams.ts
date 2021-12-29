@@ -1,6 +1,7 @@
 import { randomBytes } from 'crypto';
 import { copyFile } from '../../../common/helpers';
 import id from '../../../common/id';
+import config from '../../../config';
 import { PostAttachmentType } from '../../../post/IPostAttachment';
 import faker from '../faker';
 
@@ -13,8 +14,8 @@ export async function newPostAttachmentParam(attachmentType?: PostAttachmentType
     };
   }
   if (type === PostAttachmentType.IMAGE) {
-    const src = `tmp/test/${randomBytes(4).toString('hex')}`;
-    await copyFile('src/__tests__/__mocks__/post/brownpaperbag-comic.png', src);
+    const src = `${config.tmpDir}/test/${randomBytes(4).toString('hex')}.jpg`;
+    await copyFile('src/__tests__/__mocks__/post/brownpaperbag-comic.jpg', src);
     return { type, src };
   }
   throw new Error('Invalid Post attachment type');

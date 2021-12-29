@@ -2,6 +2,7 @@ import ValidationError from '../../common/errors/ValidationError';
 import { emptyDir } from '../../common/helpers';
 import id from '../../common/id';
 import fileValidator from '../../common/validators/fileValidator';
+import config from '../../config';
 import FindManualSub from '../../manual-sub/FindManualSub';
 import ManualSubStatuses from '../../manual-sub/ManualSubStatuses';
 import manualSubValidator from '../../manual-sub/validator';
@@ -30,7 +31,7 @@ describe('Post use cases', () => {
 
   afterEach(async () => {
     await emptyDir('posts/test');
-    await emptyDir('tmp');
+    await emptyDir(config.tmpDir);
   });
 
   describe('AddPost use case', () => {
@@ -151,15 +152,15 @@ describe('Post use cases', () => {
         }, {
           type: PostAttachmentType.IMAGE,
         }, {
-          src: 'src/__tests__/__mocks__/post/brownpaperbag-comic.png',
+          src: 'src/__tests__/__mocks__/post/brownpaperbag-comic.jpg',
         }, {
           type: PostAttachmentType.IMAGE,
-          src: 'src/__tests__/__mocks__/post/brownpaperbag-comic.png',
+          src: 'src/__tests__/__mocks__/post/brownpaperbag-comic.jpg',
           unexpectedProperty: 'blah',
         }, {
         }, {
           type: '',
-          src: 'src/__tests__/__mocks__/post/brownpaperbag-comic.png',
+          src: 'src/__tests__/__mocks__/post/brownpaperbag-comic.jpg',
         }].forEach((attachment: any) => {
           it(`Should throw error for ${attachment.toString()}`, async () => {
             if (samplePostParams.squadId !== undefined && samplePostParams.squadId !== '') {
@@ -186,7 +187,7 @@ describe('Post use cases', () => {
       });
 
       describe('Should throw error for invalid images', () => {
-        ['', null, undefined, 'tmp/non-existent.jpg'].forEach((src: any) => {
+        ['', null, undefined, `${config.tmpDir}/non-existent.jpg`].forEach((src: any) => {
           it(`Should throw error for ${src}`, async () => {
             if (samplePostParams.squadId !== undefined && samplePostParams.squadId !== '') {
               const squad = { ...newSquad(), userId: existingCreator.userId };

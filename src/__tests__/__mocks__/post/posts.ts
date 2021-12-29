@@ -24,7 +24,7 @@ export async function newPostAttachment({ postId, attachmentType, createImageFil
     const type = PostAttachmentType.IMAGE;
     await emptyDir(`posts/${postId}`);
     const src = `${postId}/${randomBytes(4).toString('hex')}`;
-    await copyFile('src/__tests__/__mocks__/post/brownpaperbag-comic.png', `posts/${src}`);
+    await copyFile('src/__tests__/__mocks__/post/brownpaperbag-comic.jpg', `posts/${src}`);
     return { type, src };
   }
   const type = attachmentType || [PostAttachmentType.IMAGE, PostAttachmentType.LINK][faker.datatype.number(1)];

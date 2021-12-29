@@ -1,4 +1,5 @@
 import { addPost, findPost } from '../../post';
+import { PostAttachmentType } from '../../post/IPostAttachment';
 import { HTTPResponseCode } from '../HttpResponse';
 import handleControllerError from './ControllerErrorHandler';
 import { IBaseController } from './IBaseController';
@@ -6,9 +7,21 @@ import { IBaseController } from './IBaseController';
 const postPost: IBaseController = async (httpRequest) => {
   try {
     const userId = httpRequest.userId!;
-    const { description, squadId } = httpRequest.body;
+    const {
+      description, squadId, type, link,
+    } = httpRequest.body;
 
-    const postAdded = await addPost.add({ userId, description, squadId });
+    let attachments: any[] = [];
+    if (type === PostAttachmentType.IMAGE) {
+      const src: any = httpRequest.files ? httpRequest.files[0] : undefined;
+      attachments = [{ type, src }];
+    } else if (type === PostAttachmentType.LINK) {
+      attachments = [{ type, src: link }];
+    }
+
+    const postAdded = await addPost.add({
+      userId, description, squadId, attachments,
+    });
     return {
       statusCode: HTTPResponseCode.OK,
       body: postAdded,

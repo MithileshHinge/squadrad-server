@@ -7,9 +7,10 @@ import id from '../../common/id';
 import mockProfilePicsData from '../__mocks__/profile-pic/mockProfilePicsData';
 import sampleUsers from '../__mocks__/user/users';
 import { copyFile } from '../../common/helpers';
+import config from '../../config';
 
 describe('Profile Pic Use Cases', () => {
-  const newSrc = 'tmp/sample-profile-pic.jpg';
+  const newSrc = `${config.tmpDir}/sample-profile-pic.jpg`;
   beforeEach(async () => {
     const sampleSrc = 'src/__tests__/__mocks__/profile-pic/sample-profile-pic.jpg';
     await copyFile(sampleSrc, newSrc);
@@ -18,7 +19,7 @@ describe('Profile Pic Use Cases', () => {
   afterEach(async () => {
     await fs.emptyDir('public/images/profilePics/users/test');
     await fs.emptyDir('public/images/profilePics/creators/test');
-    await fs.emptyDir('tmp');
+    await fs.emptyDir(config.tmpDir);
   });
 
   describe('For user', () => {
@@ -37,7 +38,7 @@ describe('Profile Pic Use Cases', () => {
 
       it('Throw error if file does not exist', async () => {
         const user = sampleUsers[0];
-        const newSrcNonExisting = 'tmp/non-existing-sample-profile-pic.jpg';
+        const newSrcNonExisting = `${config.tmpDir}/non-existing-sample-profile-pic.jpg`;
         await expect(setProfilePic.setNew(user.userId, newSrcNonExisting, false)).rejects.toThrow(ValidationError);
       });
 
@@ -95,7 +96,7 @@ describe('Profile Pic Use Cases', () => {
 
       it('Throw error if file does not exist', async () => {
         const user = sampleUsers[0];
-        const newSrcNonExisting = 'tmp/non-existing-sample-profile-pic.jpg';
+        const newSrcNonExisting = `${config.tmpDir}/non-existing-sample-profile-pic.jpg`;
         await expect(setProfilePic.setNew(user.userId, newSrcNonExisting, true)).rejects.toThrow(ValidationError);
       });
 
