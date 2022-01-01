@@ -75,7 +75,7 @@ describe('Post endpoints', () => {
       const res = await agent.post('/post').attach('postImage', 'src/__tests__/__mocks__/post/brownpaperbag-comic.jpg').field(sendData).expect(HTTPResponseCode.OK);
       expect(res.body).toStrictEqual(expect.objectContaining({ postId: expect.any(String) }));
       await expect(postCollection.findOne({ _id: new ObjectId(res.body.postId), userId })).resolves.toBeTruthy();
-      expect(fileValidator.fileExists(`posts/test/${res.body.attachments[0].src}`)).toBeTruthy();
+      expect(fileValidator.fileExists(`posts/test/${res.body.attachment.src}`)).toBeTruthy();
     });
 
     it('Respond with error code 403 (Forbidden) if user is not a creator', async () => {

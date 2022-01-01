@@ -6,7 +6,7 @@ import { validateUserId } from '../userId';
 import { IPostsData } from './IPostsData';
 import { IPostAttachment, PostAttachmentType } from './IPostAttachment';
 import { IPostValidator } from './validator/IPostValidator';
-import { emptyDir, forEachAsync, moveFile } from '../common/helpers';
+import { emptyDir, moveFile } from '../common/helpers';
 
 export default class AddPost {
   private findSquad: FindSquad;
@@ -28,13 +28,13 @@ export default class AddPost {
    */
   async add({
     // TODO: give all default params default values, remove default values assignment from validation lines
-    userId, description, squadId, attachments = [],
+    userId, description, squadId, attachment,
   }: {
     userId: string,
     // title: string,
     description?: string,
     squadId?: string,
-    attachments?: IPostAttachment[],
+    attachment?: IPostAttachment,
   }) {
     const userIdValidated = validateUserId.validate(userId);
     // const titleValidated = this.postValidator.validateTitle(title);
@@ -47,22 +47,17 @@ export default class AddPost {
       else throw new ValidationError('Squad does not exist');
     }
 
-    const attachmentsValidated = this.postValidator.validateAttachments(attachments);
+    const attachmentValidated = attachment === undefined ? undefined : this.postValidator.validateAttachment(attachment);
     const postId = id.createId();
 
-    if (attachmentsValidated.some((attachment) => attachment.type === PostAttachmentType.IMAGE)) {
+    if (attachmentValidated && attachmentValidated.type === PostAttachmentType.IMAGE) {
       const postsDir = `posts/${process.env.NODE_ENV === 'test' ? 'test/' : ''}`;
       const dest = `${postId}/`;
       await emptyDir(postsDir + dest);
-
-      await forEachAsync(attachmentsValidated, async (attachment) => {
-        if (attachment.type === PostAttachmentType.IMAGE) {
-          const randomFilename = crypto.pseudoRandomBytes(4).toString('hex');
-          await moveFile(attachment.src, postsDir + dest + randomFilename);
-          // eslint-disable-next-line no-param-reassign
-          attachment.src = dest + randomFilename;
-        }
-      });
+      const randomFilename = crypto.pseudoRandomBytes(4).toString('hex');
+      await moveFile(attachmentValidated.src, postsDir + dest + randomFilename);
+      // eslint-disable-next-line no-param-reassign
+      attachmentValidated.src = dest + randomFilename;
     }
 
     const postAdded = await this.postsData.insertNewPost({
@@ -71,7 +66,7 @@ export default class AddPost {
       // title: titleValidated,
       description: descriptionValidated,
       squadId: squadIdValidated,
-      attachments: attachmentsValidated,
+      attachment: attachmentValidated,
     });
 
     return {
@@ -80,7 +75,7 @@ export default class AddPost {
       // title: postAdded.title,
       description: postAdded.description,
       squadId: postAdded.squadId,
-      attachments: postAdded.attachments,
+      attachment: postAdded.attachment,
     };
   }
 }

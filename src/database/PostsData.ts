@@ -6,21 +6,21 @@ import BaseData from './BaseData';
 
 export default class PostsData extends BaseData implements IPostsData {
   async insertNewPost({
-    postId, userId, description, squadId, attachments,
+    postId, userId, description, squadId, attachment,
   }: {
     postId: string,
     userId: string,
     // title: string,
     description: string,
     squadId: string,
-    attachments: IPostAttachment[],
+    attachment?: IPostAttachment,
   }): Promise<{
       postId: string,
       userId: string,
       // title: string,
       description: string,
       squadId: string,
-      attachments: IPostAttachment[],
+      attachment?: IPostAttachment,
     }> {
     const db = await this.getDb();
     try {
@@ -30,7 +30,7 @@ export default class PostsData extends BaseData implements IPostsData {
         // title,
         description,
         squadId,
-        attachments,
+        attachment,
       });
       return {
         postId: result.insertedId.toString(),
@@ -38,7 +38,7 @@ export default class PostsData extends BaseData implements IPostsData {
         // title,
         description,
         squadId,
-        attachments,
+        attachment,
       };
     } catch (err: any) {
       return this.handleDatabaseError(err, 'Could not insert new post');
@@ -51,7 +51,7 @@ export default class PostsData extends BaseData implements IPostsData {
     // title: string,
     description: string,
     squadId: string,
-    attachments: IPostAttachment[],
+    attachment?: IPostAttachment,
   }[]> {
     const db = await this.getDb();
     try {
@@ -62,7 +62,7 @@ export default class PostsData extends BaseData implements IPostsData {
         userId: post.userId,
         description: post.description,
         squadId: post.squadId,
-        attachments: post.attachments,
+        attachment: post.attachment,
       }));
     } catch (err: any) {
       return this.handleDatabaseError(err, 'Could not fetch posts by userId');

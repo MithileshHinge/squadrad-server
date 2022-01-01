@@ -11,16 +11,16 @@ const postPost: IBaseController = async (httpRequest) => {
       description, squadId, type, link,
     } = httpRequest.body;
 
-    let attachments: any[] = [];
+    let attachment: any;
     if (type === PostAttachmentType.IMAGE) {
       const src: any = httpRequest.files ? httpRequest.files[0] : undefined;
-      attachments = [{ type, src }];
+      attachment = { type, src };
     } else if (type === PostAttachmentType.LINK) {
-      attachments = [{ type, src: link }];
+      attachment = { type, src: link };
     }
 
     const postAdded = await addPost.add({
-      userId, description, squadId, attachments,
+      userId, description, squadId, attachment,
     });
     return {
       statusCode: HTTPResponseCode.OK,

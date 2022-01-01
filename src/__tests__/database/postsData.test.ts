@@ -25,7 +25,7 @@ describe('Posts data access gateway', () => {
     it('Can insert new post', async () => {
       const postId = id.createId();
       const attachment = await newPostAttachment({ postId });
-      const post = newPost(postId, [attachment]);
+      const post = newPost(postId, attachment);
       await expect(postsData.insertNewPost(post)).resolves.not.toThrowError();
       await expect(postsCollection.findOne({ _id: new ObjectId(post.postId) })).resolves.toBeTruthy();
     });

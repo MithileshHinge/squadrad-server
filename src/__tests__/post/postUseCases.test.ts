@@ -53,8 +53,8 @@ describe('Post use cases', () => {
         const squad = { ...newSquad(), userId: existingCreator.userId };
         mockSquadsData.fetchSquadBySquadId.mockResolvedValueOnce(squad);
       }
-      await expect(addPost.add({ userId: existingCreator.userId, ...samplePostParams, attachments: [(await newPostAttachmentParam(PostAttachmentType.LINK))] })).resolves.not.toThrowError();
-      expect(mockPostsData.insertNewPost).toHaveBeenCalledWith(expect.objectContaining({ attachments: [{ type: PostAttachmentType.LINK, src: expect.any(String) }] }));
+      await expect(addPost.add({ userId: existingCreator.userId, ...samplePostParams, attachment: (await newPostAttachmentParam(PostAttachmentType.LINK)) })).resolves.not.toThrowError();
+      expect(mockPostsData.insertNewPost).toHaveBeenCalledWith(expect.objectContaining({ attachment: { type: PostAttachmentType.LINK, src: expect.any(String) } }));
     });
 
     it('Can create a new post with image', async () => {
@@ -62,10 +62,10 @@ describe('Post use cases', () => {
         const squad = { ...newSquad(), userId: existingCreator.userId };
         mockSquadsData.fetchSquadBySquadId.mockResolvedValueOnce(squad);
       }
-      const post = await addPost.add({ userId: existingCreator.userId, ...samplePostParams, attachments: [(await newPostAttachmentParam(PostAttachmentType.IMAGE))] });
-      expect(post.attachments).toBeTruthy();
-      expect(mockPostsData.insertNewPost).toHaveBeenCalledWith(expect.objectContaining({ attachments: [{ type: PostAttachmentType.IMAGE, src: expect.any(String) }] }));
-      expect(fileValidator.fileExists(`posts/test/${post.attachments[0].src}`)).toBeTruthy();
+      const post = await addPost.add({ userId: existingCreator.userId, ...samplePostParams, attachment: (await newPostAttachmentParam(PostAttachmentType.IMAGE)) });
+      expect(post.attachment).toBeTruthy();
+      expect(mockPostsData.insertNewPost).toHaveBeenCalledWith(expect.objectContaining({ attachment: { type: PostAttachmentType.IMAGE, src: expect.any(String) } }));
+      expect(fileValidator.fileExists(`posts/test/${post.attachment!.src}`)).toBeTruthy();
     });
 
     describe('userId validation', () => {
@@ -143,7 +143,7 @@ describe('Post use cases', () => {
     });
 
     describe('Attachment validation', () => {
-      describe('Should throw error for invalid attachments', () => {
+      describe('Should throw error for invalid attachment', () => {
         [{
           type: 'blah',
           src: 'blahblah',
@@ -167,7 +167,7 @@ describe('Post use cases', () => {
               const squad = { ...newSquad(), userId: existingCreator.userId };
               mockSquadsData.fetchSquadBySquadId.mockResolvedValueOnce(squad);
             }
-            await expect(addPost.add({ userId: existingCreator.userId, ...samplePostParams, attachments: [attachment] })).rejects.toThrow(ValidationError);
+            await expect(addPost.add({ userId: existingCreator.userId, ...samplePostParams, attachment })).rejects.toThrow(ValidationError);
             expect(mockPostsData.insertNewPost).not.toHaveBeenCalled();
           });
         });
@@ -180,7 +180,7 @@ describe('Post use cases', () => {
               const squad = { ...newSquad(), userId: existingCreator.userId };
               mockSquadsData.fetchSquadBySquadId.mockResolvedValueOnce(squad);
             }
-            await expect(addPost.add({ userId: existingCreator.userId, ...samplePostParams, attachments: [{ type: PostAttachmentType.LINK, src: url }] })).rejects.toThrow(ValidationError);
+            await expect(addPost.add({ userId: existingCreator.userId, ...samplePostParams, attachment: { type: PostAttachmentType.LINK, src: url } })).rejects.toThrow(ValidationError);
             expect(mockPostsData.insertNewPost).not.toHaveBeenCalled();
           });
         });
@@ -193,7 +193,7 @@ describe('Post use cases', () => {
               const squad = { ...newSquad(), userId: existingCreator.userId };
               mockSquadsData.fetchSquadBySquadId.mockResolvedValueOnce(squad);
             }
-            await expect(addPost.add({ userId: existingCreator.userId, ...samplePostParams, attachments: [{ type: PostAttachmentType.IMAGE, src }] })).rejects.toThrow(ValidationError);
+            await expect(addPost.add({ userId: existingCreator.userId, ...samplePostParams, attachment: { type: PostAttachmentType.IMAGE, src } })).rejects.toThrow(ValidationError);
             expect(mockPostsData.insertNewPost).not.toHaveBeenCalled();
           });
         });

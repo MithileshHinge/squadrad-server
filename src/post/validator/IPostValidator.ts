@@ -4,5 +4,5 @@ import { IPostAttachment } from '../IPostAttachment';
 export interface IPostValidator {
   // validateTitle: (title: string) => string,
   validateDescription: (description: string) => string,
-  validateAttachments: (attachments: any) => IPostAttachment[],
+  validateAttachment: (attachment: any) => IPostAttachment,
 }
