@@ -204,7 +204,110 @@ describe('Post use cases', () => {
   describe('FindPost use case', () => {
     const findSquad = new FindSquad(mockSquadsData, squadValidator);
     const findManualSub = new FindManualSub(mockManualSubsData, manualSubValidator);
-    const findPost = new FindPost(findSquad, findManualSub, mockPostsData);
+    const findPost = new FindPost(findSquad, findManualSub, mockPostsData, postValidator);
+
+    describe('checkPostAccess', () => {
+      it('Should return true if it is user\'s own post', () => {
+        const userId = id.createId();
+        const squad = { ...newSquad(), userId };
+        const post = { ...newPost(), userId, squadId: squad.squadId };
+        expect(FindPost.checkPostAccess({
+          userId, post, squad, manualSub: null,
+        })).toBeTruthy();
+      });
+
+      it('Should return true if post is free', () => {
+        const userId = id.createId();
+        const post = { ...newPost(), squadId: '' };
+        expect(FindPost.checkPostAccess({
+          userId, post, squad: null, manualSub: null,
+        })).toBeTruthy();
+      });
+
+      it('Should return true if squad does not exist', () => {
+        const userId = id.createId();
+        const post = newPost();
+        expect(FindPost.checkPostAccess({
+          userId, post, squad: null, manualSub: null,
+        })).toBeTruthy();
+      });
+
+      it('Should return true if user has subscribed to the same squad', () => {
+        const userId = id.createId();
+        const creatorUserId = id.createId();
+        const squad = { ...newSquad(), userId: creatorUserId };
+        const post = { ...newPost(), userId: creatorUserId, squadId: squad.squadId };
+        const manualSub = {
+          ...newManualSub(), userId, creatorUserId, squadId: squad.squadId, amount: squad.amount, subscriptionStatus: ManualSubStatuses.ACTIVE,
+        };
+        expect(FindPost.checkPostAccess({
+          userId, post, squad, manualSub,
+        })).toBeTruthy();
+      });
+
+      it('Should return false if user has subscribed to the same squad but subscription is not active', () => {
+        const userId = id.createId();
+        const creatorUserId = id.createId();
+        const squad = { ...newSquad(), userId: creatorUserId };
+        const post = { ...newPost(), userId: creatorUserId, squadId: squad.squadId };
+        const manualSub = {
+          ...newManualSub(), userId, creatorUserId, squadId: squad.squadId, amount: squad.amount, subscriptionStatus: ManualSubStatuses.CREATED,
+        };
+        expect(FindPost.checkPostAccess({
+          userId, post, squad, manualSub,
+        })).toBeFalsy();
+      });
+
+      it('Should return true if user has subscribed to a higher squad', () => {
+        const userId = id.createId();
+        const creatorUserId = id.createId();
+        const squad = { ...newSquad(), userId: creatorUserId, amount: 100 };
+        const post = { ...newPost(), userId: creatorUserId, squadId: squad.squadId };
+        const manualSub = {
+          ...newManualSub(), userId, creatorUserId, squadId: id.createId(), amount: 200, subscriptionStatus: ManualSubStatuses.ACTIVE,
+        };
+        expect(FindPost.checkPostAccess({
+          userId, post, squad, manualSub,
+        })).toBeTruthy();
+      });
+
+      it('Should return false if user has subscribed to a higher squad but subscription is not active', () => {
+        const userId = id.createId();
+        const creatorUserId = id.createId();
+        const squad = { ...newSquad(), userId: creatorUserId, amount: 100 };
+        const post = { ...newPost(), userId: creatorUserId, squadId: squad.squadId };
+        const manualSub = {
+          ...newManualSub(), userId, creatorUserId, squadId: id.createId(), amount: 200, subscriptionStatus: ManualSubStatuses.PAYMENT_PENDING,
+        };
+        expect(FindPost.checkPostAccess({
+          userId, post, squad, manualSub,
+        })).toBeFalsy();
+      });
+
+      it('Should return false if user has subscribed to a lower squad', () => {
+        const userId = id.createId();
+        const creatorUserId = id.createId();
+        const squad = { ...newSquad(), userId: creatorUserId, amount: 200 };
+        const post = { ...newPost(), userId: creatorUserId, squadId: squad.squadId };
+        const manualSub = {
+          ...newManualSub(), userId, creatorUserId, squadId: id.createId(), amount: 100, subscriptionStatus: ManualSubStatuses.ACTIVE,
+        };
+        expect(FindPost.checkPostAccess({
+          userId, post, squad, manualSub,
+        })).toBeFalsy();
+      });
+
+      it('Should return false if user has not subscribed', () => {
+        const userId = id.createId();
+        const creatorUserId = id.createId();
+        const squad = { ...newSquad(), userId: creatorUserId };
+        const post = { ...newPost(), userId: creatorUserId, squadId: squad.squadId };
+
+        expect(FindPost.checkPostAccess({
+          userId, post, squad, manualSub: null,
+        })).toBeFalsy();
+      });
+    });
 
     describe('findPostsByUserId', () => {
       it('Should return all posts if userId and creatorUserId are the same', async () => {
@@ -217,8 +320,6 @@ describe('Post use cases', () => {
           expect.objectContaining({ postId: posts[1].postId }),
           expect.objectContaining({ postId: posts[2].postId }),
         ]);
-        expect(mockSquadsData.fetchAllSquadsByUserId).not.toHaveBeenCalled();
-        expect(mockManualSubsData.fetchManualSubByUserIds).not.toHaveBeenCalled();
       });
 
       it('Should return all posts by creatorUserId if user is subscribed to the highest squad', async () => {
@@ -247,6 +348,66 @@ describe('Post use cases', () => {
           expect.objectContaining({ postId: posts[1].postId }),
           expect.objectContaining({ postId: posts[2].postId }),
         ]));
+      });
+
+      it('Should return empty array if creator has no posts', async () => {
+        const userId = id.createId();
+        const creatorUserId = id.createId();
+        mockPostsData.fetchAllPostsByUserId.mockResolvedValueOnce([]);
+        await expect(findPost.findPostsByUserId({ userId, creatorUserId })).resolves.toStrictEqual([]);
+      });
+    });
+
+    describe('findPostById', () => {
+      it('Should return post if user is subscribed to the same squad', async () => {
+        const userId = id.createId();
+        const squad = { ...newSquad(), amount: 100 };
+        const manualSub = {
+          ...newManualSub(),
+          userId,
+          creatorUserId: squad.userId,
+          squadId: squad.squadId,
+          amount: squad.amount,
+          subscriptionStatus: ManualSubStatuses.ACTIVE,
+        };
+        const post = { ...newPost(), userId: squad.userId, squadId: squad.squadId };
+        mockPostsData.fetchPostById.mockResolvedValueOnce(post);
+        mockSquadsData.fetchSquadBySquadId.mockResolvedValueOnce(squad);
+        mockManualSubsData.fetchManualSubByUserIds.mockResolvedValueOnce(manualSub);
+        await expect(findPost.findPostById({ userId, postId: post.postId })).resolves.toStrictEqual(expect.objectContaining({ postId: post.postId }));
+      });
+
+      it('Should return null if post does not exist', async () => {
+        const userId = id.createId();
+        mockPostsData.fetchPostById.mockResolvedValueOnce(null);
+        await expect(findPost.findPostById({ userId, postId: id.createId() })).resolves.toStrictEqual(null);
+      });
+
+      it('Should return post if post is free', async () => {
+        const userId = id.createId();
+        const creatorUserId = id.createId();
+        const post = { ...newPost(), userId: creatorUserId, squadId: '' };
+        mockPostsData.fetchPostById.mockResolvedValueOnce(post);
+        await expect(findPost.findPostById({ userId, postId: post.postId })).resolves.toStrictEqual(expect.objectContaining({ postId: post.postId }));
+      });
+
+      it('Should return null if user has no access', async () => {
+        const userId = id.createId();
+        const squad = { ...newSquad(), amount: 100 };
+        const post = { ...newPost(), userId: squad.userId, squadId: squad.squadId };
+        mockPostsData.fetchPostById.mockResolvedValueOnce(post);
+        mockSquadsData.fetchSquadBySquadId.mockResolvedValueOnce(squad);
+        mockManualSubsData.fetchManualSubByUserIds.mockResolvedValueOnce(null);
+        await expect(findPost.findPostById({ userId, postId: post.postId })).resolves.toStrictEqual(null);
+      });
+
+      describe('PostId validation', () => {
+        const userId = id.createId();
+        [12345, '2181029e1201201jwfdca'].forEach((postId: any) => {
+          it(`Should throw error for ${postId}`, async () => {
+            await expect(findPost.findPostById({ userId, postId })).rejects.toThrow(ValidationError);
+          });
+        });
       });
     });
   });

@@ -6,4 +6,4 @@ import FindPost from './FindPost';
 import postValidator from './validator';
 
 export const addPost = new AddPost(findSquad, postsData, postValidator);
-export const findPost = new FindPost(findSquad, findManualSub, postsData);
+export const findPost = new FindPost(findSquad, findManualSub, postsData, postValidator);

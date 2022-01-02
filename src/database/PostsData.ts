@@ -68,4 +68,27 @@ export default class PostsData extends BaseData implements IPostsData {
       return this.handleDatabaseError(err, 'Could not fetch posts by userId');
     }
   }
+
+  async fetchPostById(postId: string): Promise<{
+    postId: string,
+    userId: string,
+    description: string,
+    squadId: string,
+    attachment?: IPostAttachment,
+  } | null> {
+    const db = await this.getDb();
+    try {
+      const post = await db.collection('posts').findOne({ _id: new ObjectId(postId) });
+      if (!post) return null;
+      return {
+        postId: post._id.toString(),
+        userId: post.userId,
+        description: post.description,
+        squadId: post.squadId,
+        attachment: post.attachment,
+      };
+    } catch (err: any) {
+      return this.handleDatabaseError(err, 'Could not fetch post by postId');
+    }
+  }
 }

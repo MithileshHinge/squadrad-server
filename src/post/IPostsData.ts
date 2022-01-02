@@ -34,5 +34,13 @@ export interface IPostsData {
     description: string,
     squadId: string,
     attachment?: IPostAttachment,
-  }[]>
+  }[]>;
+
+  fetchPostById(postId: string): Promise<{
+    postId: string,
+    userId: string,
+    description: string,
+    squadId: string,
+    attachment?: IPostAttachment,
+  } | null>;
 }

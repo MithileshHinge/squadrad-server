@@ -1,4 +1,5 @@
 import ValidationError from '../../common/errors/ValidationError';
+import id from '../../common/id';
 import fileValidator from '../../common/validators/fileValidator';
 import stringValidator from '../../common/validators/stringValidator';
 import { IPostAttachment, PostAttachmentType } from '../IPostAttachment';
@@ -11,6 +12,12 @@ function isPostAttachment(a: any): a is IPostAttachment {
 }
 
 const postValidator: IPostValidator = {
+  validatePostId(postId: any): string {
+    if (typeof postId !== 'string') throw new ValidationError('Post id must be a string');
+    const postIdTrimmed = postId.trim();
+    if (!id.isValidId(postIdTrimmed)) throw new ValidationError(`Post id ${postIdTrimmed} is not a valid id`);
+    return postIdTrimmed;
+  },
   // validateTitle(title: string): string {
   //   if (typeof title !== 'string') throw new ValidationError('Post title must be a string');
   //   const titleTrimmed = title.trim();
