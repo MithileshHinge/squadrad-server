@@ -15,10 +15,10 @@ function getFilesIfExist(req: Request) {
     return (files.constructor.name === 'Array');
   }
 
-  if (req.file) return [req.file.path];
+  if (req.file) return [req.file.filename];
   if (req.files) {
-    if (isFileArray(req.files)) return req.files.map((file) => file.path);
-    return Object.values(req.files).flat().map((file) => file.path);
+    if (isFileArray(req.files)) return req.files.map((file) => file.filename);
+    return Object.values(req.files).flat().map((file) => file.filename);
   }
   return undefined;
 }
@@ -41,5 +41,7 @@ export default async function handleExpressRequest(
   };
   if (process.env.NODE_ENV !== 'test') console.log(`${httpRequest.method} ${req.url} : userId=${httpRequest.userId} : body=${JSON.stringify(httpRequest.body)}`);
   const httpResponse = await controller(httpRequest);
-  return res.status(httpResponse.statusCode).json(httpResponse.body);
+  if (httpResponse.file) return res.sendFile(httpResponse.file);
+  if (httpResponse.statusCode) return res.status(httpResponse.statusCode).json(httpResponse.body);
+  throw new Error('Invalid httpResponse');
 }

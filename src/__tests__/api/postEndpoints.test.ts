@@ -12,10 +12,11 @@ import { getCreatorWithSquads } from '../__mocks__/squad/squads';
 import newPost from '../__mocks__/post/posts';
 import newManualSub from '../__mocks__/manual-sub/manualSubs';
 import ManualSubStatuses from '../../manual-sub/ManualSubStatuses';
-import { PostAttachmentType } from '../../post/IPostAttachment';
+import { PostAttachmentType } from '../../post-attachment/IPostAttachment';
 import fileValidator from '../../common/validators/fileValidator';
 import { removeUndefinedKeys } from '../../common/helpers';
 import faker from '../__mocks__/faker';
+import config from '../../config';
 
 describe('Post endpoints', () => {
   let userCollection: Collection<Document>;
@@ -39,7 +40,7 @@ describe('Post endpoints', () => {
     await squadCollection.drop();
     await postCollection.drop();
     await manualSubCollection.drop();
-    fs.emptyDir('posts/test');
+    fs.emptyDir(config.postAttachmentsDir);
   });
 
   afterAll(async () => {
@@ -60,7 +61,7 @@ describe('Post endpoints', () => {
     it('Creator can create a link post', async () => {
       const { agent, userId, squads } = await getCreatorWithSquads(app, userCollection, squadCollection, 1);
       const sendData: any = {
-        ...postParams, squadId: squads[0].squadId, type: PostAttachmentType.LINK, link: faker.internet.url(),
+        ...postParams, squadId: squads[0].squadId, link: faker.internet.url(),
       };
       removeUndefinedKeys(sendData);
       const res = await agent.post('/post').field(sendData).expect(HTTPResponseCode.OK);
@@ -75,7 +76,7 @@ describe('Post endpoints', () => {
       const res = await agent.post('/post').attach('postImage', 'src/__tests__/__mocks__/post/brownpaperbag-comic.jpg').field(sendData).expect(HTTPResponseCode.OK);
       expect(res.body).toStrictEqual(expect.objectContaining({ postId: expect.any(String) }));
       await expect(postCollection.findOne({ _id: new ObjectId(res.body.postId), userId })).resolves.toBeTruthy();
-      expect(fileValidator.fileExists(`posts/test/${res.body.attachment.src}`)).toBeTruthy();
+      expect(fileValidator.fileExists(`${config.postAttachmentsDir}/${res.body.attachment.attachmentId}`)).toBeTruthy();
     });
 
     it('Respond with error code 403 (Forbidden) if user is not a creator', async () => {

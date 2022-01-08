@@ -20,12 +20,14 @@ const DATABASE = {
   sessionCollection: SESSIONS_COLLECTION_NAME,
 };
 
-const TMP_DIR = 'tmp/';
+const TMP_DIR = `tmp${process.env.NODE_ENV === 'test' ? '/test' : ''}`;
+const POST_ATTACHMENTS_DIR = `posts/attachments${process.env.NODE_ENV === 'test' ? '/test' : ''}`;
 
 const config = {
   server: SERVER,
   database: DATABASE,
   tmpDir: TMP_DIR,
+  postAttachmentsDir: POST_ATTACHMENTS_DIR,
 };
 
 export default config;

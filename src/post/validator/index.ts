@@ -1,15 +1,7 @@
 import ValidationError from '../../common/errors/ValidationError';
 import id from '../../common/id';
-import fileValidator from '../../common/validators/fileValidator';
 import stringValidator from '../../common/validators/stringValidator';
-import { IPostAttachment, PostAttachmentType } from '../IPostAttachment';
 import { IPostValidator } from './IPostValidator';
-
-function isPostAttachment(a: any): a is IPostAttachment {
-  return Object.keys(a).every((val) => ['type', 'src'].includes(val)) && Object.keys(a).length === 2
-    && Object.values(PostAttachmentType).includes(a.type as PostAttachmentType)
-    && typeof a.src === 'string';
-}
 
 const postValidator: IPostValidator = {
   validatePostId(postId: any): string {
@@ -31,11 +23,11 @@ const postValidator: IPostValidator = {
     if (!stringValidator.maxLength(descriptionTrimmed, 2000)) throw new ValidationError(`Post description ${descriptionTrimmed} must not be longer than 2000 characters`);
     return descriptionTrimmed;
   },
-  validateAttachment(attachment: any): IPostAttachment {
-    if (!(isPostAttachment(attachment))) throw new ValidationError('Post attachment is invalid');
-    if ((attachment.type === PostAttachmentType.IMAGE || attachment.type === PostAttachmentType.VIDEO) && !fileValidator.fileExists(attachment.src)) throw new ValidationError('Post attachment file does not exist');
-    if ((attachment.type === PostAttachmentType.LINK) && !stringValidator.isUrl(attachment.src)) throw new ValidationError('Post attachment link is not a valid url');
-    return attachment;
+  validateLink(link: any): string {
+    if (typeof link !== 'string') throw new ValidationError('Post attached link must be a string');
+    const linkTrimmed = link.trim();
+    if (!stringValidator.isUrl(linkTrimmed)) throw new ValidationError('Post attached link is not a valid url');
+    return linkTrimmed;
   },
 };
 

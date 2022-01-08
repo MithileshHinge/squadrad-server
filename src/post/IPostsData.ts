@@ -1,4 +1,4 @@
-import { IPostAttachment } from './IPostAttachment';
+import { IPostAttachment } from '../post-attachment/IPostAttachment';
 
 export interface IPostsData {
   /**
@@ -6,13 +6,14 @@ export interface IPostsData {
    * @throws DatabaseError if operation fails
    */
   insertNewPost({
-    postId, userId, description, squadId, attachment,
+    postId, userId, description, squadId, link, attachment,
   }: {
     postId: string,
     userId: string,
     // title: string,
     description: string,
     squadId: string,
+    link?: string,
     attachment?: IPostAttachment,
   }): Promise<{
     postId: string,
@@ -20,6 +21,7 @@ export interface IPostsData {
     // title: string,
     description: string,
     squadId: string,
+    link?: string,
     attachment?: IPostAttachment,
   }>;
 
@@ -33,6 +35,7 @@ export interface IPostsData {
     userId: string,
     description: string,
     squadId: string,
+    link?: string,
     attachment?: IPostAttachment,
   }[]>;
 
@@ -41,6 +44,7 @@ export interface IPostsData {
     userId: string,
     description: string,
     squadId: string,
+    link?: string,
     attachment?: IPostAttachment,
   } | null>;
 }

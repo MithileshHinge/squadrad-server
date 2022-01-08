@@ -3,7 +3,8 @@ import id from '../../common/id';
 import handleDatabaseError from '../../database/DatabaseErrorHandler';
 import PostsData from '../../database/PostsData';
 import mockDb, { closeConnection } from '../__mocks__/database/mockDb';
-import newPost, { newPostAttachment } from '../__mocks__/post/posts';
+import newPostAttachment from '../__mocks__/post-attachment/postAttachments';
+import newPost from '../__mocks__/post/posts';
 
 describe('Posts data access gateway', () => {
   const postsData = new PostsData(mockDb, handleDatabaseError);
@@ -24,7 +25,7 @@ describe('Posts data access gateway', () => {
   describe('insertNewPost', () => {
     it('Can insert new post', async () => {
       const postId = id.createId();
-      const attachment = await newPostAttachment({ postId });
+      const attachment = await newPostAttachment();
       const post = newPost(postId, attachment);
       await expect(postsData.insertNewPost(post)).resolves.not.toThrowError();
       await expect(postsCollection.findOne({ _id: new ObjectId(post.postId) })).resolves.toBeTruthy();

@@ -1,6 +1,7 @@
 export type HTTPResponse = {
-  statusCode: HTTPResponseCode,
-  body: any,
+  statusCode?: HTTPResponseCode,
+  body?: any,
+  file?: string,
 };
 
 export enum HTTPResponseCode {

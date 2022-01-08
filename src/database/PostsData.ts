@@ -1,7 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 import { ObjectId } from 'mongodb';
 import { IPostsData } from '../post/IPostsData';
-import { IPostAttachment } from '../post/IPostAttachment';
+import { IPostAttachment } from '../post-attachment/IPostAttachment';
 import BaseData from './BaseData';
 
 export default class PostsData extends BaseData implements IPostsData {

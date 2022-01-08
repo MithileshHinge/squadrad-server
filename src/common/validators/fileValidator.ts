@@ -4,7 +4,8 @@ import fs from 'fs';
 export default {
   fileExists(path: string): boolean {
     try {
-      fs.accessSync(path, fs.constants.F_OK);
+      const fstats = fs.statSync(path);
+      if (!fstats.isFile()) return false;
       return true;
     } catch (err) {
       return false;
