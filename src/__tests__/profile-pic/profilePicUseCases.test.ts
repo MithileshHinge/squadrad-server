@@ -10,15 +10,15 @@ import { copyFile } from '../../common/helpers';
 import config from '../../config';
 
 describe('Profile Pic Use Cases', () => {
-  const newSrc = `${config.tmpDir}/sample-profile-pic.jpg`;
+  const newSrc = 'sample-profile-pic.jpg';
   beforeEach(async () => {
     const sampleSrc = 'src/__tests__/__mocks__/profile-pic/sample-profile-pic.jpg';
-    await copyFile(sampleSrc, newSrc);
+    await copyFile(sampleSrc, `${config.tmpDir}/${newSrc}`);
   });
 
   afterEach(async () => {
-    await fs.emptyDir('public/images/profilePics/users/test');
-    await fs.emptyDir('public/images/profilePics/creators/test');
+    await fs.emptyDir(`${config.profilePicsDir}/users`);
+    await fs.emptyDir(`${config.profilePicsDir}/creators`);
     await fs.emptyDir(config.tmpDir);
   });
 
@@ -68,7 +68,7 @@ describe('Profile Pic Use Cases', () => {
 
       it('Get profile picture if user exists', async () => {
         const user = sampleUsers[0];
-        mockProfilePicsData.fetchProfilePic.mockResolvedValueOnce(`public/images/profilePics/test/${user.userId}`);
+        mockProfilePicsData.fetchProfilePic.mockResolvedValueOnce(`users/${user.userId}/xyz.jpg`);
         await getProfilePic.get(user.userId, false);
         expect(mockProfilePicsData.fetchProfilePic).toHaveBeenCalledWith(user.userId, false);
       });
@@ -126,7 +126,7 @@ describe('Profile Pic Use Cases', () => {
 
       it('Get profile picture if user exists', async () => {
         const user = sampleUsers[0];
-        mockProfilePicsData.fetchProfilePic.mockResolvedValueOnce(`public/images/profilePics/test/${user.userId}`);
+        mockProfilePicsData.fetchProfilePic.mockResolvedValueOnce(`creators/${user.userId}/xyz.jpg`);
         await getProfilePic.get(user.userId, true);
         expect(mockProfilePicsData.fetchProfilePic).toHaveBeenCalledWith(user.userId, true);
       });

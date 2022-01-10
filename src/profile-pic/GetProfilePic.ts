@@ -11,6 +11,7 @@ export default class GetProfilePic {
 
   /**
    * Get profile picture of any user
+   * @returns file source relative to config.profilePicsDir
    * @throws ValidationError if user does not exist
    * @throws DatabaseError if operation fails
    */

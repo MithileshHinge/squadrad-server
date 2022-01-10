@@ -21,12 +21,14 @@ const DATABASE = {
 };
 
 const TMP_DIR = `tmp${process.env.NODE_ENV === 'test' ? '/test' : ''}`;
+const PROFILE_PICS_DIR = `public/images/profilePics${process.env.NODE_ENV === 'test' ? '/test' : ''}`;
 const POST_ATTACHMENTS_DIR = `posts/attachments${process.env.NODE_ENV === 'test' ? '/test' : ''}`;
 
 const config = {
   server: SERVER,
   database: DATABASE,
   tmpDir: TMP_DIR,
+  profilePicsDir: PROFILE_PICS_DIR,
   postAttachmentsDir: POST_ATTACHMENTS_DIR,
 };
 

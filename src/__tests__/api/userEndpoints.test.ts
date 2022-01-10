@@ -6,6 +6,7 @@ import { HTTPResponseCode } from '../../api/HttpResponse';
 import app from '../../api/server';
 import { issueJWT } from '../../common/jwt';
 import fileValidator from '../../common/validators/fileValidator';
+import config from '../../config';
 import passwordEncryption from '../../user/password';
 import { closeMockStoreConnection } from '../__mocks__/api/mockStore';
 import mockDb, { closeConnection } from '../__mocks__/database/mockDb';
@@ -246,41 +247,41 @@ describe('User Endpoints', () => {
     it('Can add new profile pic', async () => {
       const { agent, userId } = await getLoggedInUser(app, userCollection);
       const { body: { profilePicSrc: dest } } = await agent.put('/user/profile-pic').attach('profilePic', 'src/__tests__/__mocks__/profile-pic/sample-profile-pic.jpg').expect(HTTPResponseCode.OK);
-      expect(fileValidator.fileExists(`public/images/profilePics/users/${dest}`)).toBeTruthy();
-      await expect(userCollection.findOne({ _id: new ObjectId(userId) })).resolves.toStrictEqual(expect.objectContaining({ profilePicSrc: expect.stringContaining(`test/${userId}/`) }));
+      expect(fileValidator.fileExists(`${config.profilePicsDir}/${dest}`)).toBeTruthy();
+      await expect(userCollection.findOne({ _id: new ObjectId(userId) })).resolves.toStrictEqual(expect.objectContaining({ profilePicSrc: expect.stringContaining(`users/${userId}/`) }));
     });
 
     it('Can change profile pic', async () => {
       const { agent, userId } = await getLoggedInUser(app, userCollection);
       const { body: { profilePicSrc: dest1 } } = await agent.put('/user/profile-pic').attach('profilePic', 'src/__tests__/__mocks__/profile-pic/sample-profile-pic.jpg').expect(HTTPResponseCode.OK);
-      expect(fileValidator.fileExists(`public/images/profilePics/users/${dest1}`)).toBeTruthy();
+      expect(fileValidator.fileExists(`${config.profilePicsDir}/${dest1}`)).toBeTruthy();
       const { body: { profilePicSrc: dest2 } } = await agent.put('/user/profile-pic').attach('profilePic', 'src/__tests__/__mocks__/profile-pic/sample-profile-pic.jpg').expect(HTTPResponseCode.OK);
-      expect(fileValidator.fileExists(`public/images/profilePics/users/${dest1}`)).toBeFalsy();
-      expect(fileValidator.fileExists(`public/images/profilePics/users/${dest2}`)).toBeTruthy();
-      await expect(userCollection.findOne({ _id: new ObjectId(userId) })).resolves.toStrictEqual(expect.objectContaining({ profilePicSrc: expect.stringContaining(`test/${userId}/`) }));
+      expect(fileValidator.fileExists(`${config.profilePicsDir}/${dest1}`)).toBeFalsy();
+      expect(fileValidator.fileExists(`${config.profilePicsDir}/${dest2}`)).toBeTruthy();
+      await expect(userCollection.findOne({ _id: new ObjectId(userId) })).resolves.toStrictEqual(expect.objectContaining({ profilePicSrc: expect.stringContaining(`users/${userId}/`) }));
     });
 
     it('Respond with error code 400 (Bad Request) if no file is provided', async () => {
       const { agent, userId, profilePicSrc } = await getLoggedInUser(app, userCollection);
       await agent.put('/user/profile-pic').attach('profilePic', '').expect(HTTPResponseCode.BAD_REQUEST);
-      expect(fs.readdirSync('public/images/profilePics/users/test')).toEqual([]);
+      expect(fs.readdirSync(`${config.profilePicsDir}/users`)).toEqual([]);
       await expect(userCollection.findOne({ _id: new ObjectId(userId) })).resolves.toStrictEqual(expect.objectContaining({ profilePicSrc }));
       await agent.put('/user/profile-pic').expect(HTTPResponseCode.BAD_REQUEST);
-      expect(fs.readdirSync('public/images/profilePics/users/test')).toEqual([]);
+      expect(fs.readdirSync(`${config.profilePicsDir}/users`)).toEqual([]);
       await expect(userCollection.findOne({ _id: new ObjectId(userId) })).resolves.toStrictEqual(expect.objectContaining({ profilePicSrc }));
     });
 
     it('Respond with error code 400 (Bad Request) if image is not JPG', async () => {
       const { agent, userId, profilePicSrc } = await getLoggedInUser(app, userCollection);
       await agent.put('/user/profile-pic').attach('profilePic', 'src/__tests__/__mocks__/profile-pic/sample-invalid-pic.png').expect(HTTPResponseCode.BAD_REQUEST);
-      expect(fs.readdirSync('public/images/profilePics/users/test')).toEqual([]);
+      expect(fs.readdirSync(`${config.profilePicsDir}/users`)).toEqual([]);
       await expect(userCollection.findOne({ _id: new ObjectId(userId) })).resolves.toStrictEqual(expect.objectContaining({ profilePicSrc }));
     });
 
     it('Respond with error code 400 (Bad Request) if image is false JPG', async () => {
       const { agent, userId, profilePicSrc } = await getLoggedInUser(app, userCollection);
       await agent.put('/user/profile-pic').attach('profilePic', 'src/__tests__/__mocks__/profile-pic/sample-invalid-pic.jpg').expect(HTTPResponseCode.BAD_REQUEST);
-      expect(fs.readdirSync('public/images/profilePics/users/test')).toEqual([]);
+      expect(fs.readdirSync(`${config.profilePicsDir}/users`)).toEqual([]);
       await expect(userCollection.findOne({ _id: new ObjectId(userId) })).resolves.toStrictEqual(expect.objectContaining({ profilePicSrc }));
     });
   });
@@ -296,7 +297,7 @@ describe('User Endpoints', () => {
 
   afterEach(async () => {
     await (await mockDb()).dropCollection('users');
-    fs.emptyDir('public/images/profilePics/users/test');
+    fs.emptyDir(`${config.profilePicsDir}/users`);
   });
 
   afterAll(async () => {
