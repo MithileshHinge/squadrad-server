@@ -25,6 +25,7 @@ import newSquad from '../__mocks__/squad/squads';
 import MakeAttachment from '../../post-attachment/MakeAttachment';
 import attachmentValidator from '../../post-attachment/validator';
 import sampleUploadedImage from '../__mocks__/post-attachment/postAttachmentParams';
+import FindAttachment from '../../post-attachment/FindAttachment';
 
 describe('Post use cases', () => {
   beforeEach(() => {
@@ -238,7 +239,8 @@ describe('Post use cases', () => {
   describe('FindPost use case', () => {
     const findSquad = new FindSquad(mockSquadsData, squadValidator);
     const findManualSub = new FindManualSub(mockManualSubsData, manualSubValidator);
-    const findPost = new FindPost(findSquad, findManualSub, mockPostsData, postValidator);
+    const findAttachment = new FindAttachment(attachmentValidator);
+    const findPost = new FindPost(findSquad, findManualSub, findAttachment, mockPostsData, postValidator);
 
     describe('checkPostAccess', () => {
       it('Should return true if it is user\'s own post', () => {

@@ -1,5 +1,6 @@
 import FindManualSub from '../manual-sub/FindManualSub';
 import ManualSubStatuses from '../manual-sub/ManualSubStatuses';
+import FindAttachment from '../post-attachment/FindAttachment';
 import FindSquad from '../squad/FindSquad';
 import { validateUserId } from '../userId';
 import { IPostsData } from './IPostsData';
@@ -14,11 +15,14 @@ export default class FindPost {
 
   private findManualSub: FindManualSub;
 
-  constructor(findSquad: FindSquad, findManualSub: FindManualSub, postsData: IPostsData, postValidator: IPostValidator) {
+  private findAttachment: FindAttachment;
+
+  constructor(findSquad: FindSquad, findManualSub: FindManualSub, findAttachment: FindAttachment, postsData: IPostsData, postValidator: IPostValidator) {
     this.postsData = postsData;
     this.postValidator = postValidator;
     this.findSquad = findSquad;
     this.findManualSub = findManualSub;
+    this.findAttachment = findAttachment;
   }
 
   /**
@@ -81,7 +85,7 @@ export default class FindPost {
       userId: post.userId,
       description: post.description,
       squadId: post.squadId,
-      attachment: post.attachment,
+      attachment: post.attachment ? { type: post.attachment.type, src: this.findAttachment.getSrcFromId(post.attachment.attachmentId) } : undefined,
     }));
   }
 
@@ -105,7 +109,7 @@ export default class FindPost {
         userId: post.userId,
         description: post.description,
         squadId: post.squadId,
-        attachment: post.attachment,
+        attachment: post.attachment ? { type: post.attachment.type, src: this.findAttachment.getSrcFromId(post.attachment.attachmentId) } : undefined,
       };
     }
     return null;
