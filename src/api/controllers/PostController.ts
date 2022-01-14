@@ -1,3 +1,6 @@
+import ValidationError from '../../common/errors/ValidationError';
+import fileValidator from '../../common/validators/fileValidator';
+import config from '../../config';
 import { addPost, findPost } from '../../post';
 import { HTTPResponseCode } from '../HttpResponse';
 import handleControllerError from './ControllerErrorHandler';
@@ -39,7 +42,20 @@ const getPostsByCreatorUserId: IBaseController = async (httpRequest) => {
   }
 };
 
+const getPostAttachmentFile: IBaseController = async (httpRequest) => {
+  try {
+    const { attachmentId } = httpRequest.params;
+    if (!fileValidator.fileExists(`${config.postAttachmentsDir}/${attachmentId}`)) throw new ValidationError('Post attachment file does not exist');
+    return {
+      file: `${config.postAttachmentsDir}/${attachmentId}`,
+    };
+  } catch (err: any) {
+    return handleControllerError(err);
+  }
+};
+
 export default {
   postPost,
   getPostsByCreatorUserId,
+  getPostAttachmentFile,
 };

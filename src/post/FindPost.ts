@@ -1,3 +1,4 @@
+import { forEachAsync } from '../common/helpers';
 import FindManualSub from '../manual-sub/FindManualSub';
 import ManualSubStatuses from '../manual-sub/ManualSubStatuses';
 import FindAttachment from '../post-attachment/FindAttachment';
@@ -80,12 +81,17 @@ export default class FindPost {
       });
     }
 
-    return postsToReturn.map((post) => ({
+    const postsToReturnWithAttachment: any[] = [];
+    await forEachAsync(postsToReturn, async (post) => {
+      const attachment = post.attachment ? { type: post.attachment.type, src: await this.findAttachment.getSrcFromId(post.attachment.attachmentId) } : undefined;
+      postsToReturnWithAttachment.push({ ...post, attachment });
+    });
+    return postsToReturnWithAttachment.map((post) => ({
       postId: post.postId,
       userId: post.userId,
       description: post.description,
       squadId: post.squadId,
-      attachment: post.attachment ? { type: post.attachment.type, src: this.findAttachment.getSrcFromId(post.attachment.attachmentId) } : undefined,
+      attachment: post.attachment,
     }));
   }
 
@@ -109,7 +115,7 @@ export default class FindPost {
         userId: post.userId,
         description: post.description,
         squadId: post.squadId,
-        attachment: post.attachment ? { type: post.attachment.type, src: this.findAttachment.getSrcFromId(post.attachment.attachmentId) } : undefined,
+        attachment: post.attachment ? { type: post.attachment.type, src: await this.findAttachment.getSrcFromId(post.attachment.attachmentId) } : undefined,
       };
     }
     return null;

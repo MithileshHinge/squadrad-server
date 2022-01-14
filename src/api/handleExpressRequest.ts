@@ -41,7 +41,7 @@ export default async function handleExpressRequest(
   };
   if (process.env.NODE_ENV !== 'test') console.log(`${httpRequest.method} ${req.url} : userId=${httpRequest.userId} : body=${JSON.stringify(httpRequest.body)}`);
   const httpResponse = await controller(httpRequest);
-  if (httpResponse.file) return res.sendFile(httpResponse.file);
+  if (httpResponse.file) return res.sendFile(httpResponse.file, { root: `${__dirname}/../../` });
   if (httpResponse.statusCode) return res.status(httpResponse.statusCode).json(httpResponse.body);
   throw new Error('Invalid httpResponse');
 }

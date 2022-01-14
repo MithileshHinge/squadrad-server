@@ -175,4 +175,17 @@ describe('Post endpoints', () => {
       expect(posts.length).toBe(6);
     });
   });
+
+  describe(`GET ${config.postAttachmentsDir}/:attachmentId`, () => {
+    it('Creator can get his post attachment file', async () => {
+      const { agent, userId, squads } = await getCreatorWithSquads(app, userCollection, squadCollection, 1);
+      const sendData: any = { ...postParams, squadId: squads[0].squadId, type: PostAttachmentType.IMAGE };
+      removeUndefinedKeys(sendData);
+      const { body: postAdded } = await agent.post('/post').attach('postImage', 'src/__tests__/__mocks__/post/brownpaperbag-comic.jpg').field(sendData).expect(HTTPResponseCode.OK);
+      expect(fileValidator.fileExists(`${config.postAttachmentsDir}/${postAdded.attachment.attachmentId}`)).toBeTruthy();
+      const { body: posts } = await agent.get(`/posts/${userId}`).expect(HTTPResponseCode.OK);
+      const attachmentSrc = posts[0].attachment.src;
+      await agent.get(`/${attachmentSrc}`).expect(HTTPResponseCode.OK).expect('Content-Type', 'application/octet-stream');
+    });
+  });
 });

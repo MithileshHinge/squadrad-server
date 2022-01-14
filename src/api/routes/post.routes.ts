@@ -1,3 +1,4 @@
+import config from '../../config';
 import PostController from '../controllers/PostController';
 import creatorAuthorizationMiddleware from '../services/creatorAuth.service';
 import processMultipartImage from '../services/multer.service';
@@ -11,5 +12,9 @@ export default [
   {
     path: '/posts/:creatorUserId',
     get: [authorizationMiddleware, PostController.getPostsByCreatorUserId],
+  },
+  {
+    path: `/${config.postAttachmentsDir}/:attachmentId`,
+    get: [PostController.getPostAttachmentFile],
   },
 ];
