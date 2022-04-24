@@ -30,7 +30,8 @@ export function processMultipartVideo(maxFileSizeInBytes: number, maxNumFiles: n
   const multerInstance = multer({
     storage: uploadStorage,
     fileFilter: (req, file, cb) => {
-      if (file.mimetype === 'video/mp4') return cb(null, true);
+      // Allow mp4, mov, avi and wmv formats only
+      if (['video/mp4', 'video/quicktime', 'video/x-msvideo', 'video/x-ms-wmv'].includes(file.mimetype)) return cb(null, true);
       return cb(null, false);
     },
     limits: {
