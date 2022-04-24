@@ -10,8 +10,9 @@ const postPost: IBaseController = async (httpRequest) => {
   try {
     const userId = httpRequest.userId!;
     const {
-      description, squadId, type, link,
+      description, squadId, link,
     } = httpRequest.body;
+    const { type } = httpRequest.params;
     const src = httpRequest.files ? httpRequest.files[0] : undefined;
 
     const postAdded = await addPost.add({

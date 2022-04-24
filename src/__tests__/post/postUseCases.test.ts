@@ -24,7 +24,7 @@ import mockSquadsData from '../__mocks__/squad/mockSquadsData';
 import newSquad from '../__mocks__/squad/squads';
 import MakeAttachment from '../../post-attachment/MakeAttachment';
 import attachmentValidator from '../../post-attachment/validator';
-import sampleUploadedImage from '../__mocks__/post-attachment/postAttachmentParams';
+import { sampleUploadedImage, sampleUploadedVideo } from '../__mocks__/post-attachment/postAttachmentParams';
 import FindAttachment from '../../post-attachment/FindAttachment';
 
 describe('Post use cases', () => {
@@ -75,6 +75,21 @@ describe('Post use cases', () => {
       expect(post.attachment).toBeTruthy();
       expect(post.link).toStrictEqual(undefined);
       expect(mockPostsData.insertNewPost).toHaveBeenCalledWith(expect.objectContaining({ attachment: { type: PostAttachmentType.IMAGE, attachmentId: expect.any(String) } }));
+      expect(fileValidator.fileExists(`${config.postAttachmentsDir}/${post.attachment!.attachmentId}`)).toBeTruthy();
+    });
+
+    it('Can create a new post with video', async () => {
+      if (samplePostParams.squadId !== undefined && samplePostParams.squadId !== '') {
+        const squad = { ...newSquad(), userId: existingCreator.userId };
+        mockSquadsData.fetchSquadBySquadId.mockResolvedValueOnce(squad);
+      }
+      const sampleVideoSrc = await sampleUploadedVideo();
+      const post = await addPost.add({
+        userId: existingCreator.userId, ...samplePostParams, type: PostAttachmentType.VIDEO, src: sampleVideoSrc,
+      });
+      expect(post.attachment).toBeTruthy();
+      expect(post.link).toStrictEqual(undefined);
+      expect(mockPostsData.insertNewPost).toHaveBeenCalledWith(expect.objectContaining({ attachment: { type: PostAttachmentType.VIDEO, attachmentId: expect.any(String) } }));
       expect(fileValidator.fileExists(`${config.postAttachmentsDir}/${post.attachment!.attachmentId}`)).toBeTruthy();
     });
 

@@ -1,6 +1,6 @@
 import CreatorController from '../controllers/CreatorController';
 import creatorAuthorizationMiddleware from '../services/creatorAuth.service';
-import processMultipartImage from '../services/multer.service';
+import { processMultipartImage } from '../services/multer.service';
 import { authorizationMiddleware } from '../services/passport.service';
 
 export default [

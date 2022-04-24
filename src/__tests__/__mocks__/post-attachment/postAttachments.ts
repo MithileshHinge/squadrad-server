@@ -2,12 +2,14 @@ import id from '../../../common/id';
 import { makeAttachment } from '../../../post-attachment';
 import { IPostAttachment, PostAttachmentType } from '../../../post-attachment/IPostAttachment';
 import faker from '../faker';
-import sampleUploadedImage from './postAttachmentParams';
+import { sampleUploadedImage, sampleUploadedVideo } from './postAttachmentParams';
 
 export default async function newPostAttachment(attachmentType?: PostAttachmentType, createFile = false): Promise<IPostAttachment> {
   if (createFile) {
-    const type = PostAttachmentType.IMAGE;
-    const src = await sampleUploadedImage();
+    const type = attachmentType || [PostAttachmentType.IMAGE, PostAttachmentType.VIDEO][faker.datatype.number(1)];
+    let src;
+    if (type === PostAttachmentType.IMAGE) src = await sampleUploadedImage();
+    else src = await sampleUploadedVideo();
     const attachment = await makeAttachment.make({ type, src });
     return attachment;
   }

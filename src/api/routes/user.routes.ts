@@ -1,5 +1,5 @@
 import UserController from '../controllers/UserController';
-import processMultipartImage from '../services/multer.service';
+import { processMultipartImage } from '../services/multer.service';
 import { authorizationMiddleware } from '../services/passport.service';
 
 export default [

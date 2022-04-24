@@ -48,7 +48,7 @@ describe('Post endpoints', () => {
     await closeMockStoreConnection();
   });
 
-  describe('POST /post', () => {
+  describe('POST /post/:type?', () => {
     it('Creator can create post', async () => {
       const { agent, userId, squads } = await getCreatorWithSquads(app, userCollection, squadCollection, 1);
       const sendData: any = { ...postParams, squadId: squads[0].squadId };
@@ -71,9 +71,19 @@ describe('Post endpoints', () => {
 
     it('Creator can create an image post', async () => {
       const { agent, userId, squads } = await getCreatorWithSquads(app, userCollection, squadCollection, 1);
-      const sendData: any = { ...postParams, squadId: squads[0].squadId, type: PostAttachmentType.IMAGE };
+      const sendData: any = { ...postParams, squadId: squads[0].squadId };
       removeUndefinedKeys(sendData);
-      const res = await agent.post('/post').attach('postImage', 'src/__tests__/__mocks__/post/brownpaperbag-comic.jpg').field(sendData).expect(HTTPResponseCode.OK);
+      const res = await agent.post(`/post/${PostAttachmentType.IMAGE}`).field(sendData).attach('postImage', 'src/__tests__/__mocks__/post/brownpaperbag-comic.jpg').expect(HTTPResponseCode.OK);
+      expect(res.body).toStrictEqual(expect.objectContaining({ postId: expect.any(String) }));
+      await expect(postCollection.findOne({ _id: new ObjectId(res.body.postId), userId })).resolves.toBeTruthy();
+      expect(fileValidator.fileExists(`${config.postAttachmentsDir}/${res.body.attachment.attachmentId}`)).toBeTruthy();
+    });
+
+    it('Creator can create a video post', async () => {
+      const { agent, userId, squads } = await getCreatorWithSquads(app, userCollection, squadCollection, 1);
+      const sendData: any = { ...postParams, squadId: squads[0].squadId };
+      removeUndefinedKeys(sendData);
+      const res = await agent.post(`/post/${PostAttachmentType.VIDEO}`).field(sendData).attach('postVideo', 'src/__tests__/__mocks__/post/bojackhorseman-princesscarolyn.mp4').expect(HTTPResponseCode.OK);
       expect(res.body).toStrictEqual(expect.objectContaining({ postId: expect.any(String) }));
       await expect(postCollection.findOne({ _id: new ObjectId(res.body.postId), userId })).resolves.toBeTruthy();
       expect(fileValidator.fileExists(`${config.postAttachmentsDir}/${res.body.attachment.attachmentId}`)).toBeTruthy();
@@ -179,9 +189,9 @@ describe('Post endpoints', () => {
   describe(`GET ${config.postAttachmentsDir}/:attachmentId`, () => {
     it('Creator can get his post attachment file', async () => {
       const { agent, userId, squads } = await getCreatorWithSquads(app, userCollection, squadCollection, 1);
-      const sendData: any = { ...postParams, squadId: squads[0].squadId, type: PostAttachmentType.IMAGE };
+      const sendData: any = { ...postParams, squadId: squads[0].squadId };
       removeUndefinedKeys(sendData);
-      const { body: postAdded } = await agent.post('/post').attach('postImage', 'src/__tests__/__mocks__/post/brownpaperbag-comic.jpg').field(sendData).expect(HTTPResponseCode.OK);
+      const { body: postAdded } = await agent.post(`/post/${PostAttachmentType.IMAGE}`).attach('postImage', 'src/__tests__/__mocks__/post/brownpaperbag-comic.jpg').field(sendData).expect(HTTPResponseCode.OK);
       expect(fileValidator.fileExists(`${config.postAttachmentsDir}/${postAdded.attachment.attachmentId}`)).toBeTruthy();
       const { body: posts } = await agent.get(`/posts/${userId}`).expect(HTTPResponseCode.OK);
       const attachmentSrc = posts[0].attachment.src;
