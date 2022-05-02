@@ -91,6 +91,7 @@ export default class FindPost {
       userId: post.userId,
       description: post.description,
       squadId: post.squadId,
+      link: post.link,
       attachment: post.attachment,
     }));
   }
@@ -115,6 +116,7 @@ export default class FindPost {
         userId: post.userId,
         description: post.description,
         squadId: post.squadId,
+        link: post.link,
         attachment: post.attachment ? { type: post.attachment.type, src: await this.findAttachment.getSrcFromId(post.attachment.attachmentId) } : undefined,
       };
     }
