@@ -54,15 +54,6 @@ describe('Post use cases', () => {
       expect(mockPostsData.insertNewPost).toHaveBeenCalled();
     });
 
-    // it('Can create a new post with link', async () => {
-    //   if (samplePostParams.squadId !== undefined && samplePostParams.squadId !== '') {
-    //     const squad = { ...newSquad(), userId: existingCreator.userId };
-    //     mockSquadsData.fetchSquadBySquadId.mockResolvedValueOnce(squad);
-    //   }
-    //   await expect(addPost.add({ userId: existingCreator.userId, ...samplePostParams, attachment: (await newPostAttachmentParam(PostAttachmentType.LINK)) })).resolves.not.toThrowError();
-    //   expect(mockPostsData.insertNewPost).toHaveBeenCalledWith(expect.objectContaining({ attachment: { type: PostAttachmentType.LINK, src: expect.any(String) } }));
-    // });
-
     it('Can create a new post with image', async () => {
       if (samplePostParams.squadId !== undefined && samplePostParams.squadId !== '') {
         const squad = { ...newSquad(), userId: existingCreator.userId };
@@ -91,6 +82,20 @@ describe('Post use cases', () => {
       expect(post.link).toStrictEqual(undefined);
       expect(mockPostsData.insertNewPost).toHaveBeenCalledWith(expect.objectContaining({ attachment: { type: PostAttachmentType.VIDEO, attachmentId: expect.any(String) } }));
       expect(fileValidator.fileExists(`${config.postAttachmentsDir}/${post.attachment!.attachmentId}`)).toBeTruthy();
+    });
+
+    it('Can create a new post with link', async () => {
+      if (samplePostParams.squadId !== undefined && samplePostParams.squadId !== '') {
+        const squad = { ...newSquad(), userId: existingCreator.userId };
+        mockSquadsData.fetchSquadBySquadId.mockResolvedValueOnce(squad);
+      }
+      const sampleLink = 'ncase.me/trust';
+      const post = await addPost.add({
+        userId: existingCreator.userId, ...samplePostParams, link: sampleLink,
+      });
+      expect(post.attachment).toBeFalsy();
+      expect(post.link).toBeTruthy();
+      expect(mockPostsData.insertNewPost).toHaveBeenCalledWith(expect.objectContaining({ link: expect.any(String) }));
     });
 
     describe('userId validation', () => {

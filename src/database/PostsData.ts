@@ -6,13 +6,14 @@ import BaseData from './BaseData';
 
 export default class PostsData extends BaseData implements IPostsData {
   async insertNewPost({
-    postId, userId, description, squadId, attachment,
+    postId, userId, description, squadId, link, attachment,
   }: {
     postId: string,
     userId: string,
     // title: string,
     description: string,
     squadId: string,
+    link?: string,
     attachment?: IPostAttachment,
   }): Promise<{
       postId: string,
@@ -20,6 +21,7 @@ export default class PostsData extends BaseData implements IPostsData {
       // title: string,
       description: string,
       squadId: string,
+      link?: string,
       attachment?: IPostAttachment,
     }> {
     const db = await this.getDb();
@@ -30,6 +32,7 @@ export default class PostsData extends BaseData implements IPostsData {
         // title,
         description,
         squadId,
+        link,
         attachment,
       });
       return {
@@ -38,6 +41,7 @@ export default class PostsData extends BaseData implements IPostsData {
         // title,
         description,
         squadId,
+        link,
         attachment,
       };
     } catch (err: any) {
@@ -51,6 +55,7 @@ export default class PostsData extends BaseData implements IPostsData {
     // title: string,
     description: string,
     squadId: string,
+    link?: string,
     attachment?: IPostAttachment,
   }[]> {
     const db = await this.getDb();
@@ -62,6 +67,7 @@ export default class PostsData extends BaseData implements IPostsData {
         userId: post.userId,
         description: post.description,
         squadId: post.squadId,
+        link: post.link,
         attachment: post.attachment,
       }));
     } catch (err: any) {
@@ -74,6 +80,7 @@ export default class PostsData extends BaseData implements IPostsData {
     userId: string,
     description: string,
     squadId: string,
+    link?: string,
     attachment?: IPostAttachment,
   } | null> {
     const db = await this.getDb();
@@ -85,6 +92,7 @@ export default class PostsData extends BaseData implements IPostsData {
         userId: post.userId,
         description: post.description,
         squadId: post.squadId,
+        link: post.link,
         attachment: post.attachment,
       };
     } catch (err: any) {
