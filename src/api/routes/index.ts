@@ -4,6 +4,7 @@ import squadRoutes from './squad.routes';
 import goalRoutes from './goal.routes';
 import paymentRoutes from './payment.routes';
 import postRoutes from './post.routes';
+import postLikeRoutes from './postLike.routes';
 
 export default [
   ...userRoutes,
@@ -12,4 +13,5 @@ export default [
   ...goalRoutes,
   ...paymentRoutes,
   ...postRoutes,
+  ...postLikeRoutes,
 ];
