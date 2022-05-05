@@ -7,4 +7,8 @@ export default [
     post: [authorizationMiddleware, PostLikeController.postPostLike],
     get: [authorizationMiddleware, PostLikeController.getPostLike],
   },
+  {
+    path: '/likes/:postId',
+    get: [PostLikeController.getTotalPostLikes],
+  },
 ];

@@ -1,4 +1,4 @@
-import { checkPostLike, togglePostLike } from '../../post-like';
+import { checkPostLike, countPostLikes, togglePostLike } from '../../post-like';
 import { HTTPResponseCode } from '../HttpResponse';
 import handleControllerError from './ControllerErrorHandler';
 import { IBaseController } from './IBaseController';
@@ -35,7 +35,21 @@ const getPostLike: IBaseController = async (httpRequest) => {
   }
 };
 
+const getTotalPostLikes: IBaseController = async (httpRequest) => {
+  try {
+    const { postId }: { postId: string } = httpRequest.params;
+    const numLikes = await countPostLikes.count(postId);
+    return {
+      statusCode: HTTPResponseCode.OK,
+      body: { numLikes },
+    };
+  } catch (err: any) {
+    return handleControllerError(err);
+  }
+};
+
 export default {
   postPostLike,
   getPostLike,
+  getTotalPostLikes,
 };

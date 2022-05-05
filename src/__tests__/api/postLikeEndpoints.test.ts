@@ -126,4 +126,18 @@ describe('PostLike endpoints', () => {
       await agent.get('/like/1234567').expect(HTTPResponseCode.BAD_REQUEST);
     });
   });
+
+  describe('GET /likes/:postId', () => {
+    it('Anyone can get number of likes on a post', async () => {
+      const post = await postCollection.findOne();
+      const postLikesItem = await postLikesCollection.findOne({ _id: post!._id });
+      const res = await request(app).get(`/likes/${post!._id}`).expect(HTTPResponseCode.OK);
+      if (postLikesItem) expect(res.body.numLikes).toBe(postLikesItem.users.length);
+      else expect(res.body.numLikes).toBe(0);
+    });
+
+    it('Respond with error code 400 (Bad Request) if postId is invalid', async () => {
+      await request(app).get('/likes/123456').expect(HTTPResponseCode.BAD_REQUEST);
+    });
+  });
 });
