@@ -131,7 +131,7 @@ describe('Post endpoints', () => {
       expect(posts.length).toBe(3);
     });
 
-    it('User can get all free posts of a creator', async () => {
+    it('User can access all free posts of a creator, others will be locked', async () => {
       const { userId: creatorUserId, squads } = await getCreatorWithSquads(app, userCollection, squadCollection, 2);
 
       const samplePosts = [
@@ -147,10 +147,15 @@ describe('Post endpoints', () => {
 
       const { agent } = await getLoggedInUser(app, userCollection);
       const { body: posts } = await agent.get(`/posts/${creatorUserId}`).expect(HTTPResponseCode.OK);
-      expect(posts.length).toBe(2);
+      expect(posts).toEqual(expect.arrayContaining([
+        expect.objectContaining({ postId: samplePosts[0].postId, locked: false }),
+        expect.objectContaining({ postId: samplePosts[1].postId, locked: false }),
+        expect.objectContaining({ postId: samplePosts[2].postId, locked: true }),
+        expect.objectContaining({ postId: samplePosts[3].postId, locked: true }),
+      ]));
     });
 
-    it('User can get all posts from squads with amount less than subscribed amount', async () => {
+    it('User can access posts with amount less than subscribed amount, other will be returned as locked', async () => {
       const { userId: creatorUserId, squads } = await getCreatorWithSquads(app, userCollection, squadCollection, 3);
       squads.sort((squad1, squad2) => squad1.amount - squad2.amount);
 
@@ -182,7 +187,18 @@ describe('Post endpoints', () => {
       };
       await manualSubCollection.insertOne({ _id: new ObjectId(manualSubId), ...manualSubInfo });
       const { body: posts } = await agent.get(`/posts/${creatorUserId}`).expect(HTTPResponseCode.OK);
-      expect(posts.length).toBe(6);
+      expect(posts).toEqual(expect.arrayContaining([
+        expect.objectContaining({ postId: samplePosts[0].postId, locked: false }),
+        expect.objectContaining({ postId: samplePosts[1].postId, locked: false }),
+        expect.objectContaining({ postId: samplePosts[2].postId, locked: false }),
+        expect.objectContaining({ postId: samplePosts[3].postId, locked: false }),
+        expect.objectContaining({ postId: samplePosts[4].postId, locked: false }),
+        expect.objectContaining({ postId: samplePosts[5].postId, locked: false }),
+        expect.objectContaining({ postId: samplePosts[6].postId, locked: true }),
+        expect.objectContaining({ postId: samplePosts[7].postId, locked: true }),
+        expect.objectContaining({ postId: samplePosts[8].postId, locked: true }),
+        expect.objectContaining({ postId: samplePosts[9].postId, locked: true }),
+      ]));
     });
   });
 
