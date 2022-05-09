@@ -26,6 +26,7 @@ import MakeAttachment from '../../post-attachment/MakeAttachment';
 import attachmentValidator from '../../post-attachment/validator';
 import { sampleUploadedImage, sampleUploadedVideo } from '../__mocks__/post-attachment/postAttachmentParams';
 import FindAttachment from '../../post-attachment/FindAttachment';
+import newPostAttachment from '../__mocks__/post-attachment/postAttachments';
 
 describe('Post use cases', () => {
   beforeEach(() => {
@@ -366,19 +367,19 @@ describe('Post use cases', () => {
     });
 
     describe('findPostsByUserId', () => {
-      it('Should return all posts if userId and creatorUserId are the same', async () => {
+      it('Should return all posts as accessible if userId and creatorUserId are the same', async () => {
         const userId = id.createId();
         const creatorUserId = userId;
         const posts = [newPost(), newPost(), newPost()];
         mockPostsData.fetchAllPostsByUserId.mockResolvedValueOnce(posts);
         await expect(findPost.findPostsByUserId({ userId, creatorUserId })).resolves.toStrictEqual([
-          expect.objectContaining({ postId: posts[0].postId }),
-          expect.objectContaining({ postId: posts[1].postId }),
-          expect.objectContaining({ postId: posts[2].postId }),
+          expect.objectContaining({ postId: posts[0].postId, locked: false }),
+          expect.objectContaining({ postId: posts[1].postId, locked: false }),
+          expect.objectContaining({ postId: posts[2].postId, locked: false }),
         ]);
       });
 
-      it('Should return all posts by creatorUserId if user is subscribed to the highest squad', async () => {
+      it('Should return all posts by creatorUserId as accessible if user is subscribed to the highest squad', async () => {
         const userId = id.createId();
         const creatorUserId = id.createId();
         const squads = [{ ...newSquad(), amount: 100 }, { ...newSquad(), amount: 500 }];
@@ -400,22 +401,126 @@ describe('Post use cases', () => {
         mockManualSubsData.fetchManualSubByUserIds.mockResolvedValueOnce(manualSub);
 
         await expect(findPost.findPostsByUserId({ userId, creatorUserId })).resolves.toEqual(expect.arrayContaining([
-          expect.objectContaining({ postId: posts[0].postId }),
-          expect.objectContaining({ postId: posts[1].postId }),
-          expect.objectContaining({ postId: posts[2].postId }),
+          expect.objectContaining({ postId: posts[0].postId, locked: false }),
+          expect.objectContaining({ postId: posts[1].postId, locked: false }),
+          expect.objectContaining({ postId: posts[2].postId, locked: false }),
         ]));
       });
 
-      it('Should return empty array if creator has no posts', async () => {
+      it('Should return empty array if creator has no posts or creator does not exist', async () => {
         const userId = id.createId();
         const creatorUserId = id.createId();
         mockPostsData.fetchAllPostsByUserId.mockResolvedValueOnce([]);
         await expect(findPost.findPostsByUserId({ userId, creatorUserId })).resolves.toStrictEqual([]);
       });
+
+      it('Should return all posts that are locked as locked and others as free', async () => {
+        const userId = id.createId();
+        const creatorUserId = id.createId();
+        const squads = [{ ...newSquad(), amount: 100 }, { ...newSquad(), amount: 500 }];
+        const manualSub = {
+          ...newManualSub(),
+          userId,
+          creatorUserId,
+          squadId: squads[0].squadId,
+          amount: squads[0].amount,
+          subscriptionStatus: ManualSubStatuses.ACTIVE,
+        };
+        const posts = [
+          { ...newPost(), squadId: '' },
+          { ...newPost(), squadId: squads[0].squadId },
+          { ...newPost(), squadId: squads[0].squadId },
+          { ...newPost(), squadId: squads[1].squadId },
+          { ...newPost(), squadId: squads[1].squadId },
+        ];
+        mockPostsData.fetchAllPostsByUserId.mockResolvedValueOnce(posts);
+        mockSquadsData.fetchAllSquadsByUserId.mockResolvedValueOnce(squads);
+        mockManualSubsData.fetchManualSubByUserIds.mockResolvedValueOnce(manualSub);
+
+        await expect(findPost.findPostsByUserId({ userId, creatorUserId })).resolves.toEqual(expect.arrayContaining([
+          expect.objectContaining({ postId: posts[0].postId, locked: false }),
+          expect.objectContaining({ postId: posts[1].postId, locked: false }),
+          expect.objectContaining({ postId: posts[2].postId, locked: false }),
+          expect.objectContaining({ postId: posts[3].postId, locked: true }),
+          expect.objectContaining({ postId: posts[4].postId, locked: true }),
+        ]));
+      });
+
+      it('Should have image or video attachment src ONLY for unlocked posts', async () => {
+        const userId = id.createId();
+        const creatorUserId = id.createId();
+        const squads = [{ ...newSquad(), amount: 100 }, { ...newSquad(), amount: 500 }];
+        const manualSub = {
+          ...newManualSub(),
+          userId,
+          creatorUserId,
+          squadId: squads[0].squadId,
+          amount: squads[0].amount,
+          subscriptionStatus: ManualSubStatuses.ACTIVE,
+        };
+        const attachments = [
+          await newPostAttachment(PostAttachmentType.IMAGE),
+          await newPostAttachment(PostAttachmentType.IMAGE),
+          await newPostAttachment(PostAttachmentType.VIDEO),
+          await newPostAttachment(PostAttachmentType.IMAGE),
+          await newPostAttachment(PostAttachmentType.VIDEO),
+        ];
+        const posts = [
+          { ...newPost(undefined, attachments[0]), squadId: '' },
+          { ...newPost(undefined, attachments[1]), squadId: squads[0].squadId },
+          { ...newPost(undefined, attachments[2]), squadId: squads[0].squadId },
+          { ...newPost(undefined, attachments[3]), squadId: squads[1].squadId },
+          { ...newPost(undefined, attachments[4]), squadId: squads[1].squadId },
+        ];
+        mockPostsData.fetchAllPostsByUserId.mockResolvedValueOnce(posts);
+        mockSquadsData.fetchAllSquadsByUserId.mockResolvedValueOnce(squads);
+        mockManualSubsData.fetchManualSubByUserIds.mockResolvedValueOnce(manualSub);
+
+        await expect(findPost.findPostsByUserId({ userId, creatorUserId })).resolves.toEqual(expect.arrayContaining([
+          expect.objectContaining({ postId: posts[0].postId, locked: false, attachment: { type: PostAttachmentType.IMAGE, src: expect.any(String) } }),
+          expect.objectContaining({ postId: posts[1].postId, locked: false, attachment: { type: PostAttachmentType.IMAGE, src: expect.any(String) } }),
+          expect.objectContaining({ postId: posts[2].postId, locked: false, attachment: { type: PostAttachmentType.VIDEO, src: expect.any(String) } }),
+          expect.objectContaining({ postId: posts[3].postId, locked: true, attachment: { type: PostAttachmentType.IMAGE } }),
+          expect.objectContaining({ postId: posts[4].postId, locked: true, attachment: { type: PostAttachmentType.VIDEO } }),
+        ]));
+      });
+
+      it('Should return link as "locked" for locked post', async () => {
+        const userId = id.createId();
+        const creatorUserId = id.createId();
+        const squads = [{ ...newSquad(), amount: 100 }, { ...newSquad(), amount: 500 }];
+        const manualSub = {
+          ...newManualSub(),
+          userId,
+          creatorUserId,
+          squadId: squads[0].squadId,
+          amount: squads[0].amount,
+          subscriptionStatus: ManualSubStatuses.ACTIVE,
+        };
+        const posts = [
+          { ...newPost(undefined, undefined, faker.internet.url()), squadId: '' },
+          { ...newPost(undefined, undefined, faker.internet.url()), squadId: squads[0].squadId },
+          { ...newPost(undefined, undefined, faker.internet.url()), squadId: squads[0].squadId },
+          { ...newPost(undefined, undefined, faker.internet.url()), squadId: squads[1].squadId },
+          { ...newPost(undefined, undefined, faker.internet.url()), squadId: squads[1].squadId },
+        ];
+        mockPostsData.fetchAllPostsByUserId.mockResolvedValueOnce(posts);
+        mockSquadsData.fetchAllSquadsByUserId.mockResolvedValueOnce(squads);
+        mockManualSubsData.fetchManualSubByUserIds.mockResolvedValueOnce(manualSub);
+
+        const postsReturned = await findPost.findPostsByUserId({ userId, creatorUserId });
+        expect(postsReturned).toEqual(expect.arrayContaining([
+          expect.objectContaining({ postId: posts[0].postId, locked: false, link: expect.any(String) }),
+          expect.objectContaining({ postId: posts[1].postId, locked: false, link: expect.any(String) }),
+          expect.objectContaining({ postId: posts[2].postId, locked: false, link: expect.any(String) }),
+          expect.objectContaining({ postId: posts[3].postId, locked: true, link: 'locked' }),
+          expect.objectContaining({ postId: posts[4].postId, locked: true, link: 'locked' }),
+        ]));
+      });
     });
 
     describe('findPostById', () => {
-      it('Should return post if user is subscribed to the same squad', async () => {
+      it('Should return post as accessible if user is subscribed to the same squad', async () => {
         const userId = id.createId();
         const squad = { ...newSquad(), amount: 100 };
         const manualSub = {
@@ -430,7 +535,7 @@ describe('Post use cases', () => {
         mockPostsData.fetchPostById.mockResolvedValueOnce(post);
         mockSquadsData.fetchSquadBySquadId.mockResolvedValueOnce(squad);
         mockManualSubsData.fetchManualSubByUserIds.mockResolvedValueOnce(manualSub);
-        await expect(findPost.findPostById({ userId, postId: post.postId })).resolves.toStrictEqual(expect.objectContaining({ postId: post.postId }));
+        await expect(findPost.findPostById({ userId, postId: post.postId })).resolves.toStrictEqual(expect.objectContaining({ postId: post.postId, locked: false }));
       });
 
       it('Should return null if post does not exist', async () => {
@@ -439,22 +544,143 @@ describe('Post use cases', () => {
         await expect(findPost.findPostById({ userId, postId: id.createId() })).resolves.toStrictEqual(null);
       });
 
-      it('Should return post if post is free', async () => {
+      it('Should return post as accessible if post is free', async () => {
         const userId = id.createId();
         const creatorUserId = id.createId();
         const post = { ...newPost(), userId: creatorUserId, squadId: '' };
         mockPostsData.fetchPostById.mockResolvedValueOnce(post);
-        await expect(findPost.findPostById({ userId, postId: post.postId })).resolves.toStrictEqual(expect.objectContaining({ postId: post.postId }));
+        await expect(findPost.findPostById({ userId, postId: post.postId })).resolves.toStrictEqual(expect.objectContaining({ postId: post.postId, locked: false }));
       });
 
-      it('Should return null if user has no access', async () => {
+      it('Should return post as locked if user has no access', async () => {
         const userId = id.createId();
         const squad = { ...newSquad(), amount: 100 };
         const post = { ...newPost(), userId: squad.userId, squadId: squad.squadId };
         mockPostsData.fetchPostById.mockResolvedValueOnce(post);
         mockSquadsData.fetchSquadBySquadId.mockResolvedValueOnce(squad);
         mockManualSubsData.fetchManualSubByUserIds.mockResolvedValueOnce(null);
-        await expect(findPost.findPostById({ userId, postId: post.postId })).resolves.toStrictEqual(null);
+        await expect(findPost.findPostById({ userId, postId: post.postId })).resolves.toStrictEqual(expect.objectContaining({ postId: post.postId, locked: true }));
+      });
+
+      it('Should not have image attachment src field if post is locked', async () => {
+        const userId = id.createId();
+        const squad = { ...newSquad(), amount: 100 };
+        const attachment = await newPostAttachment(PostAttachmentType.IMAGE);
+        const post = { ...newPost(undefined, attachment), userId: squad.userId, squadId: squad.squadId };
+        mockPostsData.fetchPostById.mockResolvedValueOnce(post);
+        mockSquadsData.fetchSquadBySquadId.mockResolvedValueOnce(squad);
+        mockManualSubsData.fetchManualSubByUserIds.mockResolvedValueOnce(null);
+        await expect(findPost.findPostById({ userId, postId: post.postId })).resolves.toStrictEqual(expect.objectContaining({
+          postId: post.postId,
+          locked: true,
+          attachment: { type: PostAttachmentType.IMAGE },
+        }));
+      });
+
+      it('Should have image attachment src field if post is not locked', async () => {
+        const userId = id.createId();
+        const squad = { ...newSquad(), amount: 100 };
+        const attachment = await newPostAttachment(PostAttachmentType.IMAGE);
+        const post = { ...newPost(undefined, attachment), userId: squad.userId, squadId: squad.squadId };
+        const manualSub = {
+          ...newManualSub(),
+          userId,
+          creatorUserId: squad.userId,
+          squadId: squad.squadId,
+          amount: squad.amount,
+          subscriptionStatus: ManualSubStatuses.ACTIVE,
+        };
+        mockPostsData.fetchPostById.mockResolvedValueOnce(post);
+        mockSquadsData.fetchSquadBySquadId.mockResolvedValueOnce(squad);
+        mockManualSubsData.fetchManualSubByUserIds.mockResolvedValueOnce(manualSub);
+        await expect(findPost.findPostById({ userId, postId: post.postId })).resolves.toStrictEqual(expect.objectContaining({
+          postId: post.postId,
+          locked: false,
+          attachment: {
+            type: PostAttachmentType.IMAGE,
+            src: expect.any(String),
+          },
+        }));
+      });
+
+      it('Should not have video attachment src field if post is locked', async () => {
+        const userId = id.createId();
+        const squad = { ...newSquad(), amount: 100 };
+        const attachment = await newPostAttachment(PostAttachmentType.VIDEO);
+        const post = { ...newPost(undefined, attachment), userId: squad.userId, squadId: squad.squadId };
+        mockPostsData.fetchPostById.mockResolvedValueOnce(post);
+        mockSquadsData.fetchSquadBySquadId.mockResolvedValueOnce(squad);
+        mockManualSubsData.fetchManualSubByUserIds.mockResolvedValueOnce(null);
+        await expect(findPost.findPostById({ userId, postId: post.postId })).resolves.toStrictEqual(expect.objectContaining({
+          postId: post.postId,
+          locked: true,
+          attachment: { type: PostAttachmentType.VIDEO },
+        }));
+      });
+
+      it('Should have video attachment src field if post is not locked', async () => {
+        const userId = id.createId();
+        const squad = { ...newSquad(), amount: 100 };
+        const attachment = await newPostAttachment(PostAttachmentType.VIDEO);
+        const post = { ...newPost(undefined, attachment), userId: squad.userId, squadId: squad.squadId };
+        const manualSub = {
+          ...newManualSub(),
+          userId,
+          creatorUserId: squad.userId,
+          squadId: squad.squadId,
+          amount: squad.amount,
+          subscriptionStatus: ManualSubStatuses.ACTIVE,
+        };
+        mockPostsData.fetchPostById.mockResolvedValueOnce(post);
+        mockSquadsData.fetchSquadBySquadId.mockResolvedValueOnce(squad);
+        mockManualSubsData.fetchManualSubByUserIds.mockResolvedValueOnce(manualSub);
+        await expect(findPost.findPostById({ userId, postId: post.postId })).resolves.toStrictEqual(expect.objectContaining({
+          postId: post.postId,
+          locked: false,
+          attachment: {
+            type: PostAttachmentType.VIDEO,
+            src: expect.any(String),
+          },
+        }));
+      });
+
+      it('Should have link field as "locked" if post is locked', async () => {
+        const userId = id.createId();
+        const squad = { ...newSquad(), amount: 100 };
+        const link = faker.internet.url();
+        const post = { ...newPost(undefined, undefined, link), userId: squad.userId, squadId: squad.squadId };
+        mockPostsData.fetchPostById.mockResolvedValueOnce(post);
+        mockSquadsData.fetchSquadBySquadId.mockResolvedValueOnce(squad);
+        mockManualSubsData.fetchManualSubByUserIds.mockResolvedValueOnce(null);
+        const postReturned = await findPost.findPostById({ userId, postId: post.postId });
+        expect(postReturned).toStrictEqual(expect.objectContaining({
+          postId: post.postId,
+          locked: true,
+          link: 'locked',
+        }));
+      });
+
+      it('Should have link if post is not locked', async () => {
+        const userId = id.createId();
+        const squad = { ...newSquad(), amount: 100 };
+        const link = faker.internet.url();
+        const post = { ...newPost(undefined, undefined, link), userId: squad.userId, squadId: squad.squadId };
+        const manualSub = {
+          ...newManualSub(),
+          userId,
+          creatorUserId: squad.userId,
+          squadId: squad.squadId,
+          amount: squad.amount,
+          subscriptionStatus: ManualSubStatuses.ACTIVE,
+        };
+        mockPostsData.fetchPostById.mockResolvedValueOnce(post);
+        mockSquadsData.fetchSquadBySquadId.mockResolvedValueOnce(squad);
+        mockManualSubsData.fetchManualSubByUserIds.mockResolvedValueOnce(manualSub);
+        await expect(findPost.findPostById({ userId, postId: post.postId })).resolves.toStrictEqual(expect.objectContaining({
+          postId: post.postId,
+          locked: false,
+          link: expect.not.stringMatching('locked'),
+        }));
       });
 
       describe('PostId validation', () => {

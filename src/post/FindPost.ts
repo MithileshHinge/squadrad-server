@@ -60,39 +60,53 @@ export default class FindPost {
     const userIdValidated = validateUserId.validate(userId);
     const creatorUserIdValidated = validateUserId.validate(creatorUserId);
 
-    let postsToReturn: typeof posts;
-
     const posts = await this.postsData.fetchAllPostsByUserId(creatorUserIdValidated);
+    let postsToReturn: Array<typeof posts[0] & { locked: boolean }>;
+
     if (posts.length <= 0) {
       postsToReturn = []; // creator has no posts, return an empty array
     } else if (userIdValidated === creatorUserIdValidated) {
-      postsToReturn = posts;
+      postsToReturn = posts.map((post) => ({ ...post, locked: false }));
     } else {
       const squads = await this.findSquad.findAllSquadsByUserId(creatorUserIdValidated);
       const manualSub = await this.findManualSub.findManualSubByUserIds(userIdValidated, creatorUserIdValidated);
-      postsToReturn = posts.filter((post) => {
+      postsToReturn = posts.map((post) => {
         const squad = post.squadId === '' ? null : squads.find((s) => s.squadId === post.squadId);
-        return FindPost.checkPostAccess({
+        const isAccessible = FindPost.checkPostAccess({
           userId: userIdValidated,
           post,
           squad,
           manualSub,
         });
+        if (isAccessible) return { ...post, locked: false };
+        return { ...post, locked: true };
       });
     }
 
-    const postsToReturnWithAttachment: any[] = [];
+    const postsToReturnWithLinkAndAttachment: any[] = [];
     await forEachAsync(postsToReturn, async (post) => {
-      const attachment = post.attachment ? { type: post.attachment.type, src: await this.findAttachment.getSrcFromId(post.attachment.attachmentId) } : undefined;
-      postsToReturnWithAttachment.push({ ...post, attachment });
+      if (post.locked) {
+        postsToReturnWithLinkAndAttachment.push({
+          ...post,
+          link: post.link ? 'locked' : undefined,
+          attachment: post.attachment ? { type: post.attachment.type } : undefined,
+        });
+      } else {
+        postsToReturnWithLinkAndAttachment.push({
+          ...post,
+          attachment: post.attachment ? { type: post.attachment.type, src: await this.findAttachment.getSrcFromId(post.attachment.attachmentId) } : undefined,
+        });
+      }
     });
-    return postsToReturnWithAttachment.map((post) => ({
+
+    return postsToReturnWithLinkAndAttachment.map((post) => ({
       postId: post.postId,
       userId: post.userId,
       description: post.description,
       squadId: post.squadId,
       link: post.link,
       attachment: post.attachment,
+      locked: post.locked,
     }));
   }
 
@@ -105,21 +119,34 @@ export default class FindPost {
     const squad = post.squadId === '' ? null : await this.findSquad.findSquadById(post.squadId);
     const manualSub = await this.findManualSub.findManualSubByUserIds(userIdValidated, post.userId);
 
+    let postToReturn: any;
     if (FindPost.checkPostAccess({
       userId: userIdValidated,
       post,
       squad,
       manualSub,
     })) {
-      return {
-        postId: post.postId,
-        userId: post.userId,
-        description: post.description,
-        squadId: post.squadId,
-        link: post.link,
+      postToReturn = {
+        ...post,
+        locked: false,
         attachment: post.attachment ? { type: post.attachment.type, src: await this.findAttachment.getSrcFromId(post.attachment.attachmentId) } : undefined,
       };
+    } else {
+      postToReturn = {
+        ...post,
+        locked: true,
+        link: post.link ? 'locked' : undefined,
+        attachment: post.attachment ? { type: post.attachment.type } : undefined,
+      };
     }
-    return null;
+    return {
+      postId: postToReturn.postId,
+      userId: postToReturn.userId,
+      description: postToReturn.description,
+      squadId: postToReturn.squadId,
+      link: postToReturn.link,
+      attachment: postToReturn.attachment,
+      locked: postToReturn.locked,
+    };
   }
 }
