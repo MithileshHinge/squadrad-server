@@ -19,7 +19,8 @@ import newSquad from '../__mocks__/squad/squads';
 import newManualSub from '../__mocks__/manual-sub/manualSubs';
 import ManualSubStatuses from '../../manual-sub/ManualSubStatuses';
 import ValidationError from '../../common/errors/ValidationError';
-import newComment from '../__mocks__/comment/comments';
+import newComment, { convertSampleCommentsToDBComments, sampleCommentsOnPost } from '../__mocks__/comment/comments';
+import FindComment from '../../comment/FindComment';
 
 describe('Comment use cases', () => {
   beforeEach(() => {
@@ -191,7 +192,6 @@ describe('Comment use cases', () => {
         const userId = id.createId();
         const creatorUserId = id.createId();
         const post = { ...newPost(), userId: creatorUserId };
-        mockPostsData.fetchPostById.mockResolvedValueOnce(post);
 
         const text: any = 1234567;
         await expect(addComment.add({ userId, postId: post.postId, text })).rejects.toThrow(ValidationError);
@@ -202,10 +202,90 @@ describe('Comment use cases', () => {
         const userId = id.createId();
         const creatorUserId = id.createId();
         const post = { ...newPost(), userId: creatorUserId };
-        mockPostsData.fetchPostById.mockResolvedValueOnce(post);
 
         await expect(addComment.add({ userId, postId: post.postId, text: '' })).rejects.toThrow(ValidationError);
         expect(mockCommentsData.insertNewComment).not.toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe('FindComment use case', () => {
+    const findSquad = new FindSquad(mockSquadsData, squadValidator);
+    const findManualSub = new FindManualSub(mockManualSubsData, manualSubValidator);
+    const findAttachment = new FindAttachment(attachmentValidator);
+    const findPost = new FindPost(findSquad, findManualSub, findAttachment, mockPostsData, postValidator);
+    const findComment = new FindComment(findPost, mockCommentsData);
+
+    describe('FindCommentsByPostId', () => {
+      it('User can get comments and replies of a post they have acces to', async () => {
+        const userId = id.createId();
+        const creatorUserId = id.createId();
+        const squad = { ...newSquad(), userId: creatorUserId };
+        const post = { ...newPost(), userId: creatorUserId, squadId: squad.squadId };
+        const manualSub = {
+          ...newManualSub(),
+          userId,
+          creatorUserId,
+          squadId: squad.squadId,
+          amount: squad.amount,
+          subscriptionStatus: ManualSubStatuses.ACTIVE,
+        };
+
+        const comments = sampleCommentsOnPost();
+        const commentsInDb = convertSampleCommentsToDBComments(comments, post.postId);
+
+        mockSquadsData.fetchSquadBySquadId.mockResolvedValueOnce(squad);
+        mockPostsData.fetchPostById.mockResolvedValueOnce(post);
+        mockManualSubsData.fetchManualSubByUserIds.mockResolvedValueOnce(manualSub);
+        mockCommentsData.fetchCommentsByPostId.mockResolvedValueOnce(commentsInDb);
+
+        await expect(findComment.findCommentsByPostId({ userId, postId: post.postId })).resolves.toEqual(comments);
+        expect(mockCommentsData.fetchCommentsByPostId).toHaveBeenCalledWith(post.postId);
+      });
+
+      it('User cannot get comments of a post they dont have access to', async () => {
+        const userId = id.createId();
+        const creatorUserId = id.createId();
+        const higherSquad = { ...newSquad(), userId: creatorUserId, amount: 1000 };
+        const lowerSquad = { ...newSquad(), userId: creatorUserId, amount: 500 };
+        const post = { ...newPost(), userId: creatorUserId, squadId: higherSquad.squadId };
+        const manualSub = {
+          ...newManualSub(),
+          userId,
+          creatorUserId,
+          squadId: lowerSquad.squadId,
+          amount: lowerSquad.amount,
+          subscriptionStatus: ManualSubStatuses.ACTIVE,
+        };
+
+        mockSquadsData.fetchSquadBySquadId.mockResolvedValueOnce(higherSquad);
+        mockPostsData.fetchPostById.mockResolvedValueOnce(post);
+        mockManualSubsData.fetchManualSubByUserIds.mockResolvedValueOnce(manualSub);
+
+        await expect(findComment.findCommentsByPostId({ userId, postId: post.postId })).resolves.toEqual([]);
+        expect(mockCommentsData.fetchCommentsByPostId).not.toHaveBeenCalled();
+      });
+
+      it('Return empty array if there are no comments', async () => {
+        const userId = id.createId();
+        const creatorUserId = id.createId();
+        const post = { ...newPost(), userId: creatorUserId };
+
+        mockPostsData.fetchPostById.mockResolvedValueOnce(post);
+        mockCommentsData.fetchCommentsByPostId.mockResolvedValueOnce([]);
+
+        await expect(findComment.findCommentsByPostId({ userId, postId: post.postId })).resolves.toEqual([]);
+        expect(mockCommentsData.fetchCommentsByPostId).toHaveBeenCalledWith(post.postId);
+      });
+
+      it('Return empty array if post does not exist', async () => {
+        const userId = id.createId();
+        const postId = id.createId();
+
+        mockPostsData.fetchPostById.mockResolvedValueOnce(null);
+
+        await expect(findComment.findCommentsByPostId({ userId, postId })).resolves.toEqual([]);
+        expect(mockCommentsData.fetchCommentsByPostId).not.toHaveBeenCalled();
       });
     });
   });
