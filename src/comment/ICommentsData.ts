@@ -1,5 +1,8 @@
 export interface ICommentsData {
-  insertNewComment({ postId, userId, text }: {
+  insertNewComment({
+    commentId, postId, userId, text,
+  }: {
+    commentId: string,
     postId: string,
     userId: string,
     text: string,

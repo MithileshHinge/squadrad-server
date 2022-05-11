@@ -59,7 +59,7 @@ describe('Comment use cases', () => {
 
       const text = faker.lorem.sentences(faker.datatype.number({ min: 1, max: 3 }));
       await expect(addComment.add({ userId, postId: post.postId, text })).resolves.not.toBeNull();
-      expect(mockCommentsData.insertNewComment).toHaveBeenCalledWith(expect.objectContaining({ userId, postId: post.postId }));
+      expect(mockCommentsData.insertNewComment).toHaveBeenCalledWith(expect.objectContaining({ commentId: expect.any(String), userId, postId: post.postId }));
     });
 
     it('User cannot add comment on a post they dont have access to', async () => {
@@ -85,6 +85,7 @@ describe('Comment use cases', () => {
       await expect(addComment.add({ userId, postId: post.postId, text })).resolves.toBeNull();
       expect(mockCommentsData.insertNewComment).not.toHaveBeenCalled();
     });
+
     describe('Text validation', () => {
       it('Should throw error if text is not a string', async () => {
         const userId = id.createId();
@@ -96,6 +97,7 @@ describe('Comment use cases', () => {
         await expect(addComment.add({ userId, postId: post.postId, text })).rejects.toThrow(ValidationError);
         expect(mockCommentsData.insertNewComment).not.toHaveBeenCalled();
       });
+
       it('Should throw error if text is empty', async () => {
         const userId = id.createId();
         const creatorUserId = id.createId();

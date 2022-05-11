@@ -1,3 +1,4 @@
+import id from '../common/id';
 import FindPost from '../post/FindPost';
 import postValidator from '../post/validator';
 import { validateUserId } from '../userId';
@@ -36,7 +37,9 @@ export default class AddComment {
     const post = await this.findPost.findPostById({ userId: userIdValidated, postId: postIdValidated });
 
     if (post && !post.locked) {
+      const commentId = id.createId();
       const commentAdded = await this.commentsData.insertNewComment({
+        commentId,
         postId: postIdValidated,
         userId: userIdValidated,
         text: textValidated,
