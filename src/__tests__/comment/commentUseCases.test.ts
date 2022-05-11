@@ -19,6 +19,7 @@ import newSquad from '../__mocks__/squad/squads';
 import newManualSub from '../__mocks__/manual-sub/manualSubs';
 import ManualSubStatuses from '../../manual-sub/ManualSubStatuses';
 import ValidationError from '../../common/errors/ValidationError';
+import newComment from '../__mocks__/comment/comments';
 
 describe('Comment use cases', () => {
   beforeEach(() => {
@@ -83,6 +84,105 @@ describe('Comment use cases', () => {
 
       const text = faker.lorem.sentences(faker.datatype.number({ min: 1, max: 3 }));
       await expect(addComment.add({ userId, postId: post.postId, text })).resolves.toBeNull();
+      expect(mockCommentsData.insertNewComment).not.toHaveBeenCalled();
+    });
+
+    it('User cannot add comment on a post that doesnt exist, return null', async () => {
+      const userId = id.createId();
+      const postId = id.createId();
+      mockPostsData.fetchPostById.mockResolvedValueOnce(null);
+
+      const text = faker.lorem.sentences(faker.datatype.number({ min: 1, max: 3 }));
+      await expect(addComment.add({ userId, postId, text })).resolves.toBeNull();
+      expect(mockCommentsData.insertNewComment).not.toHaveBeenCalled();
+    });
+
+    it('User can reply to a comment on a post they have access to', async () => {
+      const userId = id.createId();
+      const creatorUserId = id.createId();
+      const squad = { ...newSquad(), userId: creatorUserId };
+      const post = { ...newPost(), userId: creatorUserId, squadId: squad.squadId };
+      const manualSub = {
+        ...newManualSub(),
+        userId,
+        creatorUserId,
+        squadId: squad.squadId,
+        amount: squad.amount,
+        subscriptionStatus: ManualSubStatuses.ACTIVE,
+      };
+      const comment = { ...newComment(), userId, postId: post.postId };
+
+      mockSquadsData.fetchSquadBySquadId.mockResolvedValueOnce(squad);
+      mockPostsData.fetchPostById.mockResolvedValueOnce(post);
+      mockManualSubsData.fetchManualSubByUserIds.mockResolvedValueOnce(manualSub);
+      mockCommentsData.fetchCommentById.mockResolvedValueOnce(comment);
+
+      const text = faker.lorem.sentences(faker.datatype.number({ min: 1, max: 3 }));
+      await expect(addComment.add({
+        userId, postId: post.postId, text, replyToCommentId: comment.commentId,
+      })).resolves.not.toBeNull();
+      expect(mockCommentsData.insertNewComment).toHaveBeenCalledWith(expect.objectContaining({
+        commentId: expect.any(String), userId, postId: post.postId, replyToCommentId: comment.commentId,
+      }));
+    });
+
+    it('User cannot reply to a comment on a post they dont have access to', async () => {
+      const userId = id.createId();
+      const creatorUserId = id.createId();
+      const higherSquad = { ...newSquad(), userId: creatorUserId, amount: 1000 };
+      const lowerSquad = { ...newSquad(), userId: creatorUserId, amount: 500 };
+      const post = { ...newPost(), userId: creatorUserId, squadId: higherSquad.squadId };
+      const manualSub = {
+        ...newManualSub(),
+        userId,
+        creatorUserId,
+        squadId: lowerSquad.squadId,
+        amount: lowerSquad.amount,
+        subscriptionStatus: ManualSubStatuses.ACTIVE,
+      };
+      const comment = { ...newComment(), userId, postId: post.postId };
+
+      mockSquadsData.fetchSquadBySquadId.mockResolvedValueOnce(higherSquad);
+      mockPostsData.fetchPostById.mockResolvedValueOnce(post);
+      mockManualSubsData.fetchManualSubByUserIds.mockResolvedValueOnce(manualSub);
+      mockCommentsData.fetchCommentById.mockResolvedValueOnce(comment);
+
+      const text = faker.lorem.sentences(faker.datatype.number({ min: 1, max: 3 }));
+      await expect(addComment.add({
+        userId, postId: post.postId, text, replyToCommentId: comment.commentId,
+      })).resolves.toBeNull();
+      expect(mockCommentsData.insertNewComment).not.toHaveBeenCalled();
+    });
+
+    it('User cannot reply to a comment that doesnt exist', async () => {
+      const userId = id.createId();
+      const creatorUserId = id.createId();
+      const post = { ...newPost(), userId: creatorUserId };
+      const commentId = id.createId();
+      mockPostsData.fetchPostById.mockResolvedValueOnce(post);
+      mockCommentsData.fetchCommentById.mockResolvedValueOnce(null);
+      const text = faker.lorem.sentences(faker.datatype.number({ min: 1, max: 3 }));
+      await expect(addComment.add({
+        userId, postId: post.postId, text, replyToCommentId: commentId,
+      })).resolves.toBeNull();
+      expect(mockCommentsData.insertNewComment).not.toHaveBeenCalled();
+    });
+
+    it('User cannot reply to a reply', async () => {
+      const userId = id.createId();
+      const creatorUserId = id.createId();
+      const post = { ...newPost(), userId: creatorUserId };
+      const comment = { ...newComment(), userId, postId: post.postId };
+      const reply = {
+        ...newComment(true), userId, postId: post.postId, replyToCommentId: comment.commentId,
+      };
+
+      mockPostsData.fetchPostById.mockResolvedValueOnce(post);
+      mockCommentsData.fetchCommentById.mockResolvedValueOnce(reply);
+      const text = faker.lorem.sentences(faker.datatype.number({ min: 1, max: 3 }));
+      await expect(addComment.add({
+        userId, postId: post.postId, text, replyToCommentId: reply.commentId,
+      })).resolves.toBeNull();
       expect(mockCommentsData.insertNewComment).not.toHaveBeenCalled();
     });
 
