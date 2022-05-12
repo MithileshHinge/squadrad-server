@@ -131,7 +131,7 @@ describe('Post endpoints', () => {
       expect(posts.length).toBe(3);
     });
 
-    it('User can access all free posts of a creator, others will be locked', async () => {
+    it('Anyone can access all free posts of a creator, others will be locked', async () => {
       const { userId: creatorUserId, squads } = await getCreatorWithSquads(app, userCollection, squadCollection, 2);
 
       const samplePosts = [
@@ -145,8 +145,7 @@ describe('Post endpoints', () => {
         ...postInfo,
       })));
 
-      const { agent } = await getLoggedInUser(app, userCollection);
-      const { body: posts } = await agent.get(`/posts/${creatorUserId}`).expect(HTTPResponseCode.OK);
+      const { body: posts } = await request(app).get(`/posts/${creatorUserId}`).expect(HTTPResponseCode.OK);
       expect(posts).toEqual(expect.arrayContaining([
         expect.objectContaining({ postId: samplePosts[0].postId, locked: false }),
         expect.objectContaining({ postId: samplePosts[1].postId, locked: false }),
@@ -199,6 +198,69 @@ describe('Post endpoints', () => {
         expect.objectContaining({ postId: samplePosts[8].postId, locked: true }),
         expect.objectContaining({ postId: samplePosts[9].postId, locked: true }),
       ]));
+    });
+  });
+
+  describe('GET /post/:postId', () => {
+    it('Creator can get his post', async () => {
+      const { agent, userId, squads } = await getCreatorWithSquads(app, userCollection, squadCollection, 2);
+      const samplePosts = [
+        { ...newPost(), userId, squadId: '' },
+        { ...newPost(), userId, squadId: squads[1].squadId },
+      ];
+      postCollection.insertMany(samplePosts.map(({ postId, ...postInfo }) => ({
+        _id: new ObjectId(postId),
+        ...postInfo,
+      })));
+
+      const { body: post1 } = await agent.get(`/post/${samplePosts[0].postId}`).expect(HTTPResponseCode.OK);
+      expect(post1.locked).toBe(false);
+
+      const { body: post2 } = await agent.get(`/post/${samplePosts[1].postId}`).expect(HTTPResponseCode.OK);
+      expect(post2.locked).toBe(false);
+    });
+
+    it('Anyone can get free post', async () => {
+      const { postId, ...samplePost } = { ...newPost(), squadId: '' };
+      postCollection.insertOne({ ...samplePost, _id: new ObjectId(postId) });
+
+      const { body: post } = await request(app).get(`/post/${postId}`).expect(HTTPResponseCode.OK);
+      expect(post.locked).toBe(false);
+    });
+
+    it('User can access post with amount less than equal to subscribed amount, higher post will be locked', async () => {
+      const { userId: creatorUserId, squads } = await getCreatorWithSquads(app, userCollection, squadCollection, 3);
+      squads.sort((squad1, squad2) => squad1.amount - squad2.amount);
+
+      const samplePosts = [
+        { ...newPost(), userId: creatorUserId, squadId: squads[0].squadId },
+        { ...newPost(), userId: creatorUserId, squadId: squads[1].squadId },
+        { ...newPost(), userId: creatorUserId, squadId: squads[2].squadId },
+      ];
+      postCollection.insertMany(samplePosts.map(({ postId, ...postInfo }) => ({
+        _id: new ObjectId(postId),
+        ...postInfo,
+      })));
+
+      const { agent, userId } = await getLoggedInUser(app, userCollection);
+      const { manualSubId, ...manualSubInfo } = {
+        ...newManualSub(),
+        userId,
+        creatorUserId,
+        squadId: squads[1].squadId,
+        amount: squads[1].amount,
+        subscriptionStatus: ManualSubStatuses.ACTIVE,
+      };
+      await manualSubCollection.insertOne({ _id: new ObjectId(manualSubId), ...manualSubInfo });
+
+      const { body: post1 } = await agent.get(`/post/${samplePosts[0].postId}`).expect(HTTPResponseCode.OK);
+      expect(post1.locked).toBe(false);
+
+      const { body: post2 } = await agent.get(`/post/${samplePosts[1].postId}`).expect(HTTPResponseCode.OK);
+      expect(post2.locked).toBe(false);
+
+      const { body: post3 } = await agent.get(`/post/${samplePosts[2].postId}`).expect(HTTPResponseCode.OK);
+      expect(post3.locked).toBe(true);
     });
   });
 

@@ -24,7 +24,11 @@ export default [
   },
   {
     path: '/posts/:creatorUserId',
-    get: [authorizationMiddleware, PostController.getPostsByCreatorUserId],
+    get: [PostController.getPostsByCreatorUserId],
+  },
+  {
+    path: '/post/:postId',
+    get: [PostController.getPostById],
   },
   {
     path: `/${config.postAttachmentsDir}/:attachmentId`,

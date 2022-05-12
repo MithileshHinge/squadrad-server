@@ -54,10 +54,10 @@ export default class FindPost {
    * @throws DatabaseError if operation failed
    */
   async findPostsByUserId({ userId, creatorUserId }: {
-    userId: string,
+    userId?: string,
     creatorUserId: string,
   }) {
-    const userIdValidated = validateUserId.validate(userId);
+    const userIdValidated = userId === undefined ? undefined : validateUserId.validate(userId);
     const creatorUserIdValidated = validateUserId.validate(creatorUserId);
 
     const posts = await this.postsData.fetchAllPostsByUserId(creatorUserIdValidated);
@@ -65,6 +65,8 @@ export default class FindPost {
 
     if (posts.length <= 0) {
       postsToReturn = []; // creator has no posts, return an empty array
+    } else if (userIdValidated === undefined) {
+      postsToReturn = posts.map((post) => ({ ...post, locked: (post.squadId !== '') })); // user is unauthorized, only unlock free posts
     } else if (userIdValidated === creatorUserIdValidated) {
       postsToReturn = posts.map((post) => ({ ...post, locked: false }));
     } else {
@@ -110,34 +112,53 @@ export default class FindPost {
     }));
   }
 
-  async findPostById({ userId, postId }: { userId: string, postId: string }) {
-    const userIdValidated = validateUserId.validate(userId);
+  async findPostById({ userId, postId }: { userId?: string, postId: string }) {
+    const userIdValidated = userId === undefined ? undefined : validateUserId.validate(userId);
     const postIdValidated = this.postValidator.validatePostId(postId);
 
     const post = await this.postsData.fetchPostById(postIdValidated);
     if (!post) return null;
-    const squad = post.squadId === '' ? null : await this.findSquad.findSquadById(post.squadId);
-    const manualSub = await this.findManualSub.findManualSubByUserIds(userIdValidated, post.userId);
 
     let postToReturn: any;
-    if (FindPost.checkPostAccess({
-      userId: userIdValidated,
-      post,
-      squad,
-      manualSub,
-    })) {
-      postToReturn = {
-        ...post,
-        locked: false,
-        attachment: post.attachment ? { type: post.attachment.type, src: await this.findAttachment.getSrcFromId(post.attachment.attachmentId) } : undefined,
-      };
+
+    if (userIdValidated === undefined) {
+      if (post.squadId === '') {
+        postToReturn = {
+          ...post,
+          locked: false,
+          attachment: post.attachment ? { type: post.attachment.type, src: await this.findAttachment.getSrcFromId(post.attachment.attachmentId) } : undefined,
+        };
+      } else {
+        postToReturn = {
+          ...post,
+          locked: true,
+          link: post.link ? 'locked' : undefined,
+          attachment: post.attachment ? { type: post.attachment.type } : undefined,
+        };
+      }
     } else {
-      postToReturn = {
-        ...post,
-        locked: true,
-        link: post.link ? 'locked' : undefined,
-        attachment: post.attachment ? { type: post.attachment.type } : undefined,
-      };
+      const squad = post.squadId === '' ? null : await this.findSquad.findSquadById(post.squadId);
+      const manualSub = await this.findManualSub.findManualSubByUserIds(userIdValidated, post.userId);
+
+      if (FindPost.checkPostAccess({
+        userId: userIdValidated,
+        post,
+        squad,
+        manualSub,
+      })) {
+        postToReturn = {
+          ...post,
+          locked: false,
+          attachment: post.attachment ? { type: post.attachment.type, src: await this.findAttachment.getSrcFromId(post.attachment.attachmentId) } : undefined,
+        };
+      } else {
+        postToReturn = {
+          ...post,
+          locked: true,
+          link: post.link ? 'locked' : undefined,
+          attachment: post.attachment ? { type: post.attachment.type } : undefined,
+        };
+      }
     }
     return {
       postId: postToReturn.postId,

@@ -43,6 +43,21 @@ const getPostsByCreatorUserId: IBaseController = async (httpRequest) => {
   }
 };
 
+const getPostById: IBaseController = async (httpRequest) => {
+  try {
+    const { userId } = httpRequest;
+    const { postId } = httpRequest.params;
+    const post = await findPost.findPostById({ userId, postId });
+
+    return {
+      statusCode: HTTPResponseCode.OK,
+      body: post,
+    };
+  } catch (err: any) {
+    return handleControllerError(err);
+  }
+};
+
 const getPostAttachmentFile: IBaseController = async (httpRequest) => {
   try {
     const { attachmentId } = httpRequest.params;
@@ -59,4 +74,5 @@ export default {
   postPost,
   getPostsByCreatorUserId,
   getPostAttachmentFile,
+  getPostById,
 };
