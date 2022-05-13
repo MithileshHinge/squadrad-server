@@ -86,4 +86,14 @@ export default class CommentsData extends BaseData implements ICommentsData {
       return this.handleDatabaseError(err, 'Could not fetch comments by postId');
     }
   }
+
+  async countCommentsByPostId(postId: string): Promise<Number> {
+    const db = await this.getDb();
+    try {
+      const result = await db.collection('comments').countDocuments({ postId });
+      return result;
+    } catch (err: any) {
+      return this.handleDatabaseError(err, 'Could not count comments by postId');
+    }
+  }
 }

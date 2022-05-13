@@ -1,4 +1,4 @@
-import { addComment, findComment } from '../../comment';
+import { addComment, countComments, findComment } from '../../comment';
 import { HTTPResponseCode } from '../HttpResponse';
 import handleControllerError from './ControllerErrorHandler';
 import { IBaseController } from './IBaseController';
@@ -38,7 +38,22 @@ const getCommentsOnPost: IBaseController = async (httpRequest) => {
   }
 };
 
+const getNumCommentsOnPost: IBaseController = async (httpRequest) => {
+  try {
+    const { postId } = httpRequest.params;
+    const count = await countComments.count(postId);
+
+    return {
+      statusCode: HTTPResponseCode.OK,
+      body: count,
+    };
+  } catch (err: any) {
+    return handleControllerError(err);
+  }
+};
+
 export default {
   postComment,
   getCommentsOnPost,
+  getNumCommentsOnPost,
 };

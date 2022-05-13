@@ -43,4 +43,10 @@ export interface ICommentsData {
     text: string,
     replyToCommentId?: string,
   }[]>;
+
+  /**
+   * Count total number of comments on a post
+   * @returns number of comments
+   */
+  countCommentsByPostId(postId: string): Promise<Number>;
 }

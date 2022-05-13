@@ -10,4 +10,8 @@ export default [
     path: '/comments/:postId',
     get: [authorizationMiddleware, CommentController.getCommentsOnPost],
   },
+  {
+    path: '/comments/count/:postId',
+    get: [CommentController.getNumCommentsOnPost],
+  },
 ];
