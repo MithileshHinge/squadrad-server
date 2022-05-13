@@ -52,6 +52,25 @@ const getUserSelf: IBaseController = async (httpRequest) => {
   }
 };
 
+const getUserById: IBaseController = async (httpRequest) => {
+  try {
+    const { userId } = httpRequest.params;
+    const user = await findUser.findUserById(userId, false);
+    if (!user) return { statusCode: HTTPResponseCode.NOT_FOUND, body: {} };
+
+    return {
+      statusCode: HTTPResponseCode.OK,
+      body: {
+        userId: user.userId,
+        fullName: user.fullName,
+        profilePicSrc: user.profilePicSrc,
+      },
+    };
+  } catch (err: any) {
+    return handleControllerError(err);
+  }
+};
+
 const patchUser: IBaseController = async (httpRequest) => {
   try {
     const userId = httpRequest.userId!;
@@ -102,6 +121,7 @@ export default {
   postUser,
   patchUserVerify,
   getUserSelf,
+  getUserById,
   patchUser,
   patchUserPassword,
   putProfilePic,

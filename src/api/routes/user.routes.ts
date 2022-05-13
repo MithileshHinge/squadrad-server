@@ -10,6 +10,10 @@ export default [
     patch: [authorizationMiddleware, UserController.patchUser], // change user details
   },
   {
+    path: '/user/:userId',
+    get: [UserController.getUserById],
+  },
+  {
     path: '/user/verify',
     patch: [UserController.patchUserVerify], // verify user's email address
   },
