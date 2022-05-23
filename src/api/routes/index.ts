@@ -6,6 +6,7 @@ import paymentRoutes from './payment.routes';
 import postRoutes from './post.routes';
 import postLikeRoutes from './postLike.routes';
 import commentRoutes from './comment.routes';
+import manualSubRoutes from './manualSub.routes';
 
 export default [
   ...userRoutes,
@@ -16,4 +17,5 @@ export default [
   ...postRoutes,
   ...postLikeRoutes,
   ...commentRoutes,
+  ...manualSubRoutes,
 ];
