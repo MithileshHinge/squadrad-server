@@ -52,4 +52,18 @@ export interface IManualSubsData {
     contactNumber: string,
     subscriptionStatus: number,
   } | null>;
+
+  /**
+   * Count total active manualSubs of a creatorUserId
+   * @returns total number, default 0
+   * @throws DatabaseError if operation fails
+   */
+  countManualSubsByCreatorUserId(creatorUserId: string): Promise<Number>;
+
+  /**
+   * Count total amount of active manualSubs of a creatorUserId
+   * @returns sum of amounts, default 0
+   * @throws DatabaseError if operation fails
+   */
+  sumAmountsByCreatorUserId(creatorUserId: string): Promise<Number>;
 }

@@ -1,4 +1,7 @@
+import ValidationError from '../../common/errors/ValidationError';
+import { findCreator } from '../../creator';
 import { addGoal, editGoal, findGoal } from '../../goal';
+import { countManualSub } from '../../manual-sub';
 import { HTTPResponseCode } from '../HttpResponse';
 import handleControllerError from './ControllerErrorHandler';
 import { IBaseController } from './IBaseController';
@@ -30,10 +33,29 @@ const postGoal: IBaseController = async (httpRequest) => {
 const getAllGoalsByUserId: IBaseController = async (httpRequest) => {
   try {
     const { userId } = httpRequest.params;
+    const creator = await findCreator.findCreatorPage(userId, false);
+    if (!creator) throw new ValidationError('Creator not found');
+
     const goals = await findGoal.findAllGoalsByUserId(userId);
+    if (goals.length > 0) {
+      if (creator.goalsTypeEarnings) {
+        const monthlyIncome = await countManualSub.countMonthlyIncomeByCreatorId(userId);
+
+        return {
+          statusCode: HTTPResponseCode.OK,
+          body: { goals, monthlyIncome },
+        };
+      }
+      const totalMembers = await countManualSub.countTotalMembersByCreatorId(userId);
+
+      return {
+        statusCode: HTTPResponseCode.OK,
+        body: { goals, totalMembers },
+      };
+    }
     return {
       statusCode: HTTPResponseCode.OK,
-      body: goals,
+      body: { goals: [] },
     };
   } catch (err: any) {
     return handleControllerError(err);

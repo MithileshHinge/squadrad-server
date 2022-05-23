@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 import { ObjectId } from 'mongodb';
 import { IManualSubsData } from '../manual-sub/IManualSubsData';
+import ManualSubStatuses from '../manual-sub/ManualSubStatuses';
 import BaseData from './BaseData';
 
 export default class ManualSubsData extends BaseData implements IManualSubsData {
@@ -102,6 +103,31 @@ export default class ManualSubsData extends BaseData implements IManualSubsData 
       };
     } catch (err: any) {
       return this.handleDatabaseError(err, 'Could not fetch manualSub by userIds');
+    }
+  }
+
+  async countManualSubsByCreatorUserId(creatorUserId: string): Promise<Number> {
+    const db = await this.getDb();
+    try {
+      const result = await db.collection('manualSubs').countDocuments({ creatorUserId, subscriptionStatus: ManualSubStatuses.ACTIVE });
+
+      return result;
+    } catch (err: any) {
+      return this.handleDatabaseError(err, 'Could not count manual subs by creator userId');
+    }
+  }
+
+  async sumAmountsByCreatorUserId(creatorUserId: string): Promise<Number> {
+    const db = await this.getDb();
+    try {
+      const result = await db.collection('manualSubs').aggregate([
+        { $match: { creatorUserId } },
+        { $group: { _id: null, totalAmount: { $sum: '$amount' } } },
+      ]).toArray();
+      if (result && result.length > 0) return result[0].totalAmount;
+      return 0;
+    } catch (err: any) {
+      return this.handleDatabaseError(err, 'Could not sum amounts by creator userId');
     }
   }
 }
