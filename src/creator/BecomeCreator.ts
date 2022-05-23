@@ -54,6 +54,7 @@ export default class BecomeCreator {
       isPlural: isPluralValidated,
       showTotalSquadMembers: false,
       about: '',
+      goalsTypeEarnings: true,
     });
 
     const profilePicSrc = await this.setProfilePic.setDefault(userIdValidated, true);

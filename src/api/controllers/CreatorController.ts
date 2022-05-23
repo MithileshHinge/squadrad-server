@@ -28,13 +28,14 @@ const patchCreator: IBaseController = async (httpRequest) => {
   try {
     const userId = httpRequest.userId!;
     const {
-      pageName, bio, isPlural, showTotalSquadMembers, about,
+      pageName, bio, isPlural, showTotalSquadMembers, about, goalsTypeEarnings,
     }: {
       pageName?: string,
       bio?: string,
       isPlural?: boolean,
       showTotalSquadMembers?: boolean,
       about?: string,
+      goalsTypeEarnings?: Boolean,
     } = httpRequest.body;
 
     await editCreator.edit({
@@ -44,6 +45,7 @@ const patchCreator: IBaseController = async (httpRequest) => {
       isPlural,
       showTotalSquadMembers,
       about,
+      goalsTypeEarnings,
     });
     return { statusCode: HTTPResponseCode.OK, body: {} };
   } catch (err: any) {
@@ -85,6 +87,7 @@ const getCreator: IBaseController = async (httpRequest) => {
         profilePicSrc: creatorPageInfo.profilePicSrc,
         showTotalSquadMembers: creatorPageInfo.showTotalSquadMembers!,
         about: creatorPageInfo.about,
+        goalsTypeEarnings: creatorPageInfo.goalsTypeEarnings,
       },
     };
   } catch (err: any) {
@@ -107,6 +110,7 @@ const getCreatorUserId: IBaseController = async (httpRequest) => {
         isPlural: creatorPageInfo.isPlural,
         profilePicSrc: creatorPageInfo.profilePicSrc,
         about: creatorPageInfo.about,
+        goalsTypeEarnings: creatorPageInfo.goalsTypeEarnings,
       },
     };
   } catch (err: any) {

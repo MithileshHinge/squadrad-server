@@ -19,13 +19,14 @@ export default class EditCreator {
    * @throws ValidationError if invalid parameters are provided
    * @throws DatabaseError if operation fails
    */
-  async edit(creatorInfo: { userId: string, pageName?: string, bio?: string, isPlural?: boolean, showTotalSquadMembers?: boolean, about?: string }): Promise<{
+  async edit(creatorInfo: { userId: string, pageName?: string, bio?: string, isPlural?: boolean, showTotalSquadMembers?: boolean, about?: string, goalsTypeEarnings?: Boolean }): Promise<{
     userId: string,
     pageName?: string,
     bio?: string,
     isPlural?: boolean,
     showTotalSquadMembers?: boolean,
     about?: string,
+    goalsTypeEarnings?: Boolean,
   }> {
     const userIdValidated = validateUserId.validate(creatorInfo.userId);
     const pageNameValidated = creatorInfo.pageName === undefined ? undefined : this.creatorValidator.validatePageName(creatorInfo.pageName);
@@ -33,6 +34,8 @@ export default class EditCreator {
     const isPluralValidated = creatorInfo.isPlural === undefined ? undefined : this.creatorValidator.validateIsPlural(creatorInfo.isPlural);
     const showTotalSquadMembersValidated = creatorInfo.showTotalSquadMembers === undefined ? undefined : this.creatorValidator.validateShowTotalSquadMembers(creatorInfo.showTotalSquadMembers);
     const aboutValidated = creatorInfo.about === undefined ? undefined : this.creatorValidator.validateAbout(creatorInfo.about);
+    const goalsTypeEarningsValidated = creatorInfo.goalsTypeEarnings === undefined ? undefined : this.creatorValidator.validateGoalsTypeEarnings(creatorInfo.goalsTypeEarnings);
+
     const creatorToUpdate = {
       userId: userIdValidated,
       pageName: pageNameValidated,
@@ -40,6 +43,7 @@ export default class EditCreator {
       isPlural: isPluralValidated,
       showTotalSquadMembers: showTotalSquadMembersValidated,
       about: aboutValidated,
+      goalsTypeEarnings: goalsTypeEarningsValidated,
     };
 
     removeUndefinedKeys(creatorToUpdate);
@@ -53,6 +57,7 @@ export default class EditCreator {
       isPlural: creatorEdited.isPlural,
       showTotalSquadMembers: creatorEdited.showTotalSquadMembers,
       about: creatorEdited.about,
+      goalsTypeEarnings: creatorEdited.goalsTypeEarnings,
     };
   }
 }

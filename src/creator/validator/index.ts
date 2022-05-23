@@ -32,6 +32,10 @@ const creatorValidator: ICreatorValidator = {
     if (typeof about !== 'string') throw new ValidationError('About must be a string');
     return about;
   },
+  validateGoalsTypeEarnings(goalsTypeEarnings: Boolean): Boolean {
+    if (typeof goalsTypeEarnings !== 'boolean') throw new ValidationError('goalsTypeEarnings must be a boolean');
+    return goalsTypeEarnings;
+  },
 };
 
 export default creatorValidator;
