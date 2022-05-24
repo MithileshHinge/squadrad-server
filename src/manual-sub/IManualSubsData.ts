@@ -54,6 +54,20 @@ export interface IManualSubsData {
   } | null>;
 
   /**
+   * Fetch manualSubs by userId
+   * @param userId
+   */
+  fetchManualSubsByUserId(userId: string): Promise<{
+    manualSubId: string,
+    userId: string,
+    creatorUserId: string,
+    squadId: string,
+    amount: number,
+    contactNumber: string,
+    subscriptionStatus: number,
+  }[]>
+
+  /**
    * Count total active manualSubs of a creatorUserId
    * @returns total number, default 0
    * @throws DatabaseError if operation fails

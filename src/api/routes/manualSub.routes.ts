@@ -6,4 +6,8 @@ export default [
     path: '/manualSub/:creatorUserId',
     get: [authorizationMiddleware, ManualSubController.getManualSubByCreatorId],
   },
+  {
+    path: '/manualSubs',
+    get: [authorizationMiddleware, ManualSubController.getAllManualSubs],
+  },
 ];

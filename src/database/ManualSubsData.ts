@@ -106,6 +106,35 @@ export default class ManualSubsData extends BaseData implements IManualSubsData 
     }
   }
 
+  async fetchManualSubsByUserId(userId: string): Promise<{
+    manualSubId: string,
+    userId: string,
+    creatorUserId: string,
+    squadId: string,
+    amount: number,
+    contactNumber: string,
+    subscriptionStatus: number,
+  }[]> {
+    const db = await this.getDb();
+    try {
+      const result = await db.collection('manualSubs').find({ userId }).toArray();
+      if (result && result.length > 0) {
+        return result.map((manualSub) => ({
+          manualSubId: manualSub._id.toString(),
+          userId: manualSub.userId,
+          creatorUserId: manualSub.creatorUserId,
+          squadId: manualSub.squadId,
+          amount: manualSub.amount,
+          contactNumber: manualSub.contactNumber,
+          subscriptionStatus: manualSub.subscriptionStatus,
+        }));
+      }
+      return [];
+    } catch (err: any) {
+      return this.handleDatabaseError(err, 'Could not fetch manualSubs by userId');
+    }
+  }
+
   async countManualSubsByCreatorUserId(creatorUserId: string): Promise<Number> {
     const db = await this.getDb();
     try {

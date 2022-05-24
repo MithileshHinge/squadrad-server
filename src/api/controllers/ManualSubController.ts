@@ -18,6 +18,20 @@ const getManualSubByCreatorId: IBaseController = async (httpRequest) => {
   }
 };
 
+const getAllManualSubs: IBaseController = async (httpRequest) => {
+  try {
+    const userId = httpRequest.userId!;
+    const manualSubs = await findManualSub.findManualSubsByUserId(userId);
+
+    return {
+      statusCode: HTTPResponseCode.OK,
+      body: manualSubs,
+    };
+  } catch (err: any) {
+    return handleControllerError(err);
+  }
+};
+
 /*
 const getTotalMembersOfCreator: IBaseController = async (httpRequest) => {
   try {
@@ -50,6 +64,7 @@ const getMonthlyIncomeOfCreator: IBaseController = async (httpRequest) => {
 
 export default {
   getManualSubByCreatorId,
+  getAllManualSubs,
   // getTotalMembersOfCreator,
   // getMonthlyIncomeOfCreator,
 };
