@@ -60,6 +60,36 @@ export default class CreatorsData extends BaseData implements ICreatorsData {
     }
   }
 
+  async fetchAllCreatorsByIds(userIds: string[]): Promise<{
+    userId: string,
+    pageName: string,
+    bio: string,
+    isPlural: boolean,
+    showTotalSquadMembers: boolean,
+    about: string,
+    goalsTypeEarnings: Boolean,
+    profilePicSrc: string,
+  }[]> {
+    const db = await this.getDb();
+    try {
+      const userObjectIds = userIds.map((userId) => new ObjectId(userId));
+      const result = await db.collection('creators').find({ _id: { $in: userObjectIds } }).toArray();
+
+      return result.map((doc) => ({
+        userId: doc._id.toString(),
+        pageName: doc.pageName,
+        bio: doc.bio,
+        isPlural: doc.isPlural,
+        showTotalSquadMembers: doc.showTotalSquadMembers,
+        about: doc.about,
+        goalsTypeEarnings: doc.goalsTypeEarnings,
+        profilePicSrc: doc.profilePicSrc,
+      }));
+    } catch (err: any) {
+      return this.handleDatabaseError(err, 'Could not fetch all creators by userIds');
+    }
+  }
+
   async updateCreator({ userId, ...updateData }: {
     userId: string,
     pageName?: string,

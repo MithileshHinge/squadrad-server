@@ -10,4 +10,8 @@ export default [
     path: '/manualSubs',
     get: [authorizationMiddleware, ManualSubController.getAllManualSubs],
   },
+  {
+    path: '/manualSubs/active/creators',
+    get: [authorizationMiddleware, ManualSubController.getAllManualSubbedCreators],
+  },
 ];

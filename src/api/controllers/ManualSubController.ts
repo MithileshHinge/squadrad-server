@@ -1,4 +1,4 @@
-import { findManualSub } from '../../manual-sub';
+import { findManualSub, findManualSubbedCreators } from '../../manual-sub';
 import { HTTPResponseCode } from '../HttpResponse';
 import handleControllerError from './ControllerErrorHandler';
 import { IBaseController } from './IBaseController';
@@ -26,6 +26,21 @@ const getAllManualSubs: IBaseController = async (httpRequest) => {
     return {
       statusCode: HTTPResponseCode.OK,
       body: manualSubs,
+    };
+  } catch (err: any) {
+    return handleControllerError(err);
+  }
+};
+
+const getAllManualSubbedCreators: IBaseController = async (httpRequest) => {
+  try {
+    const userId = httpRequest.userId!;
+    const onlyActive = httpRequest.path.includes('active');
+    const creatorsInfo = await findManualSubbedCreators.find({ userId, onlyActive });
+
+    return {
+      statusCode: HTTPResponseCode.OK,
+      body: creatorsInfo,
     };
   } catch (err: any) {
     return handleControllerError(err);
@@ -65,6 +80,7 @@ const getMonthlyIncomeOfCreator: IBaseController = async (httpRequest) => {
 export default {
   getManualSubByCreatorId,
   getAllManualSubs,
+  getAllManualSubbedCreators,
   // getTotalMembersOfCreator,
   // getMonthlyIncomeOfCreator,
 };

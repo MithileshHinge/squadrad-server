@@ -40,4 +40,21 @@ export default class FindCreator {
       goalsTypeEarnings: creatorInfo.goalsTypeEarnings,
     };
   }
+
+  /**
+   * Finds all creators by provided userIds, returns list of basic info: userId, pageName, profilePicSrc
+   * @param userIds Array of userIds for which creator infos should be returned
+   * @returns Promise to return basic creator info if it exists, else returns null
+   */
+  async findCreatorInfos(userIds: string[]) {
+    const userIdsValidated = userIds.map((userId) => validateUserId.validate(userId));
+
+    const creatorInfos = await this.creatorsData.fetchAllCreatorsByIds(userIdsValidated);
+
+    return creatorInfos.map((creator) => ({
+      userId: creator.userId,
+      pageName: creator.pageName,
+      profilePicSrc: creator.profilePicSrc,
+    }));
+  }
 }
