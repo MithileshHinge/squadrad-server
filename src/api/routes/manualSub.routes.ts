@@ -1,4 +1,5 @@
 import ManualSubController from '../controllers/ManualSubController';
+import creatorAuthorizationMiddleware from '../services/creatorAuth.service';
 import { authorizationMiddleware } from '../services/passport.service';
 
 export default [
@@ -13,5 +14,9 @@ export default [
   {
     path: '/manualSubs/active/creators',
     get: [authorizationMiddleware, ManualSubController.getAllManualSubbedCreators],
+  },
+  {
+    path: '/manualSubs/active/users',
+    get: [authorizationMiddleware, creatorAuthorizationMiddleware, ManualSubController.getAllManualSubbedUsers],
   },
 ];

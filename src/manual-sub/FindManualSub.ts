@@ -72,4 +72,22 @@ export default class FindManualSub {
       subscriptionStatus: manualSub.subscriptionStatus,
     }));
   }
+
+  /**
+   * Find manualSubs of all users to a creator
+   * @returns Array of manualSubs of a creator, empty array [] if no manualSubs found
+   */
+  async findManualSubsByCreatorUserId(userId: string) {
+    const userIdValidated = validateUserId.validate(userId);
+    const manualSubs = await this.manualSubsData.fetchManualSubsByCreatorUserId(userIdValidated);
+
+    return manualSubs.map((manualSub) => ({
+      manualSubId: manualSub.manualSubId,
+      userId: manualSub.userId,
+      creatorUserId: manualSub.creatorUserId,
+      squadId: manualSub.squadId,
+      amount: manualSub.amount,
+      subscriptionStatus: manualSub.subscriptionStatus,
+    }));
+  }
 }
