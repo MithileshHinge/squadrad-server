@@ -75,6 +75,30 @@ export default class UsersData extends BaseData implements IUsersData {
     }
   }
 
+  async fetchAllUsersByIds(userIds: string[]): Promise<{
+    userId: string,
+    fullName: string,
+    email: string,
+    profilePicSrc: string,
+    verified: boolean,
+  }[]> {
+    const db = await this.getDb();
+    try {
+      const userObjectIds = userIds.map((userId) => new ObjectId(userId));
+      const result = await db.collection('users').find({ _id: { $in: userObjectIds } }).toArray();
+
+      return result.map((doc) => ({
+        userId: doc._id.toString(),
+        fullName: doc.fullName,
+        email: doc.email,
+        profilePicSrc: doc.profilePicSrc,
+        verified: doc.verified,
+      }));
+    } catch (err: any) {
+      return this.handleDatabaseError(err, 'Could not fetch all users by userIds');
+    }
+  }
+
   async fetchUserByEmail(email: string): Promise<{
     userId: string,
     fullName: string,

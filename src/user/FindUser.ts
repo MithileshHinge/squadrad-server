@@ -83,4 +83,23 @@ export default class FindUser {
     }
     return null;
   }
+
+  /**
+   * Finds all users by provided userIds, returns list of basic info: userId, fullName, profilePicSrc
+   * @param userIds Array of userIds for which user infos should be returned
+   * @returns Promise to return array of basic user infos
+   */
+  async findUserInfos({ userIds, onlyVerified }:{ userIds: string[], onlyVerified: boolean }) {
+    const userIdsValidated = userIds.map((userId) => validateUserId.validate(userId));
+
+    let userInfos = await this.usersData.fetchAllUsersByIds(userIdsValidated);
+
+    if (onlyVerified) userInfos = userInfos.filter((user) => user.verified);
+
+    return userInfos.map((user) => ({
+      userId: user.userId,
+      fullName: user.fullName,
+      profilePicSrc: user.profilePicSrc,
+    }));
+  }
 }

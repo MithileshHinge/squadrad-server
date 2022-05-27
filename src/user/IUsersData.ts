@@ -34,6 +34,19 @@ export interface IUsersData {
   } | null>;
 
   /**
+   * Fetch user in bulk by userId by provided userIds
+   * @throws DatabaseError if operation fails
+   * @returns Promise to return array of user infos of all userIds for which user info exists
+   */
+  fetchAllUsersByIds(userIds: string[]): Promise<{
+    userId: string,
+    fullName: string,
+    email: string,
+    profilePicSrc: string,
+    verified: boolean,
+  }[]>
+
+  /**
    * Fetch user information by email Id
    * @throws DatabaseError if operation fails
    * @returns Promise to return user info if email Id exists, otherwise returns null

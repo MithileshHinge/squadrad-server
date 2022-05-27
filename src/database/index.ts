@@ -9,6 +9,7 @@ import ManualSubsData from './ManualSubsData';
 import PostsData from './PostsData';
 import PostLikesData from './PostLikesData';
 import CommentsData from './CommentsData';
+import MessagesData from './MessagesData';
 
 export const usersData = new UsersData(getDb, handleDatabaseError);
 export const profilePicsData = new ProfilePicsData(getDb, handleDatabaseError);
@@ -19,3 +20,4 @@ export const manualSubsData = new ManualSubsData(getDb, handleDatabaseError);
 export const postsData = new PostsData(getDb, handleDatabaseError);
 export const postLikesData = new PostLikesData(getDb, handleDatabaseError);
 export const commentsData = new CommentsData(getDb, handleDatabaseError);
+export const messagesData = new MessagesData(getDb, handleDatabaseError);
