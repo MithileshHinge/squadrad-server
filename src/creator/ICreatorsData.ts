@@ -1,3 +1,5 @@
+import ReviewPageStatus from './ReviewPageStatus';
+
 export interface ICreatorsData {
   /**
    * Insert new creator into database
@@ -11,6 +13,7 @@ export interface ICreatorsData {
     showTotalSquadMembers,
     about,
     goalsTypeEarnings,
+    review,
   }: {
     userId: string,
     pageName: string,
@@ -19,6 +22,7 @@ export interface ICreatorsData {
     showTotalSquadMembers: boolean,
     about: string,
     goalsTypeEarnings: boolean,
+    review: { status: ReviewPageStatus, rejectionReason?: string },
   }): Promise<{
     userId: string,
     pageName: string,
@@ -27,6 +31,7 @@ export interface ICreatorsData {
     showTotalSquadMembers: boolean,
     about: string,
     goalsTypeEarnings: boolean,
+    review: { status: ReviewPageStatus, rejectionReason?: string },
   }>
 
   /**
@@ -43,6 +48,7 @@ export interface ICreatorsData {
     about: string,
     goalsTypeEarnings: boolean,
     profilePicSrc: string,
+    review: { status: ReviewPageStatus, rejectionReason?: string },
   } | null>
 
   /**
@@ -59,6 +65,7 @@ export interface ICreatorsData {
     about: string,
     goalsTypeEarnings: boolean,
     profilePicSrc: string,
+    review: { status: ReviewPageStatus, rejectionReason?: string },
   }[]>
 
   /**
@@ -75,6 +82,7 @@ export interface ICreatorsData {
     about: string,
     goalsTypeEarnings: boolean,
     profilePicSrc: string,
+    review: { status: ReviewPageStatus, rejectionReason?: string },
   }[]>
 
   /**
@@ -83,7 +91,7 @@ export interface ICreatorsData {
    * @returns Promise to return data updated in the database
    */
   updateCreator({
-    userId, pageName, bio, isPlural, showTotalSquadMembers, about,
+    userId, pageName, bio, isPlural, showTotalSquadMembers, about, review,
   } : {
     userId: string,
     pageName?: string,
@@ -92,6 +100,7 @@ export interface ICreatorsData {
     showTotalSquadMembers?: boolean,
     about?: string,
     goalsTypeEarnings?: boolean,
+    review?: { status: ReviewPageStatus, rejectionReason?: string },
   }): Promise<{
     userId: string,
     pageName?: string,
@@ -100,5 +109,6 @@ export interface ICreatorsData {
     showTotalSquadMembers?: boolean,
     about?: string,
     goalsTypeEarnings?: boolean,
+    review?: { status: ReviewPageStatus, rejectionReason?: string },
   }>
 }

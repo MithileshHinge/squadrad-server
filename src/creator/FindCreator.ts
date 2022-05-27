@@ -1,5 +1,6 @@
 import { validateUserId } from '../userId';
 import { ICreatorsData } from './ICreatorsData';
+import ReviewPageStatus from './ReviewPageStatus';
 
 export default class FindCreator {
   private creatorsData: ICreatorsData;
@@ -23,11 +24,13 @@ export default class FindCreator {
     showTotalSquadMembers?: boolean,
     about: string,
     goalsTypeEarnings: boolean,
+    review?: { status: ReviewPageStatus, rejectionReason?: string },
   } | null> {
     const userIdValidated = validateUserId.validate(userId);
     const creatorInfo = await this.creatorsData.fetchCreatorById(userIdValidated);
 
     if (!creatorInfo) return null;
+    if (!self && creatorInfo.review.status !== ReviewPageStatus.APPROVED) return null;
 
     return {
       userId: creatorInfo.userId,
@@ -38,6 +41,7 @@ export default class FindCreator {
       ...(self && { showTotalSquadMembers: creatorInfo.showTotalSquadMembers }),
       about: creatorInfo.about,
       goalsTypeEarnings: creatorInfo.goalsTypeEarnings,
+      ...(self && { review: creatorInfo.review }),
     };
   }
 
@@ -49,7 +53,8 @@ export default class FindCreator {
   async findCreatorInfos(userIds: string[]) {
     const userIdsValidated = userIds.map((userId) => validateUserId.validate(userId));
 
-    const creatorInfos = await this.creatorsData.fetchAllCreatorsByIds(userIdsValidated);
+    let creatorInfos = await this.creatorsData.fetchAllCreatorsByIds(userIdsValidated);
+    creatorInfos = creatorInfos.filter((creatorInfo) => creatorInfo.review.status === ReviewPageStatus.APPROVED);
 
     return creatorInfos.map((creator) => ({
       userId: creator.userId,
@@ -63,7 +68,8 @@ export default class FindCreator {
    * @returns Promise to return array of basic creator info: userId, pageName, profilePicSrc, bio
    */
   async findAllCreatorsInfos() {
-    const creatorInfos = await this.creatorsData.fetchAllCreators();
+    let creatorInfos = await this.creatorsData.fetchAllCreators();
+    creatorInfos = creatorInfos.filter((creatorInfo) => creatorInfo.review.status === ReviewPageStatus.APPROVED);
 
     return creatorInfos.map((creator) => ({
       userId: creator.userId,

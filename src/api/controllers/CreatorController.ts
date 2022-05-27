@@ -1,4 +1,6 @@
-import { becomeCreator, editCreator, findCreator } from '../../creator';
+import {
+  becomeCreator, editCreator, findCreator, reviewPage,
+} from '../../creator';
 import { setProfilePic } from '../../profile-pic';
 import { HTTPResponseCode } from '../HttpResponse';
 import handleControllerError from './ControllerErrorHandler';
@@ -88,6 +90,7 @@ const getCreator: IBaseController = async (httpRequest) => {
         showTotalSquadMembers: creatorPageInfo.showTotalSquadMembers!,
         about: creatorPageInfo.about,
         goalsTypeEarnings: creatorPageInfo.goalsTypeEarnings,
+        review: creatorPageInfo.review,
       },
     };
   } catch (err: any) {
@@ -131,6 +134,19 @@ const getAllCreators: IBaseController = async () => {
   }
 };
 
+const patchCreatorReviewSubmit: IBaseController = async (httpRequest) => {
+  try {
+    const userId = httpRequest.userId!;
+    await reviewPage.submitForReview(userId);
+    return {
+      statusCode: HTTPResponseCode.OK,
+      body: {},
+    };
+  } catch (err: any) {
+    return handleControllerError(err);
+  }
+};
+
 export default {
   postCreator,
   patchCreator,
@@ -138,4 +154,5 @@ export default {
   getCreator,
   getCreatorUserId,
   getAllCreators,
+  patchCreatorReviewSubmit,
 };

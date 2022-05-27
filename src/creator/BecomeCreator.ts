@@ -3,6 +3,7 @@ import SetProfilePic from '../profile-pic/SetProfilePic';
 import { IUsersData } from '../user/IUsersData';
 import { validateUserId } from '../userId';
 import { ICreatorsData } from './ICreatorsData';
+import ReviewPageStatus from './ReviewPageStatus';
 import { ICreatorValidator } from './validator/ICreatorValidator';
 
 export default class BecomeCreator {
@@ -55,6 +56,7 @@ export default class BecomeCreator {
       showTotalSquadMembers: false,
       about: '',
       goalsTypeEarnings: true,
+      review: { status: ReviewPageStatus.NOT_SUBMITTED },
     });
 
     const profilePicSrc = await this.setProfilePic.setDefault(userIdValidated, true);

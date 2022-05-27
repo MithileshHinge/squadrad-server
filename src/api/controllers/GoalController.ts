@@ -33,7 +33,7 @@ const postGoal: IBaseController = async (httpRequest) => {
 const getAllGoalsByUserId: IBaseController = async (httpRequest) => {
   try {
     const { userId } = httpRequest.params;
-    const creator = await findCreator.findCreatorPage(userId, false);
+    const creator = await findCreator.findCreatorPage(userId, userId === httpRequest.userId);
     if (!creator) throw new ValidationError('Creator not found');
 
     const goals = await findGoal.findAllGoalsByUserId(userId);

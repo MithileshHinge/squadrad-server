@@ -22,4 +22,8 @@ export default [
     path: '/creator/:userId',
     get: [CreatorController.getCreatorUserId],
   },
+  {
+    path: '/creator/review/submit',
+    patch: [authorizationMiddleware, creatorAuthorizationMiddleware, CreatorController.patchCreatorReviewSubmit],
+  },
 ];

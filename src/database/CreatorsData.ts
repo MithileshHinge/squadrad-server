@@ -2,10 +2,11 @@
 import { ObjectId } from 'mongodb';
 import BaseData from './BaseData';
 import { ICreatorsData } from '../creator/ICreatorsData';
+import ReviewPageStatus from '../creator/ReviewPageStatus';
 
 export default class CreatorsData extends BaseData implements ICreatorsData {
   async insertNewCreator({
-    userId, pageName, bio, isPlural, showTotalSquadMembers, about, goalsTypeEarnings,
+    userId, pageName, bio, isPlural, showTotalSquadMembers, about, goalsTypeEarnings, review,
   }: {
     userId: string,
     pageName: string,
@@ -14,7 +15,8 @@ export default class CreatorsData extends BaseData implements ICreatorsData {
     showTotalSquadMembers: boolean,
     about: string,
     goalsTypeEarnings: boolean,
-  }): Promise<{ userId: string; pageName: string; bio: string; isPlural: boolean; showTotalSquadMembers: boolean; about: string; goalsTypeEarnings: boolean }> {
+    review: { status: ReviewPageStatus, rejectionReason?: string },
+  }): Promise<{ userId: string; pageName: string; bio: string; isPlural: boolean; showTotalSquadMembers: boolean; about: string; goalsTypeEarnings: boolean, review: { status: ReviewPageStatus, rejectionReason?: string } }> {
     const db = await this.getDb();
     try {
       await db.collection('creators').insertOne({
@@ -25,6 +27,7 @@ export default class CreatorsData extends BaseData implements ICreatorsData {
         showTotalSquadMembers,
         about,
         goalsTypeEarnings,
+        review,
       });
       return {
         userId,
@@ -34,13 +37,14 @@ export default class CreatorsData extends BaseData implements ICreatorsData {
         showTotalSquadMembers,
         about,
         goalsTypeEarnings,
+        review,
       };
     } catch (err: any) {
       return this.handleDatabaseError(err, 'Could not insert new creator into database');
     }
   }
 
-  async fetchCreatorById(userId: string): Promise<{ userId: string, pageName: string, bio: string, isPlural: boolean, showTotalSquadMembers: boolean, about: string, goalsTypeEarnings: boolean, profilePicSrc: string } | null> {
+  async fetchCreatorById(userId: string): Promise<{ userId: string, pageName: string, bio: string, isPlural: boolean, showTotalSquadMembers: boolean, about: string, goalsTypeEarnings: boolean, profilePicSrc: string, review: { status: ReviewPageStatus, rejectionReason?: string } } | null> {
     const db = await this.getDb();
     try {
       const result = await db.collection('creators').findOne({ _id: new ObjectId(userId) });
@@ -54,6 +58,7 @@ export default class CreatorsData extends BaseData implements ICreatorsData {
         about: result.about,
         goalsTypeEarnings: result.goalsTypeEarnings,
         profilePicSrc: result.profilePicSrc,
+        review: result.review,
       };
     } catch (err: any) {
       return this.handleDatabaseError(err, 'Could not fetch creator');
@@ -69,6 +74,7 @@ export default class CreatorsData extends BaseData implements ICreatorsData {
     about: string,
     goalsTypeEarnings: boolean,
     profilePicSrc: string,
+    review: { status: ReviewPageStatus, rejectionReason?: string },
   }[]> {
     const db = await this.getDb();
     try {
@@ -84,6 +90,7 @@ export default class CreatorsData extends BaseData implements ICreatorsData {
         about: doc.about,
         goalsTypeEarnings: doc.goalsTypeEarnings,
         profilePicSrc: doc.profilePicSrc,
+        review: doc.review,
       }));
     } catch (err: any) {
       return this.handleDatabaseError(err, 'Could not fetch all creators by userIds');
@@ -99,6 +106,7 @@ export default class CreatorsData extends BaseData implements ICreatorsData {
     about: string,
     goalsTypeEarnings: boolean,
     profilePicSrc: string,
+    review: { status: ReviewPageStatus, rejectionReason?: string },
   }[]> {
     const db = await this.getDb();
     try {
@@ -113,6 +121,7 @@ export default class CreatorsData extends BaseData implements ICreatorsData {
         about: doc.about,
         goalsTypeEarnings: doc.goalsTypeEarnings,
         profilePicSrc: doc.profilePicSrc,
+        review: doc.review,
       }));
     } catch (err: any) {
       return this.handleDatabaseError(err, 'Could not fetch all creators');
@@ -127,7 +136,8 @@ export default class CreatorsData extends BaseData implements ICreatorsData {
     showTotalSquadMembers?: boolean,
     about?: string,
     goalsTypeEarnings?: boolean,
-  }): Promise<{ userId: string, pageName?: string, bio?: string, isPlural?: boolean, showTotalSquadMembers?: boolean, about?: string, goalsTypeEarnings?: boolean }> {
+    review: { status: ReviewPageStatus, rejectionReason?: string },
+  }): Promise<{ userId: string, pageName?: string, bio?: string, isPlural?: boolean, showTotalSquadMembers?: boolean, about?: string, goalsTypeEarnings?: boolean, review: { status: ReviewPageStatus, rejectionReason?: string } }> {
     const db = await this.getDb();
     try {
       await db.collection('creators').updateOne({ _id: new ObjectId(userId) }, { $set: updateData });
