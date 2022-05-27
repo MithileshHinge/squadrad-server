@@ -44,7 +44,7 @@ export default class FindCreator {
   /**
    * Finds all creators by provided userIds, returns list of basic info: userId, pageName, profilePicSrc
    * @param userIds Array of userIds for which creator infos should be returned
-   * @returns Promise to return basic creator info if it exists, else returns null
+   * @returns Promise to return array of basic creator info
    */
   async findCreatorInfos(userIds: string[]) {
     const userIdsValidated = userIds.map((userId) => validateUserId.validate(userId));
