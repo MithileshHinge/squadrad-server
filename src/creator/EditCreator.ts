@@ -19,14 +19,14 @@ export default class EditCreator {
    * @throws ValidationError if invalid parameters are provided
    * @throws DatabaseError if operation fails
    */
-  async edit(creatorInfo: { userId: string, pageName?: string, bio?: string, isPlural?: boolean, showTotalSquadMembers?: boolean, about?: string, goalsTypeEarnings?: Boolean }): Promise<{
+  async edit(creatorInfo: { userId: string, pageName?: string, bio?: string, isPlural?: boolean, showTotalSquadMembers?: boolean, about?: string, goalsTypeEarnings?: boolean }): Promise<{
     userId: string,
     pageName?: string,
     bio?: string,
     isPlural?: boolean,
     showTotalSquadMembers?: boolean,
     about?: string,
-    goalsTypeEarnings?: Boolean,
+    goalsTypeEarnings?: boolean,
   }> {
     const userIdValidated = validateUserId.validate(creatorInfo.userId);
     const pageNameValidated = creatorInfo.pageName === undefined ? undefined : this.creatorValidator.validatePageName(creatorInfo.pageName);

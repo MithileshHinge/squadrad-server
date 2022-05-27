@@ -35,7 +35,7 @@ const patchCreator: IBaseController = async (httpRequest) => {
       isPlural?: boolean,
       showTotalSquadMembers?: boolean,
       about?: string,
-      goalsTypeEarnings?: Boolean,
+      goalsTypeEarnings?: boolean,
     } = httpRequest.body;
 
     await editCreator.edit({

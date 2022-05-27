@@ -18,7 +18,7 @@ export interface ICreatorsData {
     isPlural: boolean,
     showTotalSquadMembers: boolean,
     about: string,
-    goalsTypeEarnings: Boolean,
+    goalsTypeEarnings: boolean,
   }): Promise<{
     userId: string,
     pageName: string,
@@ -26,7 +26,7 @@ export interface ICreatorsData {
     isPlural: boolean,
     showTotalSquadMembers: boolean,
     about: string,
-    goalsTypeEarnings: Boolean,
+    goalsTypeEarnings: boolean,
   }>
 
   /**
@@ -41,7 +41,7 @@ export interface ICreatorsData {
     isPlural: boolean,
     showTotalSquadMembers: boolean,
     about: string,
-    goalsTypeEarnings: Boolean,
+    goalsTypeEarnings: boolean,
     profilePicSrc: string,
   } | null>
 
@@ -57,7 +57,7 @@ export interface ICreatorsData {
     isPlural: boolean,
     showTotalSquadMembers: boolean,
     about: string,
-    goalsTypeEarnings: Boolean,
+    goalsTypeEarnings: boolean,
     profilePicSrc: string,
   }[]>
 
@@ -73,7 +73,7 @@ export interface ICreatorsData {
     isPlural: boolean,
     showTotalSquadMembers: boolean,
     about: string,
-    goalsTypeEarnings: Boolean,
+    goalsTypeEarnings: boolean,
     profilePicSrc: string,
   }[]>
 
@@ -91,7 +91,7 @@ export interface ICreatorsData {
     isPlural?: boolean,
     showTotalSquadMembers?: boolean,
     about?: string,
-    goalsTypeEarnings?: Boolean,
+    goalsTypeEarnings?: boolean,
   }): Promise<{
     userId: string,
     pageName?: string,
@@ -99,6 +99,6 @@ export interface ICreatorsData {
     isPlural?: boolean,
     showTotalSquadMembers?: boolean,
     about?: string,
-    goalsTypeEarnings?: Boolean,
+    goalsTypeEarnings?: boolean,
   }>
 }

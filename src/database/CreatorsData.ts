@@ -13,8 +13,8 @@ export default class CreatorsData extends BaseData implements ICreatorsData {
     isPlural: boolean,
     showTotalSquadMembers: boolean,
     about: string,
-    goalsTypeEarnings: Boolean,
-  }): Promise<{ userId: string; pageName: string; bio: string; isPlural: boolean; showTotalSquadMembers: boolean; about: string; goalsTypeEarnings: Boolean }> {
+    goalsTypeEarnings: boolean,
+  }): Promise<{ userId: string; pageName: string; bio: string; isPlural: boolean; showTotalSquadMembers: boolean; about: string; goalsTypeEarnings: boolean }> {
     const db = await this.getDb();
     try {
       await db.collection('creators').insertOne({
@@ -40,7 +40,7 @@ export default class CreatorsData extends BaseData implements ICreatorsData {
     }
   }
 
-  async fetchCreatorById(userId: string): Promise<{ userId: string, pageName: string, bio: string, isPlural: boolean, showTotalSquadMembers: boolean, about: string, goalsTypeEarnings: Boolean, profilePicSrc: string } | null> {
+  async fetchCreatorById(userId: string): Promise<{ userId: string, pageName: string, bio: string, isPlural: boolean, showTotalSquadMembers: boolean, about: string, goalsTypeEarnings: boolean, profilePicSrc: string } | null> {
     const db = await this.getDb();
     try {
       const result = await db.collection('creators').findOne({ _id: new ObjectId(userId) });
@@ -67,7 +67,7 @@ export default class CreatorsData extends BaseData implements ICreatorsData {
     isPlural: boolean,
     showTotalSquadMembers: boolean,
     about: string,
-    goalsTypeEarnings: Boolean,
+    goalsTypeEarnings: boolean,
     profilePicSrc: string,
   }[]> {
     const db = await this.getDb();
@@ -126,8 +126,8 @@ export default class CreatorsData extends BaseData implements ICreatorsData {
     isPlural?: boolean,
     showTotalSquadMembers?: boolean,
     about?: string,
-    goalsTypeEarnings?: Boolean,
-  }): Promise<{ userId: string, pageName?: string, bio?: string, isPlural?: boolean, showTotalSquadMembers?: boolean, about?: string, goalsTypeEarnings?: Boolean }> {
+    goalsTypeEarnings?: boolean,
+  }): Promise<{ userId: string, pageName?: string, bio?: string, isPlural?: boolean, showTotalSquadMembers?: boolean, about?: string, goalsTypeEarnings?: boolean }> {
     const db = await this.getDb();
     try {
       await db.collection('creators').updateOne({ _id: new ObjectId(userId) }, { $set: updateData });

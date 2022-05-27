@@ -4,5 +4,5 @@ export interface ICreatorValidator {
   validateIsPlural(isPlural: boolean): boolean;
   validateShowTotalSquadMembers(showTotalSquadMembers: boolean): boolean;
   validateAbout(about: string): string;
-  validateGoalsTypeEarnings(goalsTypeEarnings: Boolean): Boolean;
+  validateGoalsTypeEarnings(goalsTypeEarnings: boolean): boolean;
 }

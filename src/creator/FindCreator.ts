@@ -22,7 +22,7 @@ export default class FindCreator {
     profilePicSrc: string,
     showTotalSquadMembers?: boolean,
     about: string,
-    goalsTypeEarnings: Boolean,
+    goalsTypeEarnings: boolean,
   } | null> {
     const userIdValidated = validateUserId.validate(userId);
     const creatorInfo = await this.creatorsData.fetchCreatorById(userIdValidated);
