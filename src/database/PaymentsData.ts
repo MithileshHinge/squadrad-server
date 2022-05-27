@@ -1,4 +1,5 @@
 /* eslint-disable no-underscore-dangle */
+import { ObjectId } from 'mongodb';
 import IPaymentsData from '../payment/IPaymentsData';
 import BaseData from './BaseData';
 
@@ -29,7 +30,15 @@ export default class PaymentsData extends BaseData implements IPaymentsData {
     const db = await this.getDb();
     try {
       const result = await db.collection('payments').insertOne({
-        paymentId, userId, creatorUserId, amount, squadId, rzpTransactionId, rzpOrderId, contactNumber, timestamp,
+        _id: new ObjectId(paymentId),
+        userId,
+        creatorUserId,
+        amount,
+        squadId,
+        rzpTransactionId,
+        rzpOrderId,
+        contactNumber,
+        timestamp,
       });
       return {
         paymentId: result.insertedId.toString(),
