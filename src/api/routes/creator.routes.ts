@@ -11,6 +11,10 @@ export default [
     get: [authorizationMiddleware, CreatorController.getCreator],
   },
   {
+    path: '/creators',
+    get: [CreatorController.getAllCreators],
+  },
+  {
     path: '/creator/profile-pic',
     put: [authorizationMiddleware, creatorAuthorizationMiddleware, processMultipartImage(1000000, 1, 'profilePic'), CreatorController.putProfilePic],
   },

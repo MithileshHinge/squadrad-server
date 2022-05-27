@@ -62,6 +62,22 @@ export interface ICreatorsData {
   }[]>
 
   /**
+   * Fetch list of all creators
+   * @throws DatabaseError if operation fails
+   * @returns Promise to return array of creator infos of all creators
+   */
+  fetchAllCreators(): Promise<{
+    userId: string,
+    pageName: string,
+    bio: string,
+    isPlural: boolean,
+    showTotalSquadMembers: boolean,
+    about: string,
+    goalsTypeEarnings: Boolean,
+    profilePicSrc: string,
+  }[]>
+
+  /**
    * Update creator information
    * @throws DatabaseError if operation fails
    * @returns Promise to return data updated in the database

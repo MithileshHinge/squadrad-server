@@ -57,4 +57,19 @@ export default class FindCreator {
       profilePicSrc: creator.profilePicSrc,
     }));
   }
+
+  /**
+   * Finds all creators info
+   * @returns Promise to return array of basic creator info: userId, pageName, profilePicSrc, bio
+   */
+  async findAllCreatorsInfos() {
+    const creatorInfos = await this.creatorsData.fetchAllCreators();
+
+    return creatorInfos.map((creator) => ({
+      userId: creator.userId,
+      pageName: creator.pageName,
+      profilePicSrc: creator.profilePicSrc,
+      bio: creator.bio,
+    }));
+  }
 }

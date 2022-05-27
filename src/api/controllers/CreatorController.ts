@@ -118,10 +118,24 @@ const getCreatorUserId: IBaseController = async (httpRequest) => {
   }
 };
 
+const getAllCreators: IBaseController = async () => {
+  try {
+    const creators = await findCreator.findAllCreatorsInfos();
+
+    return {
+      statusCode: HTTPResponseCode.OK,
+      body: creators,
+    };
+  } catch (err: any) {
+    return handleControllerError(err);
+  }
+};
+
 export default {
   postCreator,
   patchCreator,
   putProfilePic,
   getCreator,
   getCreatorUserId,
+  getAllCreators,
 };
