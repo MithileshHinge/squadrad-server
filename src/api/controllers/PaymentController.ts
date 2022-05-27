@@ -1,7 +1,9 @@
 import ValidationError from '../../common/errors/ValidationError';
 import { addManualSub, findManualSub } from '../../manual-sub';
 import ManualSubStatuses from '../../manual-sub/ManualSubStatuses';
+import { addPayment, findPayment } from '../../payment';
 import { findSquad } from '../../squad';
+import { findUser } from '../../user';
 import { HTTPResponseCode } from '../HttpResponse';
 import razorpayService from '../services/razorpay.service';
 import handleControllerError from './ControllerErrorHandler';
@@ -60,6 +62,17 @@ const postPaymentSuccess: IBaseController = async (httpRequest) => {
       subscriptionStatus: ManualSubStatuses.ACTIVE,
     });
 
+    await addPayment.add({
+      userId,
+      creatorUserId: rzpOrder.notes.creatorUserId,
+      amount: Number.parseInt(rzpOrder.amount, 10) / 100, // In rupees
+      squadId: rzpOrder.notes.squadId,
+      rzpTransactionId,
+      rzpOrderId,
+      contactNumber: rzpPayment.contact,
+      timestamp: Date.now(),
+    });
+
     return {
       statusCode: HTTPResponseCode.OK,
       body: manualSub,
@@ -69,7 +82,24 @@ const postPaymentSuccess: IBaseController = async (httpRequest) => {
   }
 };
 
+const getPaymentsToCreator: IBaseController = async (httpRequest) => {
+  const userId = httpRequest.userId!;
+
+  const payments = await findPayment.findAllPaymentsToCreator(userId);
+  const userIds = payments.map((payment) => payment.userId);
+  const users = await findUser.findUserInfos({ userIds, onlyVerified: true });
+
+  return {
+    statusCode: HTTPResponseCode.OK,
+    body: payments.map((payment) => ({
+      ...payment,
+      user: users.find((u) => u.userId === payment.userId),
+    })),
+  };
+};
+
 export default {
   getRzpOrder,
+  getPaymentsToCreator,
   postPaymentSuccess,
 };

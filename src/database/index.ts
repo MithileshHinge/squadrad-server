@@ -10,6 +10,7 @@ import PostsData from './PostsData';
 import PostLikesData from './PostLikesData';
 import CommentsData from './CommentsData';
 import MessagesData from './MessagesData';
+import PaymentsData from './PaymentsData';
 
 export const usersData = new UsersData(getDb, handleDatabaseError);
 export const profilePicsData = new ProfilePicsData(getDb, handleDatabaseError);
@@ -21,3 +22,4 @@ export const postsData = new PostsData(getDb, handleDatabaseError);
 export const postLikesData = new PostLikesData(getDb, handleDatabaseError);
 export const commentsData = new CommentsData(getDb, handleDatabaseError);
 export const messagesData = new MessagesData(getDb, handleDatabaseError);
+export const paymentsData = new PaymentsData(getDb, handleDatabaseError);
