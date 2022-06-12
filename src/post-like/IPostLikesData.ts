@@ -39,4 +39,10 @@ export interface IPostLikesData {
     postId: string,
     userId: string,
   }): Promise<number>;
+
+  /**
+   * Delete all likes by postId
+   * @param postId Id of post to delete all likes
+   */
+  deleteLikesByPostId(postId: string): Promise<null>;
 }

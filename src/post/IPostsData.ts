@@ -47,4 +47,17 @@ export interface IPostsData {
     link?: string,
     attachment?: IPostAttachment,
   } | null>;
+
+  /**
+   * Update post description
+   */
+  updatePost({ postId, description }: {
+    postId: string,
+    description: string,
+  }): Promise<null>;
+
+  /**
+   * Delete a post
+   */
+  deletePost(postId: string): Promise<null>;
 }

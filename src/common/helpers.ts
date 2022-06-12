@@ -23,6 +23,10 @@ export async function copyFile(srcPath: string, destPath: string) {
   await fs.copy(srcPath, destPath);
 }
 
+export async function deleteFile(srcPath: string) {
+  await fs.unlink(srcPath);
+}
+
 export async function emptyDir(dirPath: string) {
   await fs.emptyDir(dirPath);
 }

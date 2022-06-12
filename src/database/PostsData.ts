@@ -99,4 +99,27 @@ export default class PostsData extends BaseData implements IPostsData {
       return this.handleDatabaseError(err, 'Could not fetch post by postId');
     }
   }
+
+  async updatePost({ postId, description }: {
+    postId: string,
+    description: string,
+  }): Promise<null> {
+    const db = await this.getDb();
+    try {
+      await db.collection('posts').updateOne({ _id: new ObjectId(postId) }, { $set: { description } });
+      return null;
+    } catch (err: any) {
+      return this.handleDatabaseError(err, 'Could not update post');
+    }
+  }
+
+  async deletePost(postId: string): Promise<null> {
+    const db = await this.getDb();
+    try {
+      await db.collection('posts').deleteOne({ _id: new ObjectId(postId) });
+      return null;
+    } catch (err: any) {
+      return this.handleDatabaseError(err, 'Could not delete post');
+    }
+  }
 }

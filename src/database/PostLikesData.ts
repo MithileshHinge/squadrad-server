@@ -73,4 +73,14 @@ export default class PostLikesData extends BaseData implements IPostLikesData {
       return this.handleDatabaseError(err, 'Could not delete like');
     }
   }
+
+  async deleteLikesByPostId(postId: string): Promise<null> {
+    const db = await this.getDb();
+    try {
+      await db.collection('postLikes').deleteOne({ _id: new ObjectId(postId) });
+      return null;
+    } catch (err: any) {
+      return this.handleDatabaseError(err, 'Could not delete likes by postId');
+    }
+  }
 }

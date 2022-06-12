@@ -96,4 +96,14 @@ export default class CommentsData extends BaseData implements ICommentsData {
       return this.handleDatabaseError(err, 'Could not count comments by postId');
     }
   }
+
+  async deleteCommentsByPostId(postId: string): Promise<null> {
+    const db = await this.getDb();
+    try {
+      await db.collection('comments').deleteMany({ postId });
+      return null;
+    } catch (err: any) {
+      return this.handleDatabaseError(err, 'Could not delete comments by postId');
+    }
+  }
 }

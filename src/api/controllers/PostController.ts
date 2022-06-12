@@ -1,7 +1,12 @@
 import ValidationError from '../../common/errors/ValidationError';
 import fileValidator from '../../common/validators/fileValidator';
 import config from '../../config';
-import { addPost, findPost } from '../../post';
+import {
+  addPost,
+  editPost,
+  findPost,
+  removePost,
+} from '../../post';
 import { HTTPResponseCode } from '../HttpResponse';
 import handleControllerError from './ControllerErrorHandler';
 import { IBaseController } from './IBaseController';
@@ -70,9 +75,43 @@ const getPostAttachmentFile: IBaseController = async (httpRequest) => {
   }
 };
 
+const patchPost: IBaseController = async (httpRequest) => {
+  try {
+    const userId = httpRequest.userId!;
+    const { postId } = httpRequest.params;
+    const { description } = httpRequest.body;
+
+    await editPost.edit({ userId, postId, description });
+    return {
+      statusCode: HTTPResponseCode.OK,
+      body: {},
+    };
+  } catch (err: any) {
+    return handleControllerError(err);
+  }
+};
+
+const deletePost: IBaseController = async (httpRequest) => {
+  try {
+    const userId = httpRequest.userId!;
+    const { postId } = httpRequest.params;
+
+    await removePost.remove({ userId, postId });
+
+    return {
+      statusCode: HTTPResponseCode.OK,
+      body: {},
+    };
+  } catch (err: any) {
+    return handleControllerError(err);
+  }
+};
+
 export default {
   postPost,
   getPostsByCreatorUserId,
   getPostAttachmentFile,
   getPostById,
+  patchPost,
+  deletePost,
 };

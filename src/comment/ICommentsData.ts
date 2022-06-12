@@ -49,4 +49,9 @@ export interface ICommentsData {
    * @returns number of comments
    */
   countCommentsByPostId(postId: string): Promise<Number>;
+
+  /**
+   * Delete comments by postId
+   */
+  deleteCommentsByPostId(postId: string): Promise<null>;
 }

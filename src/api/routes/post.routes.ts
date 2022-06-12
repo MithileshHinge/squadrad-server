@@ -29,6 +29,8 @@ export default [
   {
     path: '/post/:postId',
     get: [PostController.getPostById],
+    patch: [authorizationMiddleware, creatorAuthorizationMiddleware, PostController.patchPost],
+    delete: [authorizationMiddleware, creatorAuthorizationMiddleware, PostController.deletePost],
   },
   {
     path: `/${config.postAttachmentsDir}/:attachmentId`,
