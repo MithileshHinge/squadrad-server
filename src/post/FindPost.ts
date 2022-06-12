@@ -49,6 +49,7 @@ export default class FindPost {
 
   /**
    * Find posts by creator's user Id, handles access as well
+   * @param userId (optional) if empty, considers non-logged in user
    * @returns Array of creator's posts
    * @throws ValidationError if params are invalid
    * @throws DatabaseError if operation failed
@@ -112,6 +113,13 @@ export default class FindPost {
     }));
   }
 
+  /**
+   * Find posts by Id, handles access as well
+   * @param userId (optional) if empty, considers non-logged in user
+   * @returns Post info
+   * @throws ValidationError if params are invalid
+   * @throws DatabaseError if operation failed
+   */
   async findPostById({ userId, postId }: { userId?: string, postId: string }) {
     const userIdValidated = userId === undefined ? undefined : validateUserId.validate(userId);
     const postIdValidated = this.postValidator.validatePostId(postId);
