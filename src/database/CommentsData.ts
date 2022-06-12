@@ -64,6 +64,29 @@ export default class CommentsData extends BaseData implements ICommentsData {
     }
   }
 
+  async fetchCommentsByReplyToCommentId(replyToCommentId: string): Promise<{
+    commentId: string,
+    postId: string,
+    userId: string,
+    text: string,
+    replyToCommentId: string,
+  }[]> {
+    const db = await this.getDb();
+    try {
+      const result = await db.collection('comments').find({ replyToCommentId }).toArray();
+      if (result.length <= 0) return [];
+      return result.map((reply) => ({
+        commentId: reply._id.toString(),
+        postId: reply.postId,
+        userId: reply.userId,
+        text: reply.text,
+        replyToCommentId: reply.replyToCommentId,
+      }));
+    } catch (err: any) {
+      return this.handleDatabaseError(err, 'Could not fetch comments by reply to commentId');
+    }
+  }
+
   async fetchCommentsByPostId(postId: string): Promise<{
     commentId: string,
     postId: string,
@@ -94,6 +117,16 @@ export default class CommentsData extends BaseData implements ICommentsData {
       return result;
     } catch (err: any) {
       return this.handleDatabaseError(err, 'Could not count comments by postId');
+    }
+  }
+
+  async deleteCommentById(commentId: string): Promise<null> {
+    const db = await this.getDb();
+    try {
+      await db.collection('comments').deleteOne({ _id: new ObjectId(commentId) });
+      return null;
+    } catch (err: any) {
+      return this.handleDatabaseError(err, 'Could not delete comment by Id');
     }
   }
 

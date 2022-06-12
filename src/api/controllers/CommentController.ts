@@ -1,4 +1,9 @@
-import { addComment, countComments, findComment } from '../../comment';
+import {
+  addComment,
+  countComments,
+  findComment,
+  removeComment,
+} from '../../comment';
 import { HTTPResponseCode } from '../HttpResponse';
 import handleControllerError from './ControllerErrorHandler';
 import { IBaseController } from './IBaseController';
@@ -52,8 +57,25 @@ const getNumCommentsOnPost: IBaseController = async (httpRequest) => {
   }
 };
 
+const deleteComment: IBaseController = async (httpRequest) => {
+  try {
+    const userId = httpRequest.userId!;
+    const { commentId } = httpRequest.params;
+
+    await removeComment.removeCommentById({ userId, commentId });
+
+    return {
+      statusCode: HTTPResponseCode.OK,
+      body: {},
+    };
+  } catch (err: any) {
+    return handleControllerError(err);
+  }
+};
+
 export default {
   postComment,
   getCommentsOnPost,
   getNumCommentsOnPost,
+  deleteComment,
 };

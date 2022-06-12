@@ -3,15 +3,19 @@ import { authorizationMiddleware } from '../services/passport.service';
 
 export default [
   {
-    path: '/comment/:postId',
+    path: '/comment/post/:postId',
     post: [authorizationMiddleware, CommentController.postComment],
   },
   {
-    path: '/comments/:postId',
+    path: '/comments/post/:postId',
     get: [authorizationMiddleware, CommentController.getCommentsOnPost],
   },
   {
-    path: '/comments/count/:postId',
+    path: '/comments/count/post/:postId',
     get: [CommentController.getNumCommentsOnPost],
+  },
+  {
+    path: '/comment/:commentId',
+    delete: [authorizationMiddleware, CommentController.deleteComment],
   },
 ];

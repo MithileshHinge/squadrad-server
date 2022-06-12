@@ -9,4 +9,4 @@ import commentValidator from './validator';
 export const addComment = new AddComment(findPost, commentsData, commentValidator);
 export const findComment = new FindComment(findPost, commentsData);
 export const countComments = new CountComments(commentsData);
-export const removeComment = new RemoveComment(commentsData);
+export const removeComment = new RemoveComment(findPost, commentsData, commentValidator);
