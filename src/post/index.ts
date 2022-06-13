@@ -10,8 +10,9 @@ import FindPost from './FindPost';
 import postValidator from './validator';
 import EditPost from './EditPost';
 import commentValidator from '../comment/validator';
+import { addNotif } from '../notif';
 
-export const addPost = new AddPost(findSquad, makeAttachment, postsData, postValidator);
+export const addPost = new AddPost(findSquad, makeAttachment, addNotif, postsData, postValidator);
 export const findPost = new FindPost(findSquad, findManualSub, findAttachment, postsData, postValidator);
 export const editPost = new EditPost(findPost, postsData, postValidator);
 const removeComment = new RemoveComment(findPost, commentsData, commentValidator);

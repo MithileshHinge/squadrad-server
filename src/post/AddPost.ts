@@ -6,19 +6,23 @@ import { IPostsData } from './IPostsData';
 import { IPostValidator } from './validator/IPostValidator';
 import { removeUndefinedKeys } from '../common/helpers';
 import MakeAttachment from '../post-attachment/MakeAttachment';
+import AddNotif from '../notif/AddNotif';
 
 export default class AddPost {
   private findSquad: FindSquad;
 
   private makeAttachment: MakeAttachment;
 
+  private addNotif: AddNotif;
+
   private postsData: IPostsData;
 
   private postValidator: IPostValidator;
 
-  constructor(findSquad: FindSquad, makeAttachment: MakeAttachment, postsData: IPostsData, postValidator: IPostValidator) {
+  constructor(findSquad: FindSquad, makeAttachment: MakeAttachment, addNotif: AddNotif, postsData: IPostsData, postValidator: IPostValidator) {
     this.findSquad = findSquad;
     this.makeAttachment = makeAttachment;
+    this.addNotif = addNotif;
     this.postsData = postsData;
     this.postValidator = postValidator;
   }
@@ -74,6 +78,8 @@ export default class AddPost {
     removeUndefinedKeys(postToAdd);
 
     const postAdded = await this.postsData.insertNewPost(postToAdd);
+
+    await this.addNotif.addNewPostNotif({ creatorUserId: userIdValidated, postId });
 
     return {
       postId: postAdded.postId,
