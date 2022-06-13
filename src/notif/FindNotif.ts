@@ -28,4 +28,15 @@ export default class FindNotif {
       timestamp: notif.timestamp,
     }));
   }
+
+  /**
+   * Checks whether there are any unseen notifications for the receiver
+   */
+  async isUnseenNotif(receiverUserId: string) {
+    const receiverUserIdValidated = validateUserId.validate(receiverUserId);
+
+    const isUnseenNotif = await this.notifsData.fetchIsUnseenNotif(receiverUserIdValidated);
+
+    return isUnseenNotif;
+  }
 }

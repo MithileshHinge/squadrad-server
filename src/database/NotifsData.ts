@@ -87,6 +87,17 @@ export default class NotifsData extends BaseData implements INotifsData {
     }
   }
 
+  async fetchIsUnseenNotif(receiverUserId: string): Promise<Boolean> {
+    const db = await this.getDb();
+    try {
+      const result = await db.collection('notifs').findOne({ receiverUserId, seen: false });
+      if (result) return true;
+      return false;
+    } catch (err: any) {
+      return this.handleDatabaseError(err, 'Could not fetch isUnseenNotifs');
+    }
+  }
+
   async updateNotifsByReceiverUserId({ receiverUserId, ...updateData }: {
     receiverUserId: string,
     seen: boolean,

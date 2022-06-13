@@ -43,6 +43,12 @@ export default interface INotifsData {
   }[]>;
 
   /**
+   * Checks if receiver has any unseen notif
+   * @returns true if there are notifs for recieverUserId with seen: false
+   */
+  fetchIsUnseenNotif(receiverUserId: string): Promise<Boolean>;
+
+  /**
    * updates all notifs for receiverUserId
    */
   updateNotifsByReceiverUserId({ receiverUserId, ...updateData }: {

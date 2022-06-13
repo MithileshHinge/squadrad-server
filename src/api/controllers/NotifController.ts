@@ -17,6 +17,21 @@ const getNotifs: IBaseController = async (httpRequest) => {
   }
 };
 
+const getIsUnseenNotifs: IBaseController = async (httpRequest) => {
+  try {
+    const userId = httpRequest.userId!;
+    const isUnseenNotifs = await findNotif.isUnseenNotif(userId);
+
+    return {
+      statusCode: HTTPResponseCode.OK,
+      body: { isUnseenNotifs },
+    };
+  } catch (err: any) {
+    return handleControllerError(err);
+  }
+};
+
 export default {
   getNotifs,
+  getIsUnseenNotifs,
 };
