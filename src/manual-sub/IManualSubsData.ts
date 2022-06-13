@@ -94,4 +94,20 @@ export interface IManualSubsData {
    * @throws DatabaseError if operation fails
    */
   sumAmountsByCreatorUserId(creatorUserId: string): Promise<Number>;
+
+  /**
+   * Update manual sub of userId to creatorUserId
+   */
+  updateManualSub(
+    filter: {
+      userId: string,
+      creatorUserId: string,
+    },
+    updateData : {
+      squadId?: string,
+      amount?: number,
+      contactNumber?: string,
+      subscriptionStatus?: number,
+    },
+  ): Promise<null>;
 }

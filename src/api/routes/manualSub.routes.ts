@@ -19,4 +19,8 @@ export default [
     path: '/manualSubs/active/users',
     get: [authorizationMiddleware, creatorAuthorizationMiddleware, ManualSubController.getAllManualSubbedUsers],
   },
+  {
+    path: '/manualSub/:creatorUserId/cancel',
+    patch: [authorizationMiddleware, ManualSubController.patchManualSubCancel],
+  },
 ];

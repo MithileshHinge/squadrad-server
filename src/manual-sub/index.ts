@@ -4,6 +4,7 @@ import { manualSubsData } from '../database';
 import squadValidator from '../squad/validator';
 import { findUser } from '../user';
 import AddManualSub from './AddManualSub';
+import CancelManualSub from './CancelManualSub';
 import CountManualSubs from './CountManualSubs';
 import FindManualSub from './FindManualSub';
 import FindManualSubbedCreators from './FindManualSubbedCreators';
@@ -15,3 +16,4 @@ export const findManualSub = new FindManualSub(manualSubsData, manualSubValidato
 export const countManualSub = new CountManualSubs(manualSubsData);
 export const findManualSubbedCreators = new FindManualSubbedCreators(findManualSub, findCreator, manualSubsData);
 export const findManualSubbedUsers = new FindManualSubbedUsers(findManualSub, findUser, manualSubsData);
+export const cancelManualSub = new CancelManualSub(manualSubsData, manualSubValidator);

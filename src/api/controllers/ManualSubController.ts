@@ -1,4 +1,6 @@
-import { findManualSub, findManualSubbedCreators, findManualSubbedUsers } from '../../manual-sub';
+import {
+  cancelManualSub, findManualSub, findManualSubbedCreators, findManualSubbedUsers,
+} from '../../manual-sub';
 import { HTTPResponseCode } from '../HttpResponse';
 import handleControllerError from './ControllerErrorHandler';
 import { IBaseController } from './IBaseController';
@@ -92,6 +94,21 @@ const getMonthlyIncomeOfCreator: IBaseController = async (httpRequest) => {
 };
 */
 
+const patchManualSubCancel: IBaseController = async (httpRequest) => {
+  try {
+    const userId = httpRequest.userId!;
+    const { creatorUserId } = httpRequest.params;
+
+    await cancelManualSub.cancelById({ userId, creatorUserId });
+    return {
+      statusCode: HTTPResponseCode.OK,
+      body: {},
+    };
+  } catch (err: any) {
+    return handleControllerError(err);
+  }
+};
+
 export default {
   getManualSubByCreatorId,
   getAllManualSubs,
@@ -99,4 +116,5 @@ export default {
   getAllManualSubbedUsers,
   // getTotalMembersOfCreator,
   // getMonthlyIncomeOfCreator,
+  patchManualSubCancel,
 };

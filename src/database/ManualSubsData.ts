@@ -188,4 +188,25 @@ export default class ManualSubsData extends BaseData implements IManualSubsData 
       return this.handleDatabaseError(err, 'Could not sum amounts by creator userId');
     }
   }
+
+  async updateManualSub(
+    { userId, creatorUserId }: {
+      userId: string,
+      creatorUserId: string,
+    },
+    updateData: {
+      squadId?: string,
+      amount?: number,
+      contactNumber?: string,
+      subscriptionStatus?: number,
+    },
+  ): Promise<null> {
+    const db = await this.getDb();
+    try {
+      await db.collection('manualSubs').updateOne({ userId, creatorUserId }, { $set: updateData });
+      return null;
+    } catch (err: any) {
+      return this.handleDatabaseError(err, 'Could not update manualSub');
+    }
+  }
 }
