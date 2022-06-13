@@ -8,6 +8,7 @@ import postLikeRoutes from './postLike.routes';
 import commentRoutes from './comment.routes';
 import manualSubRoutes from './manualSub.routes';
 import messageRoutes from './message.routes';
+import notifRoutes from './notif.routes';
 
 export default [
   ...userRoutes,
@@ -20,4 +21,5 @@ export default [
   ...commentRoutes,
   ...manualSubRoutes,
   ...messageRoutes,
+  ...notifRoutes,
 ];
