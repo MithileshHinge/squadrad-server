@@ -1,15 +1,23 @@
+import FindComment from '../comment/FindComment';
 import id from '../common/id';
 import FindManualSubbedUsers from '../manual-sub/FindManualSubbedUsers';
+import FindPost from '../post/FindPost';
 import INotifsData from './INotifsData';
 import NotifTypes from './NotifTypes';
 
 export default class AddNotif {
   private findManualSubbedUsers: FindManualSubbedUsers;
 
+  private findPost: FindPost;
+
+  private findComment: FindComment;
+
   private notifsData: INotifsData;
 
-  constructor(findManualSubbedUsers: FindManualSubbedUsers, notifsData: INotifsData) {
+  constructor(findManualSubbedUsers: FindManualSubbedUsers, findPost: FindPost, findComment: FindComment, notifsData: INotifsData) {
     this.findManualSubbedUsers = findManualSubbedUsers;
+    this.findPost = findPost;
+    this.findComment = findComment;
     this.notifsData = notifsData;
   }
 
@@ -59,7 +67,7 @@ export default class AddNotif {
   }
 
   /** Creates a notif of NotifType NEW_POST, does not handle input validation (this use case is for internal use only!)
-   * @param creatorUserId userId of creator of the psot
+   * @param creatorUserId userId of creator of the post
    * @param postId postId of new post
    */
   async addNewPostNotif({ creatorUserId, postId }: { creatorUserId: string, postId: string }) {
@@ -72,5 +80,95 @@ export default class AddNotif {
     }));
 
     await this.addBulk(notifs);
+  }
+
+  /**
+   * Creates a notif of NotifType POST_LIKE, does not handle input validation (this use case is for internal use only!)
+   * @param param0.userId Id of liker
+   * @param param0.postId Id of liked post
+   */
+  async addPostLikeNotif({ userId, postId }: { userId: string, postId: string }) {
+    const post = await this.findPost.findPostById({ userId, postId });
+    if (!post) return;
+    await this.add({
+      receiverUserId: post.userId,
+      type: NotifTypes.POST_LIKE,
+      actorId: userId,
+      actedObjectId: postId,
+    });
+  }
+
+  /**
+   * Creates a notif of NotifType POST_COMMENT, does not handle input validation (this use case is for internal use only!)
+   * @param userId userId of commentor
+   * @param postCreatorId userId of creator of post
+   * @param commentId Id of comment
+   */
+  async addPostCommentNotif({ userId, postCreatorId, commentId }: {
+    userId: string,
+    postCreatorId: string,
+    commentId: string,
+  }) {
+    await this.add({
+      receiverUserId: postCreatorId,
+      type: NotifTypes.POST_COMMENT,
+      actorId: userId,
+      actedObjectId: commentId,
+    });
+  }
+
+  /**
+   * Creates a notif of NotifType COMMENT_REPLY, does not handle input validation (this use case is for internal use only!)
+   */
+  async addCommentReplyNotif({
+    userId, postCreatorId, postId, commentId, replyToCommentId,
+  }: {
+    userId: string,
+    postCreatorId: string,
+    postId: string,
+    commentId: string,
+    replyToCommentId: string,
+  }) {
+    const allCommentsOnPost = await this.findComment.findCommentsByPostId({ userId, postId });
+    const parentComment = allCommentsOnPost.find((comment) => comment.commentId === replyToCommentId);
+    if (!parentComment) return;
+
+    const notifsToAdd: Array<{
+      receiverUserId: string,
+      type: NotifTypes,
+      actorId: string,
+      actedObjectId: string,
+    }> = [];
+
+    if (parentComment.userId !== postCreatorId) {
+      // If parentComment does not belongs to post creator: NotifType.POST_COMMENT will be given to post creator
+      notifsToAdd.push({
+        receiverUserId: postCreatorId,
+        type: NotifTypes.POST_COMMENT,
+        actorId: userId,
+        actedObjectId: commentId,
+      });
+    } else {
+      // If parentComment belongs to post creator: NotifType.COMMENT_REPLY will be given to post creator
+      notifsToAdd.push({
+        receiverUserId: postCreatorId,
+        type: NotifTypes.COMMENT_REPLY,
+        actorId: userId,
+        actedObjectId: commentId,
+      });
+    }
+
+    [parentComment.userId, ...parentComment.replies.map((reply) => reply.userId)].forEach((receiverUserId) => {
+      if (!notifsToAdd.find((notif) => notif.receiverUserId === receiverUserId)) {
+        notifsToAdd.push({
+          receiverUserId,
+          type: NotifTypes.COMMENT_REPLY,
+          actorId: userId,
+          actedObjectId: commentId,
+        });
+      }
+    });
+
+    await this.addBulk(notifsToAdd);
   }
 }

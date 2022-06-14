@@ -1,3 +1,4 @@
+import AddNotif from '../notif/AddNotif';
 import postValidator from '../post/validator';
 import { validateUserId } from '../userId';
 import CheckPostLike from './CheckPostLike';
@@ -8,9 +9,12 @@ export default class TogglePostLike {
 
   private checkPostLike: CheckPostLike;
 
-  constructor(checkPostLike: CheckPostLike, postLikesData: IPostLikesData) {
+  private addNotif: AddNotif;
+
+  constructor(checkPostLike: CheckPostLike, addNotif: AddNotif, postLikesData: IPostLikesData) {
     this.postLikesData = postLikesData;
     this.checkPostLike = checkPostLike;
+    this.addNotif = addNotif;
   }
 
   /**
@@ -34,6 +38,7 @@ export default class TogglePostLike {
         postId: postIdValidated,
         userId: userIdValidated,
       });
+      await this.addNotif.addPostLikeNotif({ userId: userIdValidated, postId: postIdValidated });
     } else {
       numLikes = await this.postLikesData.deleteLike({
         postId: postIdValidated,

@@ -1,4 +1,5 @@
 import id from '../common/id';
+import AddNotif from '../notif/AddNotif';
 import FindPost from '../post/FindPost';
 import postValidator from '../post/validator';
 import { validateUserId } from '../userId';
@@ -8,12 +9,15 @@ import { ICommentValidator } from './validator/ICommentValidator';
 export default class AddComment {
   private findPost: FindPost;
 
+  private addNotif: AddNotif;
+
   private commentsData: ICommentsData;
 
   private commentValidator: ICommentValidator;
 
-  constructor(findPost: FindPost, commentsData: ICommentsData, commentValidator: ICommentValidator) {
+  constructor(findPost: FindPost, addNotif: AddNotif, commentsData: ICommentsData, commentValidator: ICommentValidator) {
     this.findPost = findPost;
+    this.addNotif = addNotif;
     this.commentsData = commentsData;
     this.commentValidator = commentValidator;
   }
@@ -60,6 +64,21 @@ export default class AddComment {
         replyToCommentId: replyToCommentIdValidated,
       });
 
+      if (replyToCommentIdValidated) {
+        this.addNotif.addCommentReplyNotif({
+          userId: userIdValidated,
+          postCreatorId: post.userId,
+          postId: post.postId,
+          commentId,
+          replyToCommentId: replyToCommentIdValidated,
+        });
+      } else {
+        this.addNotif.addPostCommentNotif({
+          userId: userIdValidated,
+          postCreatorId: post.userId,
+          commentId,
+        });
+      }
       return {
         postId: commentAdded.postId,
         userId: commentAdded.userId,
