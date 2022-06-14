@@ -171,4 +171,22 @@ export default class AddNotif {
 
     await this.addBulk(notifsToAdd);
   }
+
+  /**
+   * Creates a notif of NotifType SQUAD_SUBSCRIBED, does not handle input validation (this use case is for internal use only!)
+   */
+  async addSquadSubscribedNotif({
+    userId, manualSubId, creatorUserId,
+  }: {
+    userId: string,
+    manualSubId: string,
+    creatorUserId: string,
+  }) {
+    await this.add({
+      receiverUserId: creatorUserId,
+      type: NotifTypes.SQUAD_SUBSCRIBED,
+      actorId: userId,
+      actedObjectId: manualSubId,
+    });
+  }
 }

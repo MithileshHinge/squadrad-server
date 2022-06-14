@@ -1,4 +1,5 @@
 import id from '../common/id';
+import AddNotif from '../notif/AddNotif';
 import { ISquadValidator } from '../squad/validator/ISquadValidator';
 import { validateUserId } from '../userId';
 import { IManualSubsData } from './IManualSubsData';
@@ -6,13 +7,16 @@ import ManualSubStatuses from './ManualSubStatuses';
 import { IManualSubValidator } from './validator/IManualSubValidator';
 
 export default class AddManualSub {
+  private addNotif: AddNotif;
+
   private manualSubsData: IManualSubsData;
 
   private manualSubValidator: IManualSubValidator;
 
   private squadValidator: ISquadValidator;
 
-  constructor(manualSubsData: IManualSubsData, manualSubValidator: IManualSubValidator, squadValidator: ISquadValidator) {
+  constructor(addNotif: AddNotif, manualSubsData: IManualSubsData, manualSubValidator: IManualSubValidator, squadValidator: ISquadValidator) {
+    this.addNotif = addNotif;
     this.manualSubsData = manualSubsData;
     this.manualSubValidator = manualSubValidator;
     this.squadValidator = squadValidator;
@@ -50,6 +54,12 @@ export default class AddManualSub {
       amount: amountValidated,
       contactNumber: contactNumberValidated,
       subscriptionStatus: subscriptionStatusValidated,
+    });
+
+    this.addNotif.addSquadSubscribedNotif({
+      userId: userIdValidated,
+      manualSubId,
+      creatorUserId: creatorUserIdValidated,
     });
 
     return {

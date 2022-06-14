@@ -10,8 +10,9 @@ import FindManualSub from './FindManualSub';
 import FindManualSubbedCreators from './FindManualSubbedCreators';
 import FindManualSubbedUsers from './FindManualSubbedUsers';
 import manualSubValidator from './validator';
+import { addNotif } from '../notif';
 
-export const addManualSub = new AddManualSub(manualSubsData, manualSubValidator, squadValidator);
+export const addManualSub = new AddManualSub(addNotif, manualSubsData, manualSubValidator, squadValidator);
 export const findManualSub = new FindManualSub(manualSubsData, manualSubValidator);
 export const countManualSub = new CountManualSubs(manualSubsData);
 export const findManualSubbedCreators = new FindManualSubbedCreators(findManualSub, findCreator, manualSubsData);
