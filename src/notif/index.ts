@@ -1,5 +1,6 @@
 /* eslint-disable import/prefer-default-export */
 import FindComment from '../comment/FindComment';
+import commentValidator from '../comment/validator';
 import {
   commentsData,
   manualSubsData,
@@ -20,6 +21,6 @@ import FindNotif from './FindNotif';
 const findManualSub = new FindManualSub(manualSubsData, manualSubValidator);
 const findManualSubbedUsers = new FindManualSubbedUsers(findManualSub, findUser, manualSubsData);
 const findPost = new FindPost(findSquad, findManualSub, findAttachment, postsData, postValidator);
-const findComment = new FindComment(findPost, commentsData);
+const findComment = new FindComment(findPost, commentsData, commentValidator);
 export const addNotif = new AddNotif(findManualSubbedUsers, findPost, findComment, notifsData);
 export const findNotif = new FindNotif(notifsData);

@@ -16,6 +16,7 @@ export default [
   },
   {
     path: '/comment/:commentId',
+    get: [authorizationMiddleware, CommentController.getCommentById],
     delete: [authorizationMiddleware, CommentController.deleteComment],
   },
 ];

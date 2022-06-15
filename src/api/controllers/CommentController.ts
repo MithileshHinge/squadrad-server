@@ -27,6 +27,22 @@ const postComment: IBaseController = async (httpRequest) => {
   }
 };
 
+const getCommentById: IBaseController = async (httpRequest) => {
+  try {
+    const userId = httpRequest.userId!;
+    const { commentId } = httpRequest.params;
+
+    const comment = await findComment.findCommentById({ userId, commentId });
+
+    return {
+      statusCode: HTTPResponseCode.OK,
+      body: comment,
+    };
+  } catch (err: any) {
+    return handleControllerError(err);
+  }
+};
+
 const getCommentsOnPost: IBaseController = async (httpRequest) => {
   try {
     const userId = httpRequest.userId!;
@@ -75,6 +91,7 @@ const deleteComment: IBaseController = async (httpRequest) => {
 
 export default {
   postComment,
+  getCommentById,
   getCommentsOnPost,
   getNumCommentsOnPost,
   deleteComment,
