@@ -38,6 +38,9 @@ export default class AddNotif {
     const notifId = id.createId();
     const timestamp = Date.now();
 
+    // Don't notify if actor and receiver are the same
+    if (actorId === receiverUserId) return;
+
     // seen: whether the notification is seen from the notification tray
     await this.notifsData.insertNewNotif({
       notifId, receiverUserId, type, actorId, actedObjectId, seen: false, timestamp,
@@ -56,12 +59,15 @@ export default class AddNotif {
     actorId: string,
     actedObjectId: string,
   }[]) {
-    const notifsToInsert = notifs.map((notif) => ({
+    let notifsToInsert = notifs.map((notif) => ({
       notifId: id.createId(),
       seen: false,
       timestamp: Date.now(),
       ...notif,
     }));
+
+    // Don't notify if actor and receiver are the same
+    notifsToInsert = notifsToInsert.filter((notif) => notif.actorId !== notif.receiverUserId);
 
     await this.notifsData.insertNewNotifsBulk(notifsToInsert);
   }
