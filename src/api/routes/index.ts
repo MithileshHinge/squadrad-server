@@ -9,6 +9,7 @@ import commentRoutes from './comment.routes';
 import manualSubRoutes from './manualSub.routes';
 import messageRoutes from './message.routes';
 import notifRoutes from './notif.routes';
+import beaconRoutes from './beacon.routes';
 
 export default [
   ...userRoutes,
@@ -22,4 +23,5 @@ export default [
   ...manualSubRoutes,
   ...messageRoutes,
   ...notifRoutes,
+  ...beaconRoutes,
 ];

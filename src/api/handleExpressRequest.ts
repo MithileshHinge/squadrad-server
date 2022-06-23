@@ -38,6 +38,7 @@ export default async function handleExpressRequest(
     path: req.path,
     userId: req.user ? req.user.userId : undefined,
     files,
+    ip: req.socket.remoteAddress,
   };
   if (process.env.NODE_ENV !== 'test') console.log(`${httpRequest.method} ${req.url} : userId=${httpRequest.userId} : body=${JSON.stringify(httpRequest.body)}`);
   const httpResponse = await controller(httpRequest);
