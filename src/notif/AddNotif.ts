@@ -146,19 +146,19 @@ export default class AddNotif {
       actedObjectId: string,
     }> = [];
 
-    if (parentComment.userId !== postCreatorId) {
-      // If parentComment does not belongs to post creator: NotifType.POST_COMMENT will be given to post creator
+    if (parentComment.userId === postCreatorId || parentComment.replies.find((reply) => reply.userId === postCreatorId)) {
+      // If parentComment belongs to post creator or post creator has replied on parentComment: NotifType.COMMENT_REPLY will be given to post creator
       notifsToAdd.push({
         receiverUserId: postCreatorId,
-        type: NotifTypes.POST_COMMENT,
+        type: NotifTypes.COMMENT_REPLY,
         actorId: userId,
         actedObjectId: commentId,
       });
     } else {
-      // If parentComment belongs to post creator: NotifType.COMMENT_REPLY will be given to post creator
+      // Otherwise NotifType.POST_COMMENT will be given to post creator
       notifsToAdd.push({
         receiverUserId: postCreatorId,
-        type: NotifTypes.COMMENT_REPLY,
+        type: NotifTypes.POST_COMMENT,
         actorId: userId,
         actedObjectId: commentId,
       });
