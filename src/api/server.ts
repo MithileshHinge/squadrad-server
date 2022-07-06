@@ -12,6 +12,9 @@ import getStore from './services/store.service';
 const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
 app.use(session({
   secret: COOKIE_SECRET,
   name: 'sessionId',

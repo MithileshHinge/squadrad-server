@@ -100,5 +100,6 @@
   "exclude": [
     "./dist",
     "./*.js",
+    "./src/__tests__",
   ],
 }
