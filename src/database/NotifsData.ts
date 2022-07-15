@@ -44,6 +44,7 @@ export default class NotifsData extends BaseData implements INotifsData {
   }[]): Promise<null> {
     const db = await this.getDb();
     try {
+      if (notifs.length <= 0) return null;
       await db.collection('notifs').insertMany(notifs.map(({
         notifId, receiverUserId, type, actorId, actedObjectId, seen, timestamp,
       }) => ({
