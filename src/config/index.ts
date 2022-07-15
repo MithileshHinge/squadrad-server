@@ -10,6 +10,8 @@ const SERVER = {
   port: SERVER_PORT,
 };
 
+const BASE_DOMAIN = process.env.NODE_ENV === 'production' ? 'https://squadrad.com' : 'http://localhost:8080';
+
 const MONGODB_URI = 'mongodb://127.0.0.1:27017';
 const DB_NAME = 'squadrad';
 const SESSIONS_COLLECTION_NAME = 'sessions'; // To store express sessions, used by store (MongoDbStore)
@@ -26,6 +28,7 @@ const POST_ATTACHMENTS_DIR = `posts/attachments${process.env.NODE_ENV === 'test'
 
 const config = {
   server: SERVER,
+  baseDomain: BASE_DOMAIN,
   database: DATABASE,
   tmpDir: TMP_DIR,
   profilePicsDir: PROFILE_PICS_DIR,
