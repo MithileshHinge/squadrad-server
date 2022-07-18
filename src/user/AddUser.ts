@@ -75,4 +75,42 @@ export default class AddUser {
       profilePicSrc,
     };
   }
+
+  /**
+   * AddUserWithOAuth use case: Adds a new verified user to the database
+   * This use case assumes user has been verified by other method, does not require password.
+   * WARNING: To be used only by OAuth login service (Passport - Google/Youtube/etc)
+   * @throws ValidationError if invalid parameters are provided or account already exists
+   * @throws DatabaseError when there is an error in inserting user into database
+   */
+  async addWithOAuth({
+    fullName,
+    email,
+  }: {
+    fullName: string,
+    email: string,
+  }) {
+    const emailValidated = this.userValidator.validateEmail(email);
+
+    const userId = await createUserId.create(this.usersData);
+    const fullNameValidated = this.userValidator.validateFullName(fullName);
+
+    const userInfo = {
+      userId,
+      fullName: fullNameValidated,
+      email: emailValidated,
+      verified: true,
+    };
+    const userAdded = await this.usersData.insertNewUser(userInfo);
+
+    // Set a default profile picture
+    const profilePicSrc = await this.setProfilePic.setDefault(userId, false);
+
+    return {
+      userId: userAdded.userId,
+      fullName: userAdded.fullName,
+      email: userAdded.email,
+      profilePicSrc,
+    };
+  }
 }

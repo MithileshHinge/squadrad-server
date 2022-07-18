@@ -24,4 +24,13 @@ export default class VerifyEmail {
 
     await this.usersData.updateUser({ userId: user.userId, verified: true });
   }
+
+  /**
+   * Manually sets user verified to true, assumes email is already verified by other methods such as OAuth (google, facebook, etc)
+   * WARNING: To be used only by OAuth login service (Passport - Google/Youtube/etc)
+   * @param userId Id of the user
+   */
+  async verifyManually(userId: string) {
+    await this.usersData.updateUser({ userId, verified: true });
+  }
 }

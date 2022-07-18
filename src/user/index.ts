@@ -43,6 +43,7 @@ export const verifyEmail = new VerifyEmail(
 
 export const loginUser = new LoginUser(
   getProfilePic,
+  verifyEmail,
   usersData,
   passwordEncryption,
 );

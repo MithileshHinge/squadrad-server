@@ -3,22 +3,15 @@ import {
   Express, NextFunction, Request, Response,
 } from 'express';
 import { Strategy as LocalStrategy } from 'passport-local';
-import { findUser, loginUser } from '../../user';
+import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from '../../common/secretKeys';
+import { addUser, findUser, loginUser } from '../../user';
 import AuthenticationError from '../../common/errors/AuthenticationError';
 import { HTTPResponseCode } from '../HttpResponse';
 import ValidationError from '../../common/errors/ValidationError';
+import config from '../../config';
 
 function initializeLocalStrategy() {
-  passport.serializeUser((user: any, done) => {
-    done(null, user.userId);
-  });
-
-  passport.deserializeUser((userId: string, done) => {
-    findUser.findUserById(userId).then((user) => {
-      done(null, user);
-    });
-  });
-
   passport.use(new LocalStrategy({
     usernameField: 'email',
     passwordField: 'password',
@@ -52,17 +45,63 @@ function localAuthenticationMiddleware(req: Request, res: Response, next: NextFu
   customAuthenticator(req, res, next);
 }
 
+function initializeGoogleStrategy() {
+  passport.use(new GoogleStrategy({
+    clientID: GOOGLE_CLIENT_ID,
+    clientSecret: GOOGLE_CLIENT_SECRET,
+    callbackURL: `${config.baseDomain}/api/auth/google/redirect`,
+    scope: ['email', 'profile'],
+    state: true,
+  }, (accessToken, refreshToken, profile, cb) => {
+    if (profile.emails) {
+      const email = profile.emails[0].value;
+      findUser.findUserByEmail(email).then((userFound) => {
+        if (userFound) {
+          // User has already logged in before
+          loginUser.loginWithOAuth({ email }).then((userLoggedIn) => cb(null, userLoggedIn));
+        } else {
+          // New user
+          addUser.addWithOAuth({ email, fullName: profile.displayName }).then((userAdded) => cb(null, userAdded));
+        }
+      }).catch((err) => cb(err));
+    } else {
+      cb(new AuthenticationError('Could not fetch emails from Google'));
+    }
+  }));
+}
+
 export default function initializePassport(app: Express) {
   app.use(passport.initialize());
   app.use(passport.session());
 
+  passport.serializeUser((user: any, done) => {
+    done(null, user.userId);
+  });
+
+  passport.deserializeUser((userId: string, done) => {
+    findUser.findUserById(userId).then((user) => {
+      done(null, user);
+    });
+  });
+
   initializeLocalStrategy();
+  initializeGoogleStrategy();
 
   app.post('/user/login', localAuthenticationMiddleware);
-  app.post('/user/logout', (req, res) => {
-    req.logout();
-    return res.status(HTTPResponseCode.OK).json({});
+  app.post('/user/logout', (req, res, next) => {
+    req.logout((err) => {
+      if (err) return next(err);
+      return res.status(HTTPResponseCode.OK).json({});
+    });
   });
+
+  app.get('/user/login/google', passport.authenticate('google'));
+  app.get('/auth/google/redirect',
+    passport.authenticate('google', { failureRedirect: '/error', failureMessage: true }),
+    (req, res) => {
+      // TODO: redirect Creator to /creator
+      res.redirect('/feed');
+    });
 }
 
 export function authorizationMiddleware(req: Request, res: Response, next: NextFunction) {

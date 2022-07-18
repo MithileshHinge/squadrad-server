@@ -14,7 +14,7 @@ export interface IUsersData {
     userId: string,
     fullName: string,
     email: string,
-    password: string
+    password?: string
   }): Promise<{
     userId: string,
     fullName: string,
