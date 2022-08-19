@@ -109,6 +109,7 @@ export default class FindPost {
       squadId: post.squadId,
       link: post.link,
       attachment: post.attachment,
+      timestamp: post.timestamp,
       locked: post.locked,
     }));
   }
@@ -175,6 +176,7 @@ export default class FindPost {
       squadId: postToReturn.squadId,
       link: postToReturn.link,
       attachment: postToReturn.attachment,
+      timestamp: postToReturn.timestamp,
       locked: postToReturn.locked,
     };
   }

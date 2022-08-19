@@ -74,6 +74,7 @@ export default class AddPost {
       squadId: squadIdValidated,
       link: linkValidated,
       attachment,
+      timestamp: Date.now(),
     };
     removeUndefinedKeys(postToAdd);
 
@@ -89,6 +90,7 @@ export default class AddPost {
       squadId: postAdded.squadId,
       link: postAdded.link,
       attachment: postAdded.attachment,
+      timestamp: postAdded.timestamp,
     };
   }
 }

@@ -6,7 +6,7 @@ export interface IPostsData {
    * @throws DatabaseError if operation fails
    */
   insertNewPost({
-    postId, userId, description, squadId, link, attachment,
+    postId, userId, description, squadId, link, attachment, timestamp,
   }: {
     postId: string,
     userId: string,
@@ -15,6 +15,7 @@ export interface IPostsData {
     squadId: string,
     link?: string,
     attachment?: IPostAttachment,
+    timestamp: number,
   }): Promise<{
     postId: string,
     userId: string,
@@ -23,6 +24,7 @@ export interface IPostsData {
     squadId: string,
     link?: string,
     attachment?: IPostAttachment,
+    timestamp: number,
   }>;
 
   /**
@@ -37,6 +39,7 @@ export interface IPostsData {
     squadId: string,
     link?: string,
     attachment?: IPostAttachment,
+    timestamp: number,
   }[]>;
 
   fetchPostById(postId: string): Promise<{
@@ -46,6 +49,7 @@ export interface IPostsData {
     squadId: string,
     link?: string,
     attachment?: IPostAttachment,
+    timestamp: number,
   } | null>;
 
   /**

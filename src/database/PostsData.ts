@@ -6,7 +6,7 @@ import BaseData from './BaseData';
 
 export default class PostsData extends BaseData implements IPostsData {
   async insertNewPost({
-    postId, userId, description, squadId, link, attachment,
+    postId, userId, description, squadId, link, attachment, timestamp,
   }: {
     postId: string,
     userId: string,
@@ -15,6 +15,7 @@ export default class PostsData extends BaseData implements IPostsData {
     squadId: string,
     link?: string,
     attachment?: IPostAttachment,
+    timestamp: number,
   }): Promise<{
       postId: string,
       userId: string,
@@ -23,6 +24,7 @@ export default class PostsData extends BaseData implements IPostsData {
       squadId: string,
       link?: string,
       attachment?: IPostAttachment,
+      timestamp: number,
     }> {
     const db = await this.getDb();
     try {
@@ -34,6 +36,7 @@ export default class PostsData extends BaseData implements IPostsData {
         squadId,
         link,
         attachment,
+        timestamp,
       });
       return {
         postId: result.insertedId.toString(),
@@ -43,6 +46,7 @@ export default class PostsData extends BaseData implements IPostsData {
         squadId,
         link,
         attachment,
+        timestamp,
       };
     } catch (err: any) {
       return this.handleDatabaseError(err, 'Could not insert new post');
@@ -57,6 +61,7 @@ export default class PostsData extends BaseData implements IPostsData {
     squadId: string,
     link?: string,
     attachment?: IPostAttachment,
+    timestamp: number,
   }[]> {
     const db = await this.getDb();
     try {
@@ -69,6 +74,7 @@ export default class PostsData extends BaseData implements IPostsData {
         squadId: post.squadId,
         link: post.link,
         attachment: post.attachment,
+        timestamp: post.timestamp,
       }));
     } catch (err: any) {
       return this.handleDatabaseError(err, 'Could not fetch posts by userId');
@@ -82,6 +88,7 @@ export default class PostsData extends BaseData implements IPostsData {
     squadId: string,
     link?: string,
     attachment?: IPostAttachment,
+    timestamp: number,
   } | null> {
     const db = await this.getDb();
     try {
@@ -94,6 +101,7 @@ export default class PostsData extends BaseData implements IPostsData {
         squadId: post.squadId,
         link: post.link,
         attachment: post.attachment,
+        timestamp: post.timestamp,
       };
     } catch (err: any) {
       return this.handleDatabaseError(err, 'Could not fetch post by postId');
