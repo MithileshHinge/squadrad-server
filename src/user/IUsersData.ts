@@ -10,11 +10,13 @@ export interface IUsersData {
     fullName,
     email,
     password,
+    verified,
   }: {
     userId: string,
     fullName: string,
     email: string,
-    password?: string
+    password?: string,
+    verified: boolean,
   }): Promise<{
     userId: string,
     fullName: string,

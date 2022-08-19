@@ -9,11 +9,13 @@ export default class UsersData extends BaseData implements IUsersData {
     fullName,
     email,
     password,
+    verified,
   }: {
     userId: string,
     fullName: string,
     email: string,
     password: string,
+    verified: boolean,
   }): Promise<{ userId: string; fullName: string; email: string; }> {
     const db = await this.getDb();
     try {
@@ -22,6 +24,7 @@ export default class UsersData extends BaseData implements IUsersData {
         fullName,
         email,
         password,
+        verified,
       });
       return {
         userId: result.insertedId.toString(),
