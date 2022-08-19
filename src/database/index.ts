@@ -12,6 +12,7 @@ import CommentsData from './CommentsData';
 import MessagesData from './MessagesData';
 import PaymentsData from './PaymentsData';
 import NotifsData from './NotifsData';
+import WaitlistData from './WaitlistData';
 
 export const usersData = new UsersData(getDb, handleDatabaseError);
 export const profilePicsData = new ProfilePicsData(getDb, handleDatabaseError);
@@ -25,3 +26,4 @@ export const commentsData = new CommentsData(getDb, handleDatabaseError);
 export const messagesData = new MessagesData(getDb, handleDatabaseError);
 export const paymentsData = new PaymentsData(getDb, handleDatabaseError);
 export const notifsData = new NotifsData(getDb, handleDatabaseError);
+export const waitlistData = new WaitlistData(getDb, handleDatabaseError);

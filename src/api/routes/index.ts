@@ -10,6 +10,7 @@ import manualSubRoutes from './manualSub.routes';
 import messageRoutes from './message.routes';
 import notifRoutes from './notif.routes';
 import beaconRoutes from './beacon.routes';
+import waitlistRoutes from './waitlist.routes';
 
 export default [
   ...userRoutes,
@@ -24,4 +25,5 @@ export default [
   ...messageRoutes,
   ...notifRoutes,
   ...beaconRoutes,
+  ...waitlistRoutes,
 ];
