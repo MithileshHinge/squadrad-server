@@ -4,6 +4,7 @@ import {
 } from 'express';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import { Strategy as YoutubeStrategy } from 'passport-youtube-v3';
 import { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from '../../common/secretKeys';
 import { addUser, findUser, loginUser } from '../../user';
 import AuthenticationError from '../../common/errors/AuthenticationError';
@@ -70,6 +71,18 @@ function initializeGoogleStrategy() {
   }));
 }
 
+function initializeYoutubeStrategy() {
+  passport.use(new YoutubeStrategy({
+    clientID: GOOGLE_CLIENT_ID,
+    clientSecret: GOOGLE_CLIENT_SECRET,
+    callbackURL: `${config.baseDomain}/api/auth/youtube/redirect`,
+    scope: ['https://www.googleapis.com/auth/youtube.readonly'],
+  }, (accessToken: string, refreshToken: string, profile: any, done: Function) => {
+    console.log(profile);
+    done(null, true);
+  }));
+}
+
 export default function initializePassport(app: Express) {
   app.use(passport.initialize());
   app.use(passport.session());
@@ -86,6 +99,7 @@ export default function initializePassport(app: Express) {
 
   initializeLocalStrategy();
   initializeGoogleStrategy();
+  initializeYoutubeStrategy();
 
   app.post('/user/login', localAuthenticationMiddleware);
   app.post('/user/logout', (req, res, next) => {
@@ -101,6 +115,13 @@ export default function initializePassport(app: Express) {
     (req, res) => {
       // TODO: redirect Creator to /creator
       res.redirect('/feed');
+    });
+
+  app.get('/social/connect/youtube', passport.authenticate('youtube', { session: false }));
+  app.get('/auth/youtube/redirect',
+    passport.authenticate('youtube', { failureRedirect: '/error', failureMessage: true, session: false }),
+    (req, res) => {
+      res.redirect('/creator/start');
     });
 }
 
