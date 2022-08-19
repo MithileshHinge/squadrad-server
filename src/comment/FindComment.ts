@@ -41,6 +41,7 @@ export default class FindComment {
       postId: comment.postId,
       text: comment.text,
       replyToCommentId: comment.replyToCommentId,
+      timestamp: comment.timestamp,
     };
   }
 
@@ -68,9 +69,13 @@ export default class FindComment {
         commentId: string,
         userId: string,
         text: string,
+        timestamp: number,
         replies: Array<{
-          commentId: string, userId: string, text: string,
-        }>
+          commentId: string,
+          userId: string,
+          text: string,
+          timestamp: number,
+        }>,
       }> = [];
 
       // Find all root comments
@@ -80,6 +85,7 @@ export default class FindComment {
             commentId: comment.commentId,
             userId: comment.userId,
             text: comment.text,
+            timestamp: comment.timestamp,
             replies: [],
           });
         }
@@ -94,6 +100,7 @@ export default class FindComment {
               commentId: comment.commentId,
               userId: comment.userId,
               text: comment.text,
+              timestamp: comment.timestamp,
             });
           }
         }

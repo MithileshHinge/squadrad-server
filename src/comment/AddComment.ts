@@ -62,6 +62,7 @@ export default class AddComment {
         userId: userIdValidated,
         text: textValidated,
         replyToCommentId: replyToCommentIdValidated,
+        timestamp: Date.now(),
       });
 
       if (replyToCommentIdValidated) {
@@ -84,6 +85,7 @@ export default class AddComment {
         userId: commentAdded.userId,
         text: commentAdded.text,
         replyToCommentId: commentAdded.replyToCommentId,
+        timestamp: commentAdded.timestamp,
       };
     }
 

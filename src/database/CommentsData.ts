@@ -5,19 +5,21 @@ import BaseData from './BaseData';
 
 export default class CommentsData extends BaseData implements ICommentsData {
   async insertNewComment({
-    commentId, postId, userId, text, replyToCommentId,
+    commentId, postId, userId, text, replyToCommentId, timestamp,
   }: {
     commentId: string,
     postId: string,
     userId: string,
     text: string,
     replyToCommentId?: string,
+    timestamp: number,
   }): Promise<{
       commentId: string,
       postId: string,
       userId: string,
       text: string,
       replyToCommentId?: string,
+      timestamp: number,
     }> {
     const db = await this.getDb();
     try {
@@ -27,6 +29,7 @@ export default class CommentsData extends BaseData implements ICommentsData {
         userId,
         text,
         replyToCommentId,
+        timestamp,
       });
 
       return {
@@ -35,6 +38,7 @@ export default class CommentsData extends BaseData implements ICommentsData {
         userId,
         text,
         replyToCommentId,
+        timestamp,
       };
     } catch (err: any) {
       return this.handleDatabaseError(err, 'Could not insert new comment');
@@ -47,6 +51,7 @@ export default class CommentsData extends BaseData implements ICommentsData {
     userId: string,
     text: string,
     replyToCommentId?: string,
+    timestamp: number,
   } | null> {
     const db = await this.getDb();
     try {
@@ -58,6 +63,7 @@ export default class CommentsData extends BaseData implements ICommentsData {
         userId: result.userId,
         text: result.text,
         replyToCommentId: result.replyToCommentId,
+        timestamp: result.timestamp,
       };
     } catch (err: any) {
       return this.handleDatabaseError(err, 'Could not fetch comment by commentId');
@@ -70,6 +76,7 @@ export default class CommentsData extends BaseData implements ICommentsData {
     userId: string,
     text: string,
     replyToCommentId: string,
+    timestamp: number,
   }[]> {
     const db = await this.getDb();
     try {
@@ -81,6 +88,7 @@ export default class CommentsData extends BaseData implements ICommentsData {
         userId: reply.userId,
         text: reply.text,
         replyToCommentId: reply.replyToCommentId,
+        timestamp: reply.timestamp,
       }));
     } catch (err: any) {
       return this.handleDatabaseError(err, 'Could not fetch comments by reply to commentId');
@@ -93,6 +101,7 @@ export default class CommentsData extends BaseData implements ICommentsData {
     userId: string,
     text: string,
     replyToCommentId?: string,
+    timestamp: number,
   }[]> {
     const db = await this.getDb();
     try {
@@ -104,6 +113,7 @@ export default class CommentsData extends BaseData implements ICommentsData {
         userId: comment.userId,
         text: comment.text,
         replyToCommentId: comment.replyToCommentId,
+        timestamp: comment.timestamp,
       }));
     } catch (err: any) {
       return this.handleDatabaseError(err, 'Could not fetch comments by postId');

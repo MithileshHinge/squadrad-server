@@ -4,19 +4,21 @@ export interface ICommentsData {
    * @returns inserted comment
    */
   insertNewComment({
-    commentId, postId, userId, text, replyToCommentId,
+    commentId, postId, userId, text, replyToCommentId, timestamp,
   }: {
     commentId: string,
     postId: string,
     userId: string,
     text: string,
     replyToCommentId?: string,
+    timestamp: number,
   }) : Promise<{
     commentId: string,
     postId: string,
     userId: string,
     text: string,
     replyToCommentId?: string,
+    timestamp: number,
   }>;
 
   /**
@@ -29,6 +31,7 @@ export interface ICommentsData {
     userId: string,
     text: string,
     replyToCommentId?: string,
+    timestamp: number,
   } | null>;
 
   /**
@@ -42,6 +45,7 @@ export interface ICommentsData {
     userId: string,
     text: string,
     replyToCommentId: string,
+    timestamp: number,
   }[]>;
 
   /**
@@ -55,6 +59,7 @@ export interface ICommentsData {
     userId: string,
     text: string,
     replyToCommentId?: string,
+    timestamp: number,
   }[]>;
 
   /**
