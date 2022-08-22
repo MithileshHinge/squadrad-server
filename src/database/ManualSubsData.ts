@@ -203,7 +203,7 @@ export default class ManualSubsData extends BaseData implements IManualSubsData 
   ): Promise<null> {
     const db = await this.getDb();
     try {
-      await db.collection('manualSubs').updateOne({ userId, creatorUserId }, { $set: updateData });
+      await db.collection('manualSubs').updateMany({ userId, creatorUserId }, { $set: updateData });
       return null;
     } catch (err: any) {
       return this.handleDatabaseError(err, 'Could not update manualSub');
