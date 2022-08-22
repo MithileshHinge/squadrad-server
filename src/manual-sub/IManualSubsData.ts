@@ -39,7 +39,7 @@ export interface IManualSubsData {
   } | null>;
 
   /**
-   * Fetch manualSub by userId and creatorUserId
+   * Fetch the ACTIVE manualSub of userId to creatorUserId
    * @returns manualSub if found, otherwise returns null
    * @throws DatabaseError if operation fails
    */

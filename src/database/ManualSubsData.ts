@@ -89,7 +89,7 @@ export default class ManualSubsData extends BaseData implements IManualSubsData 
   } | null> {
     const db = await this.getDb();
     try {
-      const result = await db.collection('manualSubs').findOne({ userId, creatorUserId });
+      const result = await db.collection('manualSubs').findOne({ userId, creatorUserId, subscriptionStatus: ManualSubStatuses.ACTIVE });
       if (!result) return null;
 
       return {

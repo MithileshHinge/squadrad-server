@@ -35,7 +35,7 @@ export default class FindManualSub {
   }
 
   /**
-   * Find manualSub by userId and creatorUserId
+   * Find ACITVE manualSub by userId and creatorUserId
    * @returns manualSub info if found, otherwise returns null,
    */
   async findManualSubByUserIds(userId: string, creatorUserId: string) {
